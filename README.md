@@ -6,7 +6,7 @@ Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enr
 
 **This is not the OutboundSync CRM / sequencer skills pack.** That sister repository is [`outboundsync/skills`](https://github.com/outboundsync/skills). Do not install this pack expecting launch preflight, sync monitoring, or cold-email copy. KingMinos decides company identity and vendor credentials; OutboundSync syncs sequencer events into the CRM.
 
-The pack ships **3** skills.
+The pack ships **4** skills.
 
 **Output style.** Every skill renders a fixed, terminal-friendly Markdown shape. Readiness checks (`auth`, `credentials`) and `company-resolve` lead with a verdict and a `█░▒` status gauge, then one card per system and a `Next` list. A failed lookup always shows as `UNVERIFIED`, never as a pass or an empty result. Business misses on `company.resolve` stay HTTP 200 and use `answer.outcome` / `es_decision`. See [CONVENTIONS.md](CONVENTIONS.md) and each skill's `references/examples.md`.
 
@@ -14,11 +14,12 @@ The pack ships **3** skills.
 
 | Skill | Path | Needs API key? | What it does |
 | --- | --- | --- | --- |
+| `api` | [`skills/api/`](skills/api/) | Yes (`KINGMINOS_API_KEY`) | KingMinos REST ↔ MCP inventory (`skills/api/references/endpoints.md`): one row per OpenAPI resource operation; routes to `auth`, `company-resolve`, `credentials` |
 | `auth` | [`skills/auth/`](skills/auth/) | Yes (`KINGMINOS_API_KEY`) | Bearer auth against `https://api.kingminos.com`, 401 `missing` / `malformed` / `mismatch`, SFDC Named Credential Custom Headers, `GET /v1/capabilities` |
 | `company-resolve` | [`skills/company-resolve/`](skills/company-resolve/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/resolve` — email/domain/website in, one `answer` back; stamp ZoomInfo company id only on `es_decision=hit` |
 | `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | House vs BYOK policy and `PUT`/`DELETE /v1/credentials/{provider}` (write-on-confirm). LeadMagic is house-key; Findymail, ZoomInfo, Wiza, AIArk, BuiltWith are BYOK |
 
-KingMinos MCP is **not shipped**. Prefer REST. If a hosted MCP later answers, use it only after `auth` confirms the URL; do not invent tool names.
+Hosted MCP is **not shipped**. Prefer REST. Tool names in the `api` map are the OpenAPI resource inventory (snake_case `operationId`). Do not invent a host or tools outside that map.
 
 ## Install (primary — Cursor, Claude Code, Codex)
 
@@ -26,6 +27,7 @@ Same installer as the OutboundSync skills pack — different GitHub repo, differ
 
 ```bash
 # KingMinos enrichment (needs KINGMINOS_API_KEY)
+npx skills add outboundsync/kingminos-skills --skill api -g
 npx skills add outboundsync/kingminos-skills --skill auth -g
 npx skills add outboundsync/kingminos-skills --skill company-resolve -g
 npx skills add outboundsync/kingminos-skills --skill credentials -g
@@ -36,6 +38,7 @@ The Skills CLI detects the harness (Cursor, Claude Code, Codex, and others). Add
 Try without installing:
 
 ```bash
+npx skills use outboundsync/kingminos-skills --skill api
 npx skills use outboundsync/kingminos-skills --skill auth
 npx skills use outboundsync/kingminos-skills --skill company-resolve
 npx skills use outboundsync/kingminos-skills --skill credentials
@@ -74,7 +77,7 @@ Responses never echo the raw vendor key.
 
 - Skills are **read-only by default** — see [SECURITY.md](SECURITY.md).
 - `credentials` may mutate tenant Your Keys **only after explicit confirmation**.
-- `DELETE /v1/subjects/{subject_key}` exists on the live API (`erase` scope) and is **not** part of these three skills.
+- `DELETE /v1/subjects/{subject_key}` (`delete_subject`) exists on the live API (`erase` scope) and is **not** called from these skills.
 - Never re-echo vendor secrets after store/revoke.
 
 ## Disclaimer

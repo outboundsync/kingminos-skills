@@ -1,6 +1,15 @@
 # Credentials endpoints
 
-Live contract: `GET https://api.kingminos.com/openapi.yaml`. KingMinos MCP is not shipped — REST only. Responses **never** echo the raw key.
+Live contract: `GET https://api.kingminos.com/openapi.yaml`. Hosted MCP is not shipped — REST only. Responses **never** echo the raw key. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
+
+## REST ↔ MCP tools
+
+| REST | MCP tool | Access | Owner / notes |
+| --- | --- | --- | --- |
+| `GET /v1/providers` | `get_providers` | R | Registry + configured flags (advisory; no secrets). |
+| `GET /v1/capabilities` | `get_capabilities` | R | Auth check. |
+| `PUT /v1/credentials/{provider}` | `put_credentials` | W | Upsert tenant Your Keys (AES-GCM ciphertext, `kek_version: 1`). |
+| `DELETE /v1/credentials/{provider}` | `delete_credentials` | W | Revoke the live row (`revoked: true`). `404` when no live row. |
 
 | Method | Path | Auth | Purpose |
 | --- | --- | --- | --- |

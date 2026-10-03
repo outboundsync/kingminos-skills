@@ -1,0 +1,46 @@
+# Minimal KingMinos OpenAPI resource inventory for offline validate/tests.
+# Paths match live GET https://api.kingminos.com/openapi.yaml (and PR 137).
+# Discovery routes are listed so the parser can skip them. Do not invent ops.
+openapi: 3.1.0
+info:
+  title: KingMinos by OutboundSync
+  version: 0.1.0
+paths:
+  /health:
+    get:
+      summary: Liveness
+  /openapi.yaml:
+    get:
+      summary: OpenAPI 3.1 document (YAML)
+  /v1/openapi.yaml:
+    get:
+      summary: OpenAPI 3.1 document (YAML)
+  /v1/providers:
+    get:
+      operationId: get_providers
+  /v1/capabilities:
+    get:
+      operationId: get_capabilities
+  /v1/company/hierarchy:
+    post:
+      operationId: company_hierarchy
+  /v1/company/domain:
+    post:
+      operationId: company_domain
+  /v1/company/resolve:
+    post:
+      operationId: company_resolve
+  /v1/person/verify-employment:
+    post:
+      operationId: person_verify_employment
+  /v1/runs/{id}:
+    get:
+      operationId: get_run
+  /v1/credentials/{provider}:
+    put:
+      operationId: put_credentials
+    delete:
+      operationId: delete_credentials
+  /v1/subjects/{subject_key}:
+    delete:
+      operationId: delete_subject

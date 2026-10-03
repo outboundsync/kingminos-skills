@@ -1,6 +1,13 @@
 # Auth endpoints
 
-Live contract: `GET https://api.kingminos.com/openapi.yaml` (also `/v1/openapi.yaml`). No auth. KingMinos MCP is not shipped — REST only.
+Live contract: `GET https://api.kingminos.com/openapi.yaml` (also `/v1/openapi.yaml`). No auth. Hosted MCP is not shipped — REST only. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
+
+## REST ↔ MCP tools
+
+| REST | MCP tool | Access | Owner / notes |
+| --- | --- | --- | --- |
+| `GET /v1/providers` | `get_providers` | R | Provider registry + configured flags + `billing_mode`. |
+| `GET /v1/capabilities` | `get_capabilities` | R | Capability catalog + default routing. Use this to prove the key. |
 
 | Method | Path | Auth | Purpose |
 | --- | --- | --- | --- |
@@ -49,9 +56,9 @@ Write **SFDC** or **Salesforce**, never **SF**.
 
 ## Not this skill
 
-| Call | Skill |
+| Skill / inventory | Instead |
 | --- | --- |
-| `POST /v1/company/resolve` | `company-resolve` |
-| `PUT` / `DELETE /v1/credentials/{provider}` | `credentials` |
-| `POST /v1/company/domain`, `POST /v1/company/hierarchy`, `POST /v1/person/verify-employment` | Live on the API; not in this three-skill pack |
-| `DELETE /v1/subjects/{subject_key}` | Live (`erase` scope); do not call from these skills |
+| `company-resolve` | `company_resolve` |
+| `credentials` | `put_credentials` / `delete_credentials` |
+| Live, no dedicated skill | `company_domain` · `company_hierarchy` · `person_verify_employment` |
+| Not these skills (`erase` scope) | `delete_subject` |

@@ -1,6 +1,14 @@
 # company.resolve endpoints
 
-Live contract: `GET https://api.kingminos.com/openapi.yaml`. KingMinos MCP is not shipped — REST only.
+Live contract: `GET https://api.kingminos.com/openapi.yaml`. Hosted MCP is not shipped — REST only. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
+
+## REST ↔ MCP tools
+
+| REST | MCP tool | Access | Owner / notes |
+| --- | --- | --- | --- |
+| `GET /v1/capabilities` | `get_capabilities` | R | Catalog + default routing (auth check). |
+| `POST /v1/company/resolve` | `company_resolve` | R | Resolve a company. Business misses stay HTTP 200. |
+| `GET /v1/runs/{id}` | `get_run` | R | Replay a recorded run. Same envelope + `candidates` when completed. |
 
 | Method | Path | Auth | Purpose |
 | --- | --- | --- | --- |

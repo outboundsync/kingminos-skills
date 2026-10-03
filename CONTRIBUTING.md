@@ -30,7 +30,7 @@ Run `npm run validate -- --list` to see every rule with its severity. Rules and 
 5. If the skill writes to KingMinos, add a `## Mutations` section naming each REST call, note that KingMinos MCP is not shipped, and follow the [write-on-confirm protocol](SECURITY.md#write-on-confirm-protocol).
 6. Add the skill to every README list: the count, its category table, the install commands, and the "try without installing" commands.
 7. Add a line under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md).
-8. Teach only what `GET https://api.kingminos.com/openapi.yaml` exposes today. Do not invent MCP tools.
+8. Teach only what `GET https://api.kingminos.com/openapi.yaml` exposes today. Resource operations belong in `skills/api/references/endpoints.md` (METHOD /path → snake_case tool). Do not invent endpoints or tools outside that map. `npm run check:surfaces` must stay green.
 
 ## Versioning
 

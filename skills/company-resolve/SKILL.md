@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # KingMinos company resolve
@@ -47,7 +47,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 Default linear order is `[websearch, zoominfo, leadmagic]` with `allow_fallbacks` and `free_first: false`. `auto` may run Wiza then Findymail only after a websearch miss/junk reject. `value` never calls those paid name hops. AIArk is registered but **not** on any default path (`routing.only: ["aiark"]` is a dogfood escape). ZoomInfo / Findymail / Wiza / AIArk / BuiltWith need tenant Your Keys (`credentials`). LeadMagic is the house-key vendor.
 
-KingMinos MCP is **not shipped**. Do not invent a `resolve_company` tool.
+Hosted MCP is **not shipped**. The inventory tool is `company_resolve`. Do not invent `resolve_company` or a hosted MCP URL.
 
 ## Output contract
 

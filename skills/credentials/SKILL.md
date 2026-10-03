@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com. Mutations only after explicit confirmation. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # KingMinos credentials
@@ -35,7 +35,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 `PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, Findymail, Wiza, AIArk, or BuiltWith key.
 
-KingMinos MCP is **not shipped**. Mutations are REST only.
+Hosted MCP is **not shipped**. Mutations are REST (`put_credentials` / `delete_credentials`).
 
 ## Workflow
 
@@ -53,8 +53,8 @@ KingMinos MCP is **not shipped**. Mutations are REST only.
 
 Follow the [write-on-confirm protocol](https://github.com/outboundsync/kingminos-skills/blob/main/SECURITY.md#write-on-confirm-protocol). KingMinos MCP is not shipped.
 
-- `PUT /v1/credentials/{provider}` — upsert tenant Your Keys (ciphertext). REST; KingMinos MCP is not shipped.
-- `DELETE /v1/credentials/{provider}` — revoke tenant Your Keys (`revoked_at`). REST; KingMinos MCP is not shipped.
+- `put_credentials` / `PUT /v1/credentials/{provider}` — upsert tenant Your Keys (ciphertext). REST; KingMinos MCP is not shipped.
+- `delete_credentials` / `DELETE /v1/credentials/{provider}` — revoke tenant Your Keys (`revoked_at`). REST; KingMinos MCP is not shipped.
 
 Do not call `DELETE /v1/subjects/{subject_key}` from this skill (`erase` scope).
 

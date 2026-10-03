@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com for live calls. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # KingMinos auth
@@ -35,7 +35,7 @@ export KINGMINOS_API_KEY=...
 - Public, no auth: `GET /health`, `GET /openapi.yaml`, `GET /v1/openapi.yaml`
 - Spoken name is **King Minos**; write **KingMinos**
 
-KingMinos MCP is **not shipped**. Do not invent MCP tool names or a `mcp.kingminos.com` host. Stay on REST.
+Hosted MCP is **not shipped**. Stay on REST. Inventory tools for this skill are `get_capabilities` and `get_providers` — do not invent a `mcp.kingminos.com` host or tools outside the pack map.
 
 ## Workflow
 

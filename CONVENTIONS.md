@@ -46,7 +46,7 @@ Capabilities   ░░░░░░░░░░░░░░░░░░░░  ✗
 
 **Examples are part of the contract.** Every status-layout skill ships a `references/examples.md` with rendered outputs covering at least a passing state, a failing state, and an UNVERIFIED state. Use illustrative data (`example.com`), never a real customer's.
 
-**API facts live in each skill.** Keep a trimmed `references/endpoints.md` inside the skill folder (`npx skills add` installs one folder, so links between skill folders break).
+**API facts live in each skill.** Keep a trimmed `references/endpoints.md` inside the skill folder (`npx skills add` installs one folder, so links between skill folders break). The pack's canonical REST ↔ MCP map is [`skills/api/references/endpoints.md`](skills/api/references/endpoints.md) — one row per OpenAPI resource operation. Trimmed copies must match it (`endpoint-map-consistent`); the map must match the KingMinos OpenAPI inventory (`endpoint-map-openapi`).
 
 ## Score meter — required for any skill that scores or rates
 

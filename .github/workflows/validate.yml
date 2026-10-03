@@ -33,6 +33,7 @@ jobs:
       - name: Validate skills
         env:
           BASE_REF: ${{ github.base_ref }}
+          KINGMINOS_OPENAPI_URL: https://api.kingminos.com/openapi.yaml
         run: |
           if [ -n "$BASE_REF" ]; then
             npm run validate -- --format github --base "origin/$BASE_REF"

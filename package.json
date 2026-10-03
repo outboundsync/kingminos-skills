@@ -9,6 +9,7 @@
   },
   "scripts": {
     "validate": "node scripts/validate/cli.mjs",
+    "check:surfaces": "node scripts/validate/cli.mjs --only endpoint-map-consistent,endpoint-map-openapi",
     "test": "node --test \"test/**/*.test.mjs\"",
     "release:preview": "node scripts/release-calver.mjs --dry-run",
     "release:apply": "node scripts/release-calver.mjs --apply"
