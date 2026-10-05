@@ -25,3 +25,4 @@
 - Packaging, validator, and CalVer release tooling modeled on the public OutboundSync skills repo — KingMinos enrichment content only.
 - `api` skill with the canonical REST ↔ tool map (`skills/api/references/endpoints.md`) — one row per KingMinos OpenAPI Bearer resource operation.
 - `endpoint-map-consistent` and `endpoint-map-openapi` validators so CI fails when skill copies or the OpenAPI inventory drift.
+- Prospeo BYOK support: `prospeo` is a storable API-key vendor (`PUT /v1/credentials/prospeo`) and an off-path `company.resolve` provider forceable via `routing.only: ["prospeo"]`. Adds `prospeo_credentials_required`.
