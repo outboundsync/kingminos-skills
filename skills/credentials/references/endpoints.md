@@ -30,7 +30,7 @@ This skill's default path is `GET /v1/credentials`. Store secrets in the product
 
 ## GET `/v1/credentials` 200
 
-Each item: `provider`, `label`, `kind` (`api_key` \| `oauth`), `status` (`set` \| `managed` \| `unset`), `configured`, `house_managed`, `mask` (nullable). LeadMagic without a tenant row is `managed` (house key). Other vendors are `unset` until stored. Print `mask` only as returned.
+Each item: `provider`, `label`, `kind` (`api_key` \| `oauth`), `status` (`set` \| `managed` \| `unset`), `configured`, `house_managed`, `mask` (nullable). LeadMagic, Wiza, and Findymail without a tenant row are `managed` (house key). Other vendors are `unset` until stored. Print `mask` only as returned.
 
 ## PUT bodies (app UI / REST — never chat)
 
@@ -74,7 +74,6 @@ Capability POSTs may return `400` `zi_credentials_required` | `findymail_credent
 
 ## Policy
 
-- **House-key by default:** LeadMagic only.
 - **House-key:** LeadMagic, Wiza, Findymail.
 - **BYOK:** ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo.
 - **House-only:** websearch.
