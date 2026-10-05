@@ -1,0 +1,59 @@
+# Hermetic KingMinos credentials / BYOK provider inventory.
+# Default CI (npm run validate / npm test) uses this file — no live OpenAPI fetch.
+# Live compare is optional: KINGMINOS_OPENAPI_URL=https://api.kingminos.com/openapi.yaml
+# npm run check:surfaces. A served-spec outage must not block PRs or CalVer release.
+#
+# path_enum: storable Your Keys ids on PUT/DELETE /v1/credentials/{provider}.
+# websearch is house-only (byok_not_supported) and is not in path_enum.
+# Infra hops (dns, site_probe, wikidata, gleif, rdap) are not credential providers.
+# Do not invent providers. When KingMinos adds a BYOK vendor, add it here first,
+# then to every skills BYOK list / path enum / *_credentials_required list.
+providers:
+  - id: leadmagic
+    label: LeadMagic
+    supply: house_key
+    credentials_required: null
+    path_enum: true
+    api_key: true
+  - id: findymail
+    label: Findymail
+    supply: byok
+    credentials_required: findymail_credentials_required
+    path_enum: true
+    api_key: true
+  - id: zoominfo
+    label: ZoomInfo
+    supply: byok
+    credentials_required: zi_credentials_required
+    path_enum: true
+    api_key: false
+  - id: wiza
+    label: Wiza
+    supply: byok
+    credentials_required: wiza_credentials_required
+    path_enum: true
+    api_key: true
+  - id: aiark
+    label: AIArk
+    supply: byok
+    credentials_required: aiark_credentials_required
+    path_enum: true
+    api_key: true
+  - id: builtwith
+    label: BuiltWith
+    supply: byok
+    credentials_required: builtwith_credentials_required
+    path_enum: true
+    api_key: true
+  - id: prospeo
+    label: Prospeo
+    supply: byok
+    credentials_required: prospeo_credentials_required
+    path_enum: true
+    api_key: true
+  - id: websearch
+    label: websearch
+    supply: house_only
+    credentials_required: null
+    path_enum: false
+    api_key: false

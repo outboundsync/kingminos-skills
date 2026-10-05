@@ -46,7 +46,7 @@ Capabilities   ░░░░░░░░░░░░░░░░░░░░  ✗
 
 **Examples are part of the contract.** Every status-layout skill ships a `references/examples.md` with rendered outputs covering at least a passing state, a failing state, and an UNVERIFIED state. Use illustrative data (`example.com`), never a real customer's.
 
-**API facts live in each skill.** Keep a trimmed `references/endpoints.md` inside the skill folder (`npx skills add` installs one folder, so links between skill folders break). The pack's canonical REST ↔ tool map is [`skills/api/references/endpoints.md`](skills/api/references/endpoints.md) — one row per OpenAPI **Bearer** resource operation. Session/product-app ops are out of scope. Trimmed copies must match it (`endpoint-map-consistent`); the map must match the KingMinos Bearer OpenAPI inventory (`endpoint-map-openapi`).
+**API facts live in each skill.** Keep a trimmed `references/endpoints.md` inside the skill folder (`npx skills add` installs one folder, so links between skill folders break). The pack's canonical REST ↔ tool map is [`skills/api/references/endpoints.md`](skills/api/references/endpoints.md) — one row per OpenAPI **Bearer** resource operation. Session/product-app ops are out of scope. Trimmed copies must match it (`endpoint-map-consistent`); the map must match the KingMinos Bearer OpenAPI inventory (`endpoint-map-openapi`). BYOK / path-`provider` / `*_credentials_required` lists must match [`scripts/validate/fixtures/providers.yaml`](scripts/validate/fixtures/providers.yaml) (`provider-enum`).
 
 ## Score meter — required for any skill that scores or rates
 

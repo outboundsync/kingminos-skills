@@ -69,6 +69,13 @@ paths:
       security:
         - bearer: []
   /v1/credentials/{provider}:
+    parameters:
+      - name: provider
+        in: path
+        required: true
+        schema:
+          type: string
+          enum: [zoominfo, leadmagic, findymail, wiza, aiark, builtwith, prospeo]
     put:
       operationId: put_credentials
       security:
