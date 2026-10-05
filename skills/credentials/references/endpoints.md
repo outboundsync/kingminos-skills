@@ -1,19 +1,23 @@
 # Credentials endpoints
 
-Live contract: `GET https://api.kingminos.com/openapi.yaml`. Hosted MCP is not shipped — REST only. Responses **never** echo the raw key. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
+Live contract: `GET https://api.kingminos.com/openapi.yaml` (also `/openapi.json`). Hosted MCP is not shipped — REST only. Responses **never** echo the raw key. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
 
-## REST ↔ MCP tools
+This skill's default path is `GET /v1/credentials`. Store secrets in the product app (`https://app.kingminos.com` → Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
-| REST | MCP tool | Access | Owner / notes |
+## REST ↔ tools
+
+| REST | Tool id (OpenAPI operationId) | Access | Owner / notes |
 | --- | --- | --- | --- |
 | `GET /v1/providers` | `get_providers` | R | Registry + configured flags (advisory; no secrets). |
 | `GET /v1/capabilities` | `get_capabilities` | R | Auth check. |
-| `PUT /v1/credentials/{provider}` | `put_credentials` | W | Upsert tenant Your Keys (AES-GCM ciphertext, `kek_version: 1`). |
+| `GET /v1/credentials` | `list_credentials` | R | Masked catalog: `status` `set` \| `managed` \| `unset`. Never a raw key. |
+| `PUT /v1/credentials/{provider}` | `put_credentials` | W | Upsert tenant Your Keys (AES-GCM ciphertext, `kek_version: 1`). App UI only — not from this skill. |
 | `DELETE /v1/credentials/{provider}` | `delete_credentials` | W | Revoke the live row (`revoked: true`). `404` when no live row. |
 
 | Method | Path | Auth | Purpose |
 | --- | --- | --- | --- |
-| `PUT` | `/v1/credentials/{provider}` | Bearer | Upsert tenant Your Keys (AES-GCM ciphertext, `kek_version: 1`) |
+| `GET` | `/v1/credentials` | Bearer | Masked Your Keys catalog (`set` \| `managed` \| `unset`). Default read path. |
+| `PUT` | `/v1/credentials/{provider}` | Bearer | Upsert tenant Your Keys (AES-GCM ciphertext, `kek_version: 1`). App UI only. |
 | `DELETE` | `/v1/credentials/{provider}` | Bearer | Revoke the live row (`revoked: true`). `404` when no live row |
 | `GET` | `/v1/providers` | Bearer | Registry + configured flags (advisory; no secrets) |
 | `GET` | `/v1/capabilities` | Bearer | Auth check |
@@ -24,7 +28,11 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. Hosted MCP is not s
 
 `websearch` is rejected (`byok_not_supported`).
 
-## PUT bodies
+## GET `/v1/credentials` 200
+
+Each item: `provider`, `label`, `kind` (`api_key` \| `oauth`), `status` (`set` \| `managed` \| `unset`), `configured`, `house_managed`, `mask` (nullable). LeadMagic without a tenant row is `managed` (house key). Other vendors are `unset` until stored. Print `mask` only as returned.
+
+## PUT bodies (app UI / REST — never chat)
 
 ZoomInfo (required pair):
 
@@ -38,7 +46,7 @@ API-key vendors (`leadmagic`, `findymail`, `wiza`, `aiark`, `builtwith`):
 { "apiKey": "..." }
 ```
 
-`api_key` is accepted as an alias of `apiKey`. `additionalProperties: false`.
+`api_key` is accepted as an alias of `apiKey`. `additionalProperties: false`. The Worker checks the secret with the vendor before storing. A rejected key is not stored (`400 credential_rejected`).
 
 ## PUT 200
 
@@ -56,7 +64,7 @@ API-key vendors (`leadmagic`, `findymail`, `wiza`, `aiark`, `builtwith`):
 
 | Status | `error` | Notes |
 | --- | --- | --- |
-| `400` | `validation_failed` / `unknown_provider` | Bad body or path |
+| `400` | `validation_failed` / `unknown_provider` / `credential_rejected` | Bad body or path. `credential_rejected`: vendor rejected the key — re-check it with the vendor in the app UI; nothing was stored. |
 | `401` | `unauthorized` + `detail` | See `auth` |
 | `404` | `not_found` | DELETE with no live row |
 | `429` | `rate_limit_exceeded` | Retry-After |
@@ -66,7 +74,8 @@ Capability POSTs may return `400` `zi_credentials_required` | `findymail_credent
 
 ## Policy
 
-- **House-key:** LeadMagic only.
+- **House-key by default:** LeadMagic only.
 - **BYOK:** Findymail, ZoomInfo, Wiza, AIArk, BuiltWith.
 - **House-only:** websearch.
 - Live writes need `CREDENTIALS_KEK` on Worker `kingminos-api-prod` (operator secret — never a skill input).
+- Store secrets at `https://app.kingminos.com`. Never paste a vendor secret into chat.

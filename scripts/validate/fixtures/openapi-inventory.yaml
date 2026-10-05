@@ -1,6 +1,9 @@
-# Minimal KingMinos OpenAPI resource inventory for offline validate/tests.
-# Paths match live GET https://api.kingminos.com/openapi.yaml (and PR 137).
-# Discovery routes are listed so the parser can skip them. Do not invent ops.
+# Minimal KingMinos OpenAPI Bearer resource inventory for offline validate/tests.
+# Paths match live GET https://api.kingminos.com/openapi.yaml Bearer ops.
+# Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare no bearer
+# security and are out of scope for this pack (and for kingminos-application
+# `check:surfaces`). Discovery routes are listed so the parser can skip them.
+# Do not invent ops.
 openapi: 3.1.0
 info:
   title: KingMinos by OutboundSync
@@ -12,35 +15,75 @@ paths:
   /openapi.yaml:
     get:
       summary: OpenAPI 3.1 document (YAML)
+  /openapi.json:
+    get:
+      summary: OpenAPI 3.1 document (JSON)
   /v1/openapi.yaml:
     get:
       summary: OpenAPI 3.1 document (YAML)
+  /v1/openapi.json:
+    get:
+      summary: OpenAPI 3.1 document (JSON)
+  /v1/auth/me:
+    get:
+      operationId: getSessionUser
+      summary: Session cookie only — ignored by the Bearer inventory filter
   /v1/providers:
     get:
       operationId: get_providers
+      security:
+        - bearer: []
   /v1/capabilities:
     get:
       operationId: get_capabilities
+      security:
+        - bearer: []
   /v1/company/hierarchy:
     post:
       operationId: company_hierarchy
+      security:
+        - bearer: []
   /v1/company/domain:
     post:
       operationId: company_domain
+      security:
+        - bearer: []
   /v1/company/resolve:
     post:
       operationId: company_resolve
+      security:
+        - bearer: []
   /v1/person/verify-employment:
     post:
       operationId: person_verify_employment
+      security:
+        - bearer: []
   /v1/runs/{id}:
     get:
       operationId: get_run
+      security:
+        - bearer: []
+  /v1/credentials:
+    get:
+      operationId: list_credentials
+      security:
+        - bearer: []
   /v1/credentials/{provider}:
     put:
       operationId: put_credentials
+      security:
+        - bearer: []
     delete:
       operationId: delete_credentials
+      security:
+        - bearer: []
   /v1/subjects/{subject_key}:
     delete:
       operationId: delete_subject
+      security:
+        - bearer: []
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer

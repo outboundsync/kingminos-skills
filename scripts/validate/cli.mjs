@@ -56,7 +56,7 @@ export function validate({ root, base = '', only = null, severities = {} }) {
     if (only && !only.has(rule.id)) continue;
     const severity = severities[rule.id] ?? 'error';
     if (severity === 'off') continue;
-    for (const d of rule.check(model)) diagnostics.push({ ...d, rule: rule.id, severity, docRef: rule.docRef });
+    for (const d of rule.check(model)) diagnostics.push({ ...d, rule: rule.id, severity: d.severity ?? severity, docRef: rule.docRef });
   }
   diagnostics.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.rule.localeCompare(b.rule));
   return { diagnostics, skillCount: model.skills.length };

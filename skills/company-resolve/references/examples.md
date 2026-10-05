@@ -18,9 +18,9 @@ Decision  ████████████████████  ✓ read
 `run_demo123 · path auto · es_decision hit`
 
 - ✓ outcome — resolved · exact_one
-- ✓ company_name — Acme Roofing (fill-if-blank when present, including on miss)
+- ✓ company_name — Acme Roofing (fill-if-blank when `answer.safe_to_write.company_name`)
 - ✓ stamp-safe ZoomInfo company id 123456789
-- · company_domain — acmeexample.com (hygiene — never clobber)
+- · company_domain — acmeexample.com (hygiene — write only when `answer.safe_to_write.company_domain`; never clobber)
 - · credits spent 0 · providers websearch, zoominfo
 
 ## Passing — name without primary id
@@ -39,13 +39,13 @@ Decision  ████████████████████  ✓ read
 `run_demo456 · path auto · es_decision miss`
 
 - · outcome — resolved_without_primary_id · exact_one
-- ✓ company_name — Acme Roofing (fill-if-blank when present, including on miss)
-- · do not stamp — miss / no ZoomInfo company id
-- · company_domain — acmeexample.com (hygiene — never clobber)
+- ✓ company_name — Acme Roofing (fill-if-blank when `answer.safe_to_write.company_name`)
+- · do not stamp — `safe_to_write.zoominfo_company_id` is false
+- · company_domain — acmeexample.com (hygiene — write only when `answer.safe_to_write.company_domain`; never clobber)
 - · credits spent 1 · providers websearch, leadmagic
 
 ### Next
-1. Store a ZoomInfo Your Key if the user needs a stamp-safe company id (`credentials`)
+1. Store a ZoomInfo Your Key at https://app.kingminos.com if the user needs a stamp-safe company id (`credentials` lists status)
 
 ## Failing — name-only
 
@@ -60,12 +60,12 @@ Decision  ████████████████████  ✓ no_d
 ```
 
 ### Answer
-`— · path auto · es_decision noop`
+`— · path auto · es_decision <as returned>`
 
 - ✗ outcome — no_decision · no_domain
 - · company_name — null (name-only does not search)
-- · do not stamp — name-only
-- · company_domain — null (hygiene — never clobber)
+- · do not stamp — `safe_to_write.zoominfo_company_id` is false
+- · company_domain — null (hygiene — write only when `answer.safe_to_write.company_domain`; never clobber)
 
 ### Next
 1. Retry with `email`, `domain`, or `website` — never stamp an id from a vendor name match

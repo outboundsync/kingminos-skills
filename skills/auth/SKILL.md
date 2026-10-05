@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com for live calls. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.0.1"
+  version: "1.1.0"
 ---
 
 # KingMinos auth
@@ -26,13 +26,15 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 Base URL: `https://api.kingminos.com`. Worker: `kingminos-api-prod`.
 
+Mint a personal access token at `https://app.kingminos.com` (workspace owner → tokens). It is shown once, starts with `km_`, is scoped to explicit capabilities (not `*`), and has a daily credit cap (default 100). Do not call session/cookie `/v1/auth/*` or `/v1/account/*` routes from this skill.
+
 ```bash
 export KINGMINOS_API_KEY=...
 ```
 
 - Header (every authenticated route): `Authorization: Bearer $KINGMINOS_API_KEY`
 - Bare keys (no `Bearer `) are `401` `detail: malformed`
-- Public, no auth: `GET /health`, `GET /openapi.yaml`, `GET /v1/openapi.yaml`
+- Public, no auth: `GET /health`, `GET /openapi.yaml`, `GET /v1/openapi.yaml` (JSON twins: `/openapi.json`, `/v1/openapi.json`)
 - Spoken name is **King Minos**; write **KingMinos**
 
 Hosted MCP is **not shipped**. Stay on REST. Inventory tools for this skill are `get_capabilities` and `get_providers` — do not invent a `mcp.kingminos.com` host or tools outside the pack map.
@@ -42,21 +44,20 @@ Hosted MCP is **not shipped**. Stay on REST. Inventory tools for this skill are 
 1. If `$KINGMINOS_API_KEY` is unset, do not guess. Render the missing-key shape and stop.
 2. `GET /health` (no auth). Expect `{"ok":true,"service":"kingminos-api-prod"}`. Failure → `· UNVERIFIED — <status>` on Health, not a pass.
 3. `GET /v1/capabilities` with `Authorization: Bearer $KINGMINOS_API_KEY` and `Accept: application/json`.
-   - `200` + JSON with `company.resolve` (and the other live capabilities) → key valid.
+   - `200` + JSON catalog → key valid. Treat the body as a catalog; do not require a specific schema field.
    - `401` → map `detail`: `missing` | `malformed` | `mismatch`. Relay `hint`. Never echo the key.
-   - `403` `scope_denied` → key reached the Worker but cannot read this route.
-   - `429` → wait `Retry-After`; mark UNVERIFIED if you stop.
-   - Timeout / non-JSON → `· UNVERIFIED — <status or timeout>`.
+   - Any other non-200 (including `403` / `429` / `5xx`), timeout, or non-JSON → `· UNVERIFIED — <status>`.
+   - `429` → wait `Retry-After`; mark UNVERIFIED if you stop. `key_budget_exhausted` means the token's daily credit cap was hit.
 4. Optional: `GET /v1/providers` on the same key when the user asks which vendors are configured.
 5. SFDC Named Credential / Custom auth: Auth Parameters do **not** leave SFDC. The External Credential must list a Custom Header `Authorization` (Allow Formulas ON if the value is a formula). Write **SFDC** or **Salesforce**, never **SF**.
 
-Do not call `POST /v1/company/resolve` from this skill — hand off to `company-resolve`. Do not store vendor keys — hand off to `credentials`.
+Do not call `POST /v1/company/resolve` from this skill — hand off to `company-resolve`. Do not store vendor keys — hand off to `credentials` (list + app UI).
 
 ## Output contract
 
 GitHub-flavored markdown only. Render only this shape; no prose outside it. Marks: `✓` pass · `✗` blocker · `·` advisory or `UNVERIFIED — <reason>`; the mark leads every bullet.
 
-Gates (3): key present · Bearer accepted (`GET /v1/capabilities` not `401`) · catalog readable (`200` with `company.resolve`).
+Gates (3): key present · Bearer accepted (`GET /v1/capabilities` not `401`) · catalog readable (`200` + JSON).
 
 1. `##` is the verdict: `Authentication ready` · `Authentication needs a key` · `Authentication rejected` · `Authentication unverified`.
 2. Fenced `text` gauge immediately after. 20-cell bars. `### Next` only when something needs action.
@@ -79,7 +80,7 @@ Capabilities   <bar>  <✓|✗|·> <ready | p/1 | unverified>
 
 - <✓ Key present in KINGMINOS_API_KEY | ✗ KINGMINOS_API_KEY is unset | · UNVERIFIED — <reason>>
 - <✓ Bearer accepted | ✗ 401 <missing|malformed|mismatch> — <hint, no secret> | · UNVERIFIED — <status>>
-- <✓ Catalog readable — company.resolve, person.verify_employment, company.domain, company.hierarchy | ✗ <scope_denied or missing capability> | · UNVERIFIED — <status>>
+- <✓ Catalog readable | ✗ Catalog not called — no Bearer token | · UNVERIFIED — <status>>
 - · Health — <kingminos-api-prod | UNVERIFIED — <status>> (unauthenticated)
 
 ### Next

@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.0.1"
+  version: "1.1.0"
 ---
 
 # KingMinos company resolve
@@ -37,13 +37,14 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    Optional: `domain`, `website`, `name`, `routing.path` (`value` | `auto` | `accuracy` | `coverage`; omit = `auto`), `routing.preset` (`name_only` → `value`; `zi_stamp` = ZoomInfo-first), `schema_version`: `"2"`.
 4. Prefer `X-Router-Explain: minimal` (alias of `default`) on CRM callouts. Use `full` only when the user asks for `trace`.
 5. Read **control** fields only: `answer.outcome`, `es_decision`, `answer.safe_to_write`, `answer.reason_code`. `answer.summary` and `sources` are explain — not control flow.
-6. Branch:
-   - `resolved` + `es_decision=hit` + non-blank `result.zoominfo_company_id` → stamp-safe ZoomInfo company id.
-   - `resolved_without_primary_id` → `es_decision=miss`. Fill `result.company_name` if present (including on miss). **Do not stamp** an id.
-   - `no_decision` → honest abstain (`no_domain`, `zero_hits`, `not_configured`, credits, compliance).
+6. Branch on `answer.safe_to_write` (do not re-derive fill/stamp rules):
+   - `safe_to_write.zoominfo_company_id` → stamp-safe ZoomInfo company id from `result.zoominfo_company_id`.
+   - `safe_to_write.company_name` → fill-if-blank Account Name from `result.company_name`.
+   - `safe_to_write.company_domain` → optional domain hygiene; never clobber an existing Website/domain.
+   - Label the outcome from `answer.outcome`: `resolved` · `resolved_without_primary_id` · `no_decision` (honest abstain: `no_domain`, `zero_hits`, `not_configured`, credits, compliance).
    - HTTP 200 with a business miss is a decision, not UNVERIFIED.
-   - `400` `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` → hand off to `credentials` (those vendors are BYOK). LeadMagic is house-key and should not produce a credentials_required error for a default tenant.
-7. `result.company_domain` is optional hygiene — never clobber an existing Website/domain. Write **SFDC** or **Salesforce**, never **SF**.
+   - `400` `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` → hand off to `credentials` (those vendors are BYOK; store in the app UI). LeadMagic is house-key by default and should not produce a credentials_required error for a default tenant.
+7. Write **SFDC** or **Salesforce**, never **SF**.
 
 Default linear order is `[websearch, zoominfo, leadmagic]` with `allow_fallbacks` and `free_first: false`. `auto` may run Wiza then Findymail only after a websearch miss/junk reject. `value` never calls those paid name hops. AIArk is registered but **not** on any default path (`routing.only: ["aiark"]` is a dogfood escape). ZoomInfo / Findymail / Wiza / AIArk / BuiltWith need tenant Your Keys (`credentials`). LeadMagic is the house-key vendor.
 
@@ -72,9 +73,9 @@ Decision  <bar>  <✓|✗|·> <ready | <outcome> | unverified>
 `<run_id> · path <auto|value|accuracy|coverage> · es_decision <hit|miss|ambiguous|error|noop|reject>`
 
 - <✓|·|✗> outcome — <resolved | resolved_without_primary_id | no_decision> · <reason_code>
-- <✓|·> company_name — <name or null> (fill-if-blank when present, including on miss)
-- <✓ stamp-safe ZoomInfo company id <id> | · do not stamp — <miss / no id / name-only>>
-- · company_domain — <domain or null> (hygiene — never clobber)
+- <✓|·> company_name — <name or null> (fill-if-blank when `answer.safe_to_write.company_name`)
+- <✓ stamp-safe ZoomInfo company id <id> | · do not stamp — `safe_to_write.zoominfo_company_id` is false>
+- · company_domain — <domain or null> (hygiene — write only when `answer.safe_to_write.company_domain`; never clobber)
 - · credits spent <n> · providers <list from usage.providers_ran>
 - · UNVERIFIED — <status> (only when the POST failed to return a v2 envelope)
 

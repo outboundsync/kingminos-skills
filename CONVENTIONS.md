@@ -24,7 +24,7 @@ Every output-producing skill renders **GitHub-flavored markdown only**, terminal
 
 Any skill that answers "is this ready / authenticated / set up correctly?" renders the **status layout**. `auth` is the reference implementation; `credentials` uses it too; `company-resolve` uses its card grammar for the decision.
 
-1. **The `##` heading is the verdict**, not the skill name: `## Authentication ready`, `## Company resolve — resolved`, `## Credentials need BYOK`. Compute the verdict; never print the verdict logic.
+1. **The `##` heading is the verdict**, not the skill name: `## Authentication ready`, `## Company resolve — resolved`, `## Credentials — BYOK required`. Compute the verdict; never print the verdict logic.
 2. **A fenced `text` gauge follows immediately** — the glance layer:
    - One `Overall` row, then one row per system or item. Pad labels so every bar starts in the same column.
    - Bars are **20 cells**: `█` passed gate · `░` failed gate · `▒` unverified or manual. Filled = `round(passed / total × 20)`. A wholly unverified row is 20 `▒`.
@@ -46,7 +46,7 @@ Capabilities   ░░░░░░░░░░░░░░░░░░░░  ✗
 
 **Examples are part of the contract.** Every status-layout skill ships a `references/examples.md` with rendered outputs covering at least a passing state, a failing state, and an UNVERIFIED state. Use illustrative data (`example.com`), never a real customer's.
 
-**API facts live in each skill.** Keep a trimmed `references/endpoints.md` inside the skill folder (`npx skills add` installs one folder, so links between skill folders break). The pack's canonical REST ↔ MCP map is [`skills/api/references/endpoints.md`](skills/api/references/endpoints.md) — one row per OpenAPI resource operation. Trimmed copies must match it (`endpoint-map-consistent`); the map must match the KingMinos OpenAPI inventory (`endpoint-map-openapi`).
+**API facts live in each skill.** Keep a trimmed `references/endpoints.md` inside the skill folder (`npx skills add` installs one folder, so links between skill folders break). The pack's canonical REST ↔ tool map is [`skills/api/references/endpoints.md`](skills/api/references/endpoints.md) — one row per OpenAPI **Bearer** resource operation. Session/product-app ops are out of scope. Trimmed copies must match it (`endpoint-map-consistent`); the map must match the KingMinos Bearer OpenAPI inventory (`endpoint-map-openapi`).
 
 ## Score meter — required for any skill that scores or rates
 

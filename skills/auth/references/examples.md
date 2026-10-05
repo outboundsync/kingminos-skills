@@ -43,7 +43,7 @@ Capabilities   ░░░░░░░░░░░░░░░░░░░░  ✗
 - · Health — kingminos-api-prod (unauthenticated)
 
 ### Next
-1. Export the KingMinos key and retry
+1. Mint a `km_` token at https://app.kingminos.com (workspace owner → tokens; shown once) and export it
    `export KINGMINOS_API_KEY=...`
 2. On SFDC, add External Credential Custom Header `Authorization` (Allow Formulas ON if needed)
 

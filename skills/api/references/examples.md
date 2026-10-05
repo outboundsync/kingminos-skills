@@ -14,11 +14,11 @@ Catalog     ████████████████████  ✓ re
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 10 resource operations`
+`https://api.kingminos.com · Bearer · 11 resource operations`
 
 - ✓ Key present in KINGMINOS_API_KEY
 - ✓ Catalog readable — get_capabilities
-- · Inventory: get_providers · get_capabilities · company_resolve · company_domain · company_hierarchy · person_verify_employment · get_run · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: company-resolve
 
 ## Failing — missing key
@@ -29,37 +29,38 @@ Catalog     ████████████████████  ✓ re
 Overall     ░░░░░░░░░░░░░░░░░░░░  0/2 · not ready
 
 Key         ░░░░░░░░░░░░░░░░░░░░  ✗ missing
-Catalog     ░░░░░░░░░░░░░░░░░░░░  ✗ 0/1
+Catalog     ░░░░░░░░░░░░░░░░░░░░  ✗ missing
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 10 resource operations`
+`https://api.kingminos.com · Bearer · 11 resource operations`
 
 - ✗ KINGMINOS_API_KEY is unset
-- ✗ 401 missing — No Authorization header
-- · Inventory: get_providers · get_capabilities · company_resolve · company_domain · company_hierarchy · person_verify_employment · get_run · put_credentials · delete_credentials · delete_subject
+- ✗ Catalog not called — no Bearer token
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: auth
 
 ### Next
-1. Set KINGMINOS_API_KEY and send `Authorization: Bearer …`
+1. Mint a `km_` token at https://app.kingminos.com (workspace owner → tokens; shown once) and export it
+   `export KINGMINOS_API_KEY=...`
 
 ## UNVERIFIED
 
 ## API unverified
 
 ```text
-Overall     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  0/2 · unverified
+Overall     ██████████░░░░░░░░░░  1/2 · unverified
 
-Key         ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  · unverified
+Key         ████████████████████  ✓ ready
 Catalog     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  · unverified
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 10 resource operations`
+`https://api.kingminos.com · Bearer · 11 resource operations`
 
+- ✓ Key present in KINGMINOS_API_KEY
 - · UNVERIFIED — timeout
-- · UNVERIFIED — timeout
-- · Inventory: get_providers · get_capabilities · company_resolve · company_domain · company_hierarchy · person_verify_employment · get_run · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: none — REST for a live tool with no dedicated skill
 
 ### Next

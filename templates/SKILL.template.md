@@ -2,8 +2,9 @@
 name: my-skill
 description: >-
   Draft and audit <thing> for KingMinos callers. Use when the user asks to "<trigger phrase>",
-  "<trigger phrase>", or "<trigger phrase>". No KingMinos API key.
+  "<trigger phrase>", or "<trigger phrase>".
 license: MIT
+compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
   version: "1.0.0"
@@ -22,7 +23,7 @@ metadata:
 
 ## Output contract
 
-GitHub-flavored markdown only. Render only this shape; no prose outside it. Marks: `✓` pass · `✗` blocker · `·` advisory.
+GitHub-flavored markdown only. Render only this shape; no prose outside it. Marks: `✓` pass · `✗` blocker · `·` advisory or `UNVERIFIED — <reason>`.
 
 ### Shape
 
@@ -30,7 +31,10 @@ GitHub-flavored markdown only. Render only this shape; no prose outside it. Mark
 ## <Verdict — e.g. Ready | Needs work | Unverified>
 
 ```text
-Score  ████████████████░░░░  78/100 · <band>
+Overall     <bar>  <p>/2 · <ready|not ready|unverified>
+
+Key         <bar>  <✓|✗|·> <ready | missing | unverified>
+Catalog     <bar>  <✓|✗|·> <ready | missing | unverified>
 ```
 
 ### <Card>
@@ -41,5 +45,5 @@ Score  ████████████████░░░░  78/100 · <
 - · <advisory line>
 
 ### Next
-1. <shortest action tied to a ✗ above>
+1. <shortest action tied to a ✗ or UNVERIFIED above>
 ````
