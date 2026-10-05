@@ -64,16 +64,16 @@ A LeadMagic-only or websearch-only hit is `resolved_without_primary_id`. A webse
 - `auto`: Wiza then Findymail only after a websearch miss/junk reject
 - `value`: cheap names; no Wiza / Findymail
 - `accuracy` / `coverage`: deeper corroboration / fill
-- AIArk: registered, **not** on default paths
-- House-key vendor: **LeadMagic only**
-- BYOK: ZoomInfo, Findymail, Wiza, AIArk, BuiltWith, Prospeo
+- AIArk / Prospeo / Apollo: registered, **not** on default paths
+- House-key vendors: **LeadMagic, Wiza, Findymail**
+- BYOK: ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo
 - `websearch`: house-only
 
 ## Errors (run not started)
 
 | Status | `error` | Next |
 | --- | --- | --- |
-| `400` | `validation_failed` / `invalid_routing` / `unsupported_schema` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` | Fix input, or store BYOK in the KingMinos app (`credentials` lists status) |
+| `400` | `validation_failed` / `invalid_routing` / `unsupported_schema` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` | Fix input, or store BYOK in the KingMinos app (`credentials` lists status) |
 | `401` | `unauthorized` + `detail` missing \| malformed \| mismatch | `auth` |
 | `409` | `idempotency_*` | Rotate or reuse `Idempotency-Key` per docs |
 | `429` | rate / tenant / key budget | `Retry-After` — key is **not** spent |

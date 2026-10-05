@@ -2,16 +2,16 @@
 name: credentials
 description: >-
   List KingMinos vendor Your Keys and revoke a stored key after confirmation.
-  LeadMagic is house-key by default; Findymail, ZoomInfo, Wiza, AIArk,
-  BuiltWith, and Prospeo are BYOK. Use when the user asks to list credentials, GET
-  /v1/credentials, revoke a ZoomInfo, Findymail, Wiza, AIArk, BuiltWith, or Prospeo
+  LeadMagic, Wiza, and Findymail are house-key; ZoomInfo, AIArk, BuiltWith,
+  Prospeo, and Apollo are BYOK. Use when the user asks to list credentials, GET
+  /v1/credentials, revoke a ZoomInfo, AIArk, BuiltWith, Prospeo, or Apollo
   key, why they saw zi_credentials_required, or whether LeadMagic needs a
   tenant key.
 license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com. Mutations only after explicit confirmation. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.1.2"
+  version: "1.1.3"
 ---
 
 # KingMinos credentials
@@ -27,15 +27,16 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | Vendor | Path id | How the key is supplied | Body (app UI / REST — never chat) |
 | --- | --- | --- | --- |
 | LeadMagic | `leadmagic` | **House-key by default** (OutboundSync-provided). Tenant store is optional, not required. | `{ "apiKey" }` |
-| Findymail | `findymail` | BYOK | `{ "apiKey" }` |
+| Findymail | `findymail` | **House-key** (approved; OutboundSync-provided). Tenant store is optional. | `{ "apiKey" }` |
 | ZoomInfo | `zoominfo` | BYOK | `{ "clientId", "clientSecret" }` |
-| Wiza | `wiza` | BYOK | `{ "apiKey" }` |
+| Wiza | `wiza` | **House-key** (approved; OutboundSync-provided). Tenant store is optional. | `{ "apiKey" }` |
 | AIArk | `aiark` | BYOK | `{ "apiKey" }` |
 | BuiltWith | `builtwith` | BYOK | `{ "apiKey" }` |
 | Prospeo | `prospeo` | BYOK | `{ "apiKey" }` |
+| Apollo | `apollo` | BYOK | `{ "apiKey" }` |
 | websearch | `websearch` | House-only | `PUT` → `byok_not_supported` |
 
-`PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, Findymail, Wiza, AIArk, BuiltWith, or Prospeo key. Do not call `PUT` from this skill.
+`PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, AIArk, BuiltWith, Prospeo, or Apollo key. Do not call `PUT` from this skill.
 
 Hosted MCP is **not shipped**. List is REST `list_credentials`. Revoke is REST `delete_credentials`.
 
@@ -92,7 +93,7 @@ BYOK      <bar>  <✓|✗|·> <ready | missing <vendor> | unverified>
 `<vendor or catalog>`
 
 - <✓|·|✗> <provider> <set|unset|managed>
-- · Findymail, ZoomInfo, Wiza, AIArk, BuiltWith, Prospeo are BYOK
+- · ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo are BYOK
 - · websearch is house-only (byok_not_supported)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
