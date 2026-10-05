@@ -1,13 +1,15 @@
-// The api skill map is the pack inventory of KingMinos resource operations.
-// CI compares it to OpenAPI (live GET /openapi.yaml, or a local fixture) so
-// a drifted METHOD /path or snake_case tool fails this repo the same way
-// kingminos-application `check:surfaces` will once it can clone the pack.
+// The api skill map is the pack inventory of KingMinos **Bearer** resource
+// operations. Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare
+// no bearer security and are out of scope — the same rule kingminos-application
+// `check:surfaces` should use. CI on PR/push compares the map to the offline
+// fixture; a scheduled workflow curls the live spec.
 //
-// Path extraction is line-oriented on the OpenAPI `paths:` block so a live
-// spec with YAML 1.1 compact-mapping quirks still yields a resource inventory.
+// Prefer structured YAML (`yaml.parseDocument`). Fall back to a line scan only
+// when parsing fails (YAML 1.1 compact-mapping quirks).
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { parseDocument } from 'yaml';
 import { endpointRows } from './endpoint-map-consistent.mjs';
 
 export const CANONICAL = 'skills/api/references/endpoints.md';
@@ -25,6 +27,7 @@ export const FALLBACK_TOOLS = {
   'POST /v1/company/hierarchy': 'company_hierarchy',
   'POST /v1/person/verify-employment': 'person_verify_employment',
   'GET /v1/runs/{id}': 'get_run',
+  'GET /v1/credentials': 'list_credentials',
   'PUT /v1/credentials/{provider}': 'put_credentials',
   'DELETE /v1/credentials/{provider}': 'delete_credentials',
   'DELETE /v1/subjects/{subject_key}': 'delete_subject',
@@ -37,6 +40,21 @@ export function toSnake(operationId) {
     .toLowerCase();
 }
 
+/** True when the operation (or inherited root) security requirement names `bearer`. */
+export function opDeclaresBearer(security) {
+  if (!Array.isArray(security) || security.length === 0) return false;
+  return security.some((req) => req && typeof req === 'object' && Object.keys(req).some((name) => name.toLowerCase() === 'bearer'));
+}
+
+export function bearerResourceOperations(ops) {
+  return ops.filter((op) => opDeclaresBearer(op.security));
+}
+
+function inheritedSecurity(spec, op) {
+  if (op && Object.prototype.hasOwnProperty.call(op, 'security')) return op.security;
+  return spec?.security;
+}
+
 export function resourceOperations(spec) {
   const out = [];
   for (const [routePath, item] of Object.entries(spec?.paths ?? {})) {
@@ -47,14 +65,21 @@ export function resourceOperations(spec) {
       const route = `${method.toUpperCase()} ${routePath}`;
       const operationId = typeof op.operationId === 'string' && op.operationId.trim() ? op.operationId.trim() : null;
       const tool = operationId ? toSnake(operationId) : (FALLBACK_TOOLS[route] ?? null);
-      out.push({ route, method: method.toUpperCase(), path: routePath, operationId, tool });
+      out.push({ route, method: method.toUpperCase(), path: routePath, operationId, tool, security: inheritedSecurity(spec, op) });
     }
   }
   return out;
 }
 
-/** Resource ops from an OpenAPI YAML/JSON document (paths + methods + operationId). */
-export function resourceOperationsFromOpenApiText(text) {
+function securityFromCompact(rest) {
+  if (!rest) return undefined;
+  if (/security:\s*\[\s*\]/.test(rest)) return [];
+  if (/bearer/i.test(rest) && /security:/.test(rest)) return [{ bearer: [] }];
+  return undefined;
+}
+
+/** Line-oriented fallback when `yaml` cannot parse the document. */
+export function resourceOperationsFromOpenApiLines(text) {
   const lines = String(text).replace(/\r\n?/g, '\n').split('\n');
   let inPaths = false;
   let currentPath = null;
@@ -83,6 +108,7 @@ export function resourceOperationsFromOpenApiText(text) {
         path: currentPath,
         operationId: compactId?.[1] ?? null,
         tool: compactId ? toSnake(compactId[1]) : (FALLBACK_TOOLS[route] ?? null),
+        security: securityFromCompact(methodMatch[2]),
       });
       continue;
     }
@@ -94,8 +120,29 @@ export function resourceOperationsFromOpenApiText(text) {
         last.tool = toSnake(opId[1]);
       }
     }
+    if (currentPath && currentMethod) {
+      const last = out.at(-1);
+      if (last && last.path === currentPath && last.method === currentMethod) {
+        if (/^      security:\s*\[\s*\]\s*$/.test(line) || /^      security:\s*$/.test(line)) {
+          last.security = last.security ?? [];
+        }
+        if (/bearer/i.test(line) && /security|^\s+-\s+/.test(line)) {
+          last.security = [{ bearer: [] }];
+        }
+      }
+    }
   }
   return out.filter((op) => !DISCOVERY.test(op.path));
+}
+
+/** Resource ops from an OpenAPI YAML/JSON document (paths + methods + operationId + security). */
+export function resourceOperationsFromOpenApiText(text) {
+  const doc = parseDocument(String(text), { prettyErrors: false });
+  if (doc.errors.length === 0) {
+    const spec = doc.toJS();
+    if (spec && typeof spec === 'object' && !Array.isArray(spec)) return resourceOperations(spec);
+  }
+  return resourceOperationsFromOpenApiLines(text);
 }
 
 export function loadOpenApi({ root, env = process.env } = {}) {
@@ -114,7 +161,7 @@ export function loadOpenApi({ root, env = process.env } = {}) {
 export default {
   id: 'endpoint-map-openapi',
   docRef: CANONICAL,
-  description: 'Canonical REST ↔ MCP rows are exactly the KingMinos OpenAPI resource operations (METHOD /path → snake_case tool).',
+  description: 'Canonical REST ↔ tool rows are exactly the KingMinos OpenAPI Bearer resource operations (METHOD /path → snake_case operationId).',
   check(model) {
     const canonicalText = model.text(CANONICAL);
     if (canonicalText === null) return [];
@@ -128,15 +175,26 @@ export default {
     } catch (err) {
       return [{ file: CANONICAL, line: 0, msg: `cannot load KingMinos OpenAPI inventory: ${err.message}` }];
     }
-    if (loaded.text === null) return [];
+    if (loaded.text === null) {
+      const toolingDir = existsSync(path.join(model.root, 'scripts/validate'));
+      if (toolingDir) {
+        return [{
+          file: CANONICAL,
+          line: 0,
+          severity: 'warn',
+          msg: `no KingMinos OpenAPI inventory loaded (set KINGMINOS_OPENAPI_PATH, KINGMINOS_OPENAPI_URL, or keep ${FIXTURE})`,
+        }];
+      }
+      return [];
+    }
 
-    const inventory = resourceOperationsFromOpenApiText(loaded.text);
+    const inventory = bearerResourceOperations(resourceOperationsFromOpenApiText(loaded.text));
     const inventoryByRoute = new Map(inventory.map((op) => [op.route, op]));
 
     for (const [route, row] of rows) {
       const op = inventoryByRoute.get(route);
       if (!op) {
-        out.push({ file: CANONICAL, line: row.line, msg: `\`${route}\` is not a KingMinos OpenAPI resource operation (${loaded.source})` });
+        out.push({ file: CANONICAL, line: row.line, msg: `\`${route}\` is not a KingMinos OpenAPI Bearer resource operation (${loaded.source})` });
         continue;
       }
       if (op.tool && op.tool !== row.tool) {
@@ -149,7 +207,7 @@ export default {
         out.push({
           file: CANONICAL,
           line: 0,
-          msg: `OpenAPI resource operation \`${op.route}\` is missing from the api map${op.tool ? ` (tool \`${op.tool}\`)` : ''}`,
+          msg: `OpenAPI Bearer resource operation \`${op.route}\` is missing from the api map${op.tool ? ` (tool \`${op.tool}\`)` : ''}`,
         });
       }
     }

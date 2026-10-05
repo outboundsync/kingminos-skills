@@ -44,8 +44,9 @@ jobs:
       - name: Create and push tag
         id: tag
         if: steps.calver.outputs.has_changes == 'true'
+        env:
+          TAG: ${{ steps.calver.outputs.next_tag }}
         run: |
-          TAG="${{ steps.calver.outputs.next_tag }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then

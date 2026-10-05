@@ -2,7 +2,7 @@
 
 Illustrative only. Never a real key, client secret, or customer.
 
-## Passing — policy only
+## Passing — catalog from GET /v1/credentials
 
 ## Credentials — ready
 
@@ -10,24 +10,29 @@ Illustrative only. Never a real key, client secret, or customer.
 Overall   ████████████████████  3/3 · ready
 
 Auth      ████████████████████  ✓ ready
-House     ████████████████████  ✓ LeadMagic house-key
+House     ████████████████████  ✓ LeadMagic managed
 BYOK      ████████████████████  ✓ ready
 ```
 
 ### House
-`LeadMagic · house-key`
+`LeadMagic · managed`
 
-- ✓ LeadMagic is the only house-key vendor — no tenant key required
-- · Tenant PUT /v1/credentials/leadmagic is optional and never echoed
+- ✓ leadmagic managed — house-key by default; tenant key optional
+- · mask — null
 
 ### BYOK
-`none requested`
+`catalog`
 
-- ✓ no BYOK vendor requested
+- ✓ zoominfo set
+- · findymail unset
+- · wiza unset
+- · aiark unset
+- · builtwith unset
 - · Findymail, ZoomInfo, Wiza, AIArk, BuiltWith are BYOK
 - · websearch is house-only (byok_not_supported)
+- · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
-## Failing — ZoomInfo BYOK missing
+## Failing — ZoomInfo BYOK unset
 
 ## Credentials — BYOK required
 
@@ -35,49 +40,79 @@ BYOK      ████████████████████  ✓ read
 Overall   █████████████░░░░░░░  2/3 · not ready
 
 Auth      ████████████████████  ✓ ready
-House     ████████████████████  ✓ LeadMagic house-key
+House     ████████████████████  ✓ LeadMagic managed
 BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ missing zoominfo
 ```
 
 ### House
-`LeadMagic · house-key`
+`LeadMagic · managed`
 
-- ✓ LeadMagic is the only house-key vendor — no tenant key required
-- · Tenant PUT /v1/credentials/leadmagic is optional and never echoed
+- ✓ leadmagic managed — house-key by default; tenant key optional
+- · mask — null
 
 ### BYOK
 `zoominfo`
 
-- ✗ zoominfo credentials required
+- ✗ zoominfo unset
 - · Findymail, ZoomInfo, Wiza, AIArk, BuiltWith are BYOK
 - · websearch is house-only (byok_not_supported)
+- · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
 ### Next
-1. Confirm this plan, then send the ZoomInfo OAuth pair (the response will not echo the secret)
-   `PUT /v1/credentials/zoominfo` with `{ "clientId", "clientSecret" }`
+1. Store the ZoomInfo pair in the KingMinos app (Vendor keys / Your Keys). Never paste the secret into chat
+   `https://app.kingminos.com`
+
+## Failing — vendor rejected the key
+
+## Credentials — BYOK required
+
+```text
+Overall   █████████████░░░░░░░  2/3 · not ready
+
+Auth      ████████████████████  ✓ ready
+House     ████████████████████  ✓ LeadMagic managed
+BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ missing zoominfo
+```
+
+### House
+`LeadMagic · managed`
+
+- ✓ leadmagic managed — house-key by default; tenant key optional
+- · mask — null
+
+### BYOK
+`zoominfo`
+
+- ✗ zoominfo credential_rejected — vendor rejected the key; nothing was stored
+- · Findymail, ZoomInfo, Wiza, AIArk, BuiltWith are BYOK
+- · websearch is house-only (byok_not_supported)
+- · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
+
+### Next
+1. Re-check the ZoomInfo pair with the vendor, then store it again in the KingMinos app. Never paste the secret into chat
+   `https://app.kingminos.com`
 
 ## UNVERIFIED
 
 ## Credentials — unverified
 
 ```text
-Overall   █████████████░░░░░░░  2/3 · unverified
+Overall   ███████░░░░░░░░░░░░░  1/3 · unverified
 
 Auth      ████████████████████  ✓ ready
-House     ████████████████████  ✓ LeadMagic house-key
+House     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  · unverified
 BYOK      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  · unverified
 ```
 
 ### House
-`LeadMagic · house-key`
+`LeadMagic · unverified`
 
-- ✓ LeadMagic is the only house-key vendor — no tenant key required
-- · Tenant PUT /v1/credentials/leadmagic is optional and never echoed
+- · UNVERIFIED — timeout
 
 ### BYOK
-`zoominfo`
+`catalog`
 
-- · UNVERIFIED — 500 credentials_kek_missing
+- · UNVERIFIED — GET /v1/credentials timeout
 
 ### Next
-1. Ask an operator to set CREDENTIALS_KEK on kingminos-api-prod — do not retry with the raw vendor secret in chat
+1. Retry GET /v1/credentials when api.kingminos.com answers — do not ask for a vendor secret in chat

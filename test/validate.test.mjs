@@ -58,6 +58,11 @@ const cases = [
     'skills/demo/SKILL.md': skillMd({ body: defaultBody() + '\n| `POST /v1/company/resolve` | `company_resolve` | Resolve |\n' }),
     'README.md': readmeFor(['api', 'demo']),
   }, []],
+  ['endpoint-map-consistent: Inventory line must match the map', {
+    'skills/api/SKILL.md': skillMd({ name: 'api', body: `${defaultBody()}\n- · Inventory: wrong_tool\n` }).replace('references/rubric.md', 'references/endpoints.md'),
+    'skills/api/references/endpoints.md': '| `GET /v1/capabilities` | `get_capabilities` | R | x |\n',
+    'README.md': readmeFor(['api', 'demo']),
+  }, ['endpoint-map-consistent']],
   ['endpoint-map-consistent: malformed and duplicate rows are reported', {
     'skills/api/SKILL.md': skillMd({ name: 'api' }).replace('references/rubric.md', 'references/endpoints.md'),
     'skills/api/references/endpoints.md': '| `GET /v1/capabilities` | `get_capabilities` | R | x |\n',
@@ -67,8 +72,18 @@ const cases = [
   ['stale-paths', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nexport OUTBOUNDSYNC_API_KEY=...\n' }, ['stale-paths']],
   ['secrets: committed OutboundSync key', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nexport KEY=osapi_abcdefghijklmnop\n' }, ['secrets']],
   ['secrets: placeholder allowed', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nexport KEY=osapi_...\n' }, []],
+  ['secrets: km_ token', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nkm_abcdefghijklmnopqrstuv\n' }, ['secrets']],
+  ['secrets: km_ token in templates/', { 'templates/leak.md': 'km_abcdefghijklmnopqrstuv\n' }, ['secrets']],
+  ['secrets: pasted Bearer token', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nAuthorization: Bearer abcdefghijklmnopqr\n' }, ['secrets']],
+  ['secrets: Bearer placeholder allowed', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nAuthorization: Bearer <token>\n' }, []],
+  ['secrets: KINGMINOS_API_KEY value', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nKINGMINOS_API_KEY=abcdefghijkl\n' }, ['secrets']],
+  ['secrets: KINGMINOS_API_KEY ${ placeholder allowed', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nKINGMINOS_API_KEY=${KINGMINOS_API_KEY}\n' }, []],
   ['brand: SF abbreviation', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nReconnect SF and retry.\n' }, ['brand']],
   ['brand: SFDC allowed', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nReconnect SFDC and retry.\n' }, []],
+  ['brand: OutboundSync product-skill name', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nRun preflight next.\n' }, ['brand']],
+  ['brand: product-skill name allowed when disclaimed', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nThis is not the OutboundSync preflight skill.\n' }, []],
+  ['links: malformed percent-encoding', { 'skills/demo/SKILL.md': skillMd({ body: defaultBody().replace('references/rubric.md', 'references/rubric.md#%zz') }) }, ['links']],
+  ['links: repo blob/main missing anchor', { 'skills/demo/SKILL.md': skillMd({ body: `${defaultBody()}\nSee [security](https://github.com/outboundsync/kingminos-skills/blob/main/SECURITY.md#no-such-heading).\n` }) }, ['links']],
   ['skills-only-docs: script under skills/', { 'skills/demo/run.sh': 'echo hi\n' }, ['skills-only-docs']],
   ['readme-index: skill missing from README', { 'README.md': readmeFor([]) }, ['readme-index']],
   ['readme-index: README lists a removed skill', { 'README.md': readmeFor(['demo', 'gone']) }, ['links', 'readme-index']],
@@ -121,9 +136,20 @@ test('cli args: flags need values and unknown flags are rejected', () => {
 });
 
 test('the real repo has no validation errors', () => {
-  const root = path.resolve(import.meta.dirname, '..');
-  const { diagnostics } = validate({ root, severities: JSON.parse(readFileSync(path.join(root, 'scripts/validate/config.json'), 'utf8')).rules });
-  assert.deepEqual(diagnostics.filter((d) => d.severity === 'error'), []);
+  const prevPath = process.env.KINGMINOS_OPENAPI_PATH;
+  const prevUrl = process.env.KINGMINOS_OPENAPI_URL;
+  delete process.env.KINGMINOS_OPENAPI_PATH;
+  delete process.env.KINGMINOS_OPENAPI_URL;
+  try {
+    const root = path.resolve(import.meta.dirname, '..');
+    const { diagnostics } = validate({ root, severities: JSON.parse(readFileSync(path.join(root, 'scripts/validate/config.json'), 'utf8')).rules });
+    assert.deepEqual(diagnostics.filter((d) => d.severity === 'error'), []);
+  } finally {
+    if (prevPath === undefined) delete process.env.KINGMINOS_OPENAPI_PATH;
+    else process.env.KINGMINOS_OPENAPI_PATH = prevPath;
+    if (prevUrl === undefined) delete process.env.KINGMINOS_OPENAPI_URL;
+    else process.env.KINGMINOS_OPENAPI_URL = prevUrl;
+  }
 });
 
 test('templates/SKILL.template.md is a valid skill under every rule', () => {

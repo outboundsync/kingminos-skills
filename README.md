@@ -2,7 +2,7 @@
 
 Public [Agent Skills](https://agentskills.io) for **KingMinos by OutboundSync** — installable with [`npx skills`](https://github.com/vercel-labs/skills) in **Cursor**, **Claude Code**, and **Codex**.
 
-Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enrichment API at [`https://api.kingminos.com`](https://api.kingminos.com) (`GET /health` returns `kingminos-api-prod`; contract: `GET /openapi.yaml`).
+Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enrichment API at [`https://api.kingminos.com`](https://api.kingminos.com) (`GET /health` returns `kingminos-api-prod`; contract: `GET /openapi.yaml`, also `/openapi.json`).
 
 **This is not the OutboundSync CRM / sequencer skills pack.** That sister repository is [`outboundsync/skills`](https://github.com/outboundsync/skills). Do not install this pack expecting launch preflight, sync monitoring, or cold-email copy. KingMinos decides company identity and vendor credentials; OutboundSync syncs sequencer events into the CRM.
 
@@ -14,12 +14,12 @@ The pack ships **4** skills.
 
 | Skill | Path | Needs API key? | What it does |
 | --- | --- | --- | --- |
-| `api` | [`skills/api/`](skills/api/) | Yes (`KINGMINOS_API_KEY`) | KingMinos REST ↔ MCP inventory (`skills/api/references/endpoints.md`): one row per OpenAPI resource operation; routes to `auth`, `company-resolve`, `credentials` |
+| `api` | [`skills/api/`](skills/api/) | Yes (`KINGMINOS_API_KEY`) | KingMinos REST ↔ tool inventory (`skills/api/references/endpoints.md`): one row per OpenAPI Bearer resource operation; routes to `auth`, `company-resolve`, `credentials` |
 | `auth` | [`skills/auth/`](skills/auth/) | Yes (`KINGMINOS_API_KEY`) | Bearer auth against `https://api.kingminos.com`, 401 `missing` / `malformed` / `mismatch`, SFDC Named Credential Custom Headers, `GET /v1/capabilities` |
-| `company-resolve` | [`skills/company-resolve/`](skills/company-resolve/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/resolve` — email/domain/website in, one `answer` back; stamp ZoomInfo company id only on `es_decision=hit` |
-| `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | House vs BYOK policy and `PUT`/`DELETE /v1/credentials/{provider}` (write-on-confirm). LeadMagic is house-key; Findymail, ZoomInfo, Wiza, AIArk, BuiltWith are BYOK |
+| `company-resolve` | [`skills/company-resolve/`](skills/company-resolve/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/resolve` — email/domain/website in, one `answer` back; honor `answer.safe_to_write` for stamp/fill |
+| `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic is house-key by default; Findymail, ZoomInfo, Wiza, AIArk, BuiltWith are BYOK |
 
-Hosted MCP is **not shipped**. Prefer REST. Tool names in the `api` map are the OpenAPI resource inventory (snake_case `operationId`). Do not invent a host or tools outside that map.
+Hosted MCP is **not shipped**. Prefer REST. Tool names in the `api` map are the OpenAPI Bearer resource inventory (snake_case `operationId`). Session/product-app ops are out of scope. Do not invent a host or tools outside that map.
 
 ## Install (primary — Cursor, Claude Code, Codex)
 
@@ -46,7 +46,7 @@ npx skills use outboundsync/kingminos-skills --skill credentials
 
 ## Credentials
 
-Set before live calls. **Never print, log, or commit the API key.**
+Mint a personal access token at [`https://app.kingminos.com`](https://app.kingminos.com) (workspace owner → tokens). It is shown once, starts with `km_`, is scoped to explicit capabilities (not `*`), and has a daily credit cap (default 100). Set it before live calls. **Never print, log, or commit the API key.**
 
 ```bash
 export KINGMINOS_API_KEY=...
@@ -55,30 +55,31 @@ export KINGMINOS_API_KEY=...
 Or put the same variable in a gitignored `.env` (see [`.env.example`](.env.example)).
 
 - Header: `Authorization: Bearer $KINGMINOS_API_KEY` only. A bare key is `401` `detail: malformed`.
-- Public, no auth: `GET /health` (`{"ok":true,"service":"kingminos-api-prod"}`) and `GET /openapi.yaml` (also `/v1/openapi.yaml`).
-- Authenticated catalog: `GET /v1/capabilities`, `GET /v1/providers`.
+- Public, no auth: `GET /health` (`{"ok":true,"service":"kingminos-api-prod"}`) and `GET /openapi.yaml` (also `/v1/openapi.yaml`, `/openapi.json`, `/v1/openapi.json`).
+- Authenticated catalog: `GET /v1/capabilities`, `GET /v1/providers`, `GET /v1/credentials`.
+- `403` `scope_denied` = the token lacks this capability scope. `429` `key_budget_exhausted` = the token's daily credit cap was hit.
 - SFDC Named Credential / Custom auth: Auth Parameters do **not** leave SFDC. Add a Custom Header named `Authorization` (Allow Formulas ON if the value is a formula).
 
-**Vendor Your Keys** (not the KingMinos Bearer token):
+**Vendor Your Keys** (not the KingMinos Bearer token) — store them in the app UI. **Never paste a vendor secret into chat.**
 
 | Vendor | How the key is supplied |
 | --- | --- |
-| LeadMagic | House-key (OutboundSync-provided). Tenant PUT is optional, not required. |
-| Findymail | BYOK — `PUT /v1/credentials/findymail` `{ "apiKey": "..." }` |
-| ZoomInfo | BYOK — `PUT /v1/credentials/zoominfo` `{ "clientId", "clientSecret" }` |
-| Wiza | BYOK — `PUT /v1/credentials/wiza` `{ "apiKey": "..." }` |
-| AIArk | BYOK — `PUT /v1/credentials/aiark` `{ "apiKey": "..." }` |
-| BuiltWith | BYOK — `PUT /v1/credentials/builtwith` `{ "apiKey": "..." }` |
+| LeadMagic | House-key by default (OutboundSync-provided). Tenant store is optional, not required. |
+| Findymail | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
+| ZoomInfo | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
+| Wiza | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
+| AIArk | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
+| BuiltWith | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
 | websearch | House-only. `PUT` is `byok_not_supported`. |
 
-Responses never echo the raw vendor key.
+`GET /v1/credentials` lists `status` (`set` \| `managed` \| `unset`) and never echoes the raw vendor key.
 
 ## Security
 
 - Skills are **read-only by default** — see [SECURITY.md](SECURITY.md).
-- `credentials` may mutate tenant Your Keys **only after explicit confirmation**.
+- `credentials` lists Your Keys; it may revoke (`DELETE`) **only after explicit confirmation**. Store secrets at `https://app.kingminos.com`.
 - `DELETE /v1/subjects/{subject_key}` (`delete_subject`) exists on the live API (`erase` scope) and is **not** called from these skills.
-- Never re-echo vendor secrets after store/revoke.
+- Never re-echo vendor secrets. Never paste a vendor secret into chat.
 
 ## Disclaimer
 
@@ -96,7 +97,7 @@ npm test
 
 ## Releases & Changelog
 
-Releases are created automatically after Validate skill integrity passes on `main` via `.github/workflows/release-calver.yml`.
+Releases are created automatically after hermetic Validate skill integrity passes on `main` via `.github/workflows/release-calver.yml`. Live OpenAPI drift is a scheduled job and does not block release.
 
 - Versioning format: `YYYY.MM.DD.N` (CalVer). Each skill also has its own `metadata.version`.
 - Release notes: [GitHub Releases](https://github.com/outboundsync/kingminos-skills/releases), generated from commit subjects.
@@ -110,7 +111,7 @@ npm run release:preview
 
 ## Related
 
-- Live OpenAPI: https://api.kingminos.com/openapi.yaml
+- Live OpenAPI: https://api.kingminos.com/openapi.yaml (JSON: https://api.kingminos.com/openapi.json)
 - Live health: https://api.kingminos.com/health
 - Sister pack (CRM / sequencer, not enrichment): https://github.com/outboundsync/skills
 

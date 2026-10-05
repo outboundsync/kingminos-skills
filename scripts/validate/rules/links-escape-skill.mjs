@@ -9,6 +9,7 @@ export default {
     for (const skill of model.skills) {
       for (const file of skill.files.filter((f) => f.endsWith('.md'))) {
         for (const link of relativeLinks(model, file)) {
+          if (link.decodeError || !link.resolved) continue;
           if (!link.resolved.startsWith(`${skill.dir}/`) && link.resolved !== skill.dir) {
             out.push({ file, line: link.line, msg: `link '${link.target}' leaves the skill folder and breaks after install; use an absolute https://github.com/outboundsync/kingminos-skills/blob/main/… URL` });
           }

@@ -30,10 +30,11 @@ jobs:
 
       - run: npm ci
 
+      # Hermetic: fixture only. Live OpenAPI curl lives in openapi-surfaces.yml
+      # (scheduled + workflow_dispatch) so an API outage never blocks PRs or release.
       - name: Validate skills
         env:
           BASE_REF: ${{ github.base_ref }}
-          KINGMINOS_OPENAPI_URL: https://api.kingminos.com/openapi.yaml
         run: |
           if [ -n "$BASE_REF" ]; then
             npm run validate -- --format github --base "origin/$BASE_REF"

@@ -1,10 +1,12 @@
-# KingMinos API + MCP map (api skill)
+# KingMinos API + tool map (api skill)
 
-The pack's single reference for the live KingMinos enrichment API and the 1:1 MCP tool inventory. `auth`, `company-resolve`, and `credentials` keep a trimmed copy of the rows they use; `npm run validate` (`endpoint-map-consistent`) keeps those copies matching this file. `endpoint-map-openapi` fails CI when these rows drift from the KingMinos OpenAPI resource inventory.
+The pack's single reference for the live KingMinos enrichment API and the 1:1 tool inventory. `auth`, `company-resolve`, and `credentials` keep a trimmed copy of the rows they use; `npm run validate` (`endpoint-map-consistent`) keeps those copies matching this file. `endpoint-map-openapi` fails when these rows drift from the KingMinos OpenAPI **Bearer** resource inventory.
+
+Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare no bearer security and are **out of scope** for this pack. kingminos-application `check:surfaces` should use the same Bearer-only rule.
 
 - REST base: `https://api.kingminos.com` · `Authorization: Bearer $KINGMINOS_API_KEY`
-- Live OpenAPI (auth-free): `GET /openapi.yaml` (also `/v1/openapi.yaml`)
-- Hosted MCP is **not shipped**. Tool names are snake_case of each resource `operationId` — the inventory kingminos-application `check:surfaces` compares. Do not invent a host or extra tools.
+- Live OpenAPI (auth-free): `GET /openapi.yaml` (also `/v1/openapi.yaml`, `/openapi.json`, `/v1/openapi.json`)
+- Hosted MCP is **not shipped**. Tool names are snake_case of each Bearer resource `operationId` — the inventory kingminos-application `check:surfaces` compares. Do not invent a host or extra tools.
 
 Never print, log, or commit the key.
 
@@ -30,13 +32,15 @@ A `404` on a path you expected means **the route is not shipped** — do not ret
 
 `401` `detail` to relay: `missing` · `malformed` · `mismatch`. On SFDC Named Credential / Custom auth, Auth Parameters do not leave Salesforce — add a Custom Header named `Authorization`. Write **SFDC** or **Salesforce**, never **SF**.
 
-## REST ↔ MCP tools
+`403` `scope_denied` means the token lacks this capability scope. `429` `key_budget_exhausted` means the token's daily credit cap was hit.
 
-One row per OpenAPI **resource** operation. `R` = Bearer read / enrichment POST. `W` = mutates tenant Your Keys (`credentials` skill, write-on-confirm). `E` = needs the `erase` key scope — **never** from these skills.
+## REST ↔ tools
 
-Discovery (`GET /health`, `GET /openapi.yaml`, `GET /v1/openapi.yaml`) is not in this table.
+One row per OpenAPI **Bearer resource** operation. `R` = Bearer read / enrichment POST. `W` = mutates tenant Your Keys (`credentials` skill: list is read-only; revoke is write-on-confirm; store in the app UI). `E` = needs the `erase` key scope — **never** from these skills.
 
-| REST | MCP tool | Access | Owner / notes |
+Discovery (`GET /health`, `GET /openapi.yaml`, `GET /openapi.json`, `GET /v1/openapi.yaml`, `GET /v1/openapi.json`) is not in this table.
+
+| REST | Tool id (OpenAPI operationId) | Access | Owner / notes |
 | --- | --- | --- | --- |
 | `GET /v1/providers` | `get_providers` | R | Provider registry + configured flags + `billing_mode`. → `auth` / `credentials` (advisory). |
 | `GET /v1/capabilities` | `get_capabilities` | R | Capability catalog + default routing. Auth check. → `auth`. |
@@ -45,19 +49,21 @@ Discovery (`GET /health`, `GET /openapi.yaml`, `GET /v1/openapi.yaml`) is not in
 | `POST /v1/company/resolve` | `company_resolve` | R | Email/domain/website → one `answer`. Business misses stay 200. → `company-resolve`. |
 | `POST /v1/person/verify-employment` | `person_verify_employment` | R | Pre-flight send decision. Live; no dedicated skill yet. |
 | `GET /v1/runs/{id}` | `get_run` | R | Recorded run envelope (+ `candidates` when completed). |
-| `PUT /v1/credentials/{provider}` | `put_credentials` | W | Upsert tenant Your Keys (ciphertext). → `credentials`. |
+| `GET /v1/credentials` | `list_credentials` | R | Masked Your Keys catalog (`set` \| `managed` \| `unset`). → `credentials`. |
+| `PUT /v1/credentials/{provider}` | `put_credentials` | W | Upsert tenant Your Keys (ciphertext). Store in the app UI — not from chat. → `credentials`. |
 | `DELETE /v1/credentials/{provider}` | `delete_credentials` | W | Revoke tenant Your Keys. → `credentials`. |
 | `DELETE /v1/subjects/{subject_key}` | `delete_subject` | W · E | Tenant-scoped erasure. Requires `erase`. Not these skills. |
 
-Also: `GET /health` (unversioned liveness), `GET /openapi.yaml` / `GET /v1/openapi.yaml` (auth-free spec). Not resource operations — do not add them as tools.
+Also: `GET /health` (unversioned liveness), `GET /openapi.yaml` / `GET /v1/openapi.yaml` / `GET /openapi.json` / `GET /v1/openapi.json` (auth-free spec). Not resource operations — do not add them as tools.
 
-Not shipped — do not call or invent: a hosted MCP URL, extra credential providers, or any path missing from live `GET /openapi.yaml`.
+Not shipped — do not call or invent: a hosted MCP URL, extra credential providers, session/product-app `/v1/auth/*` or `/v1/account/*` routes, or any Bearer path missing from live `GET /openapi.yaml`.
 
 ## Sensitive fields
 
 | Field | Print? |
 | --- | --- |
 | `KINGMINOS_API_KEY` / Bearer token | Never |
-| Vendor `apiKey` / `clientId` / `clientSecret` | Never re-echo after store |
+| Vendor `apiKey` / `clientId` / `clientSecret` | Never. Store at `https://app.kingminos.com` — never paste into chat |
+| `mask` from `list_credentials` | Only the value the API returned; never invent one |
 | `request_id` (`cf-ray`) | Safe |
-| Capability names, `es_decision`, counts, `billing_mode` | Safe |
+| Capability names, `es_decision`, counts, `billing_mode`, credential `status` | Safe |

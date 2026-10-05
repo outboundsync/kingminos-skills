@@ -2,9 +2,9 @@
 
 Live contract: `GET https://api.kingminos.com/openapi.yaml`. Hosted MCP is not shipped — REST only. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
 
-## REST ↔ MCP tools
+## REST ↔ tools
 
-| REST | MCP tool | Access | Owner / notes |
+| REST | Tool id (OpenAPI operationId) | Access | Owner / notes |
 | --- | --- | --- | --- |
 | `GET /v1/capabilities` | `get_capabilities` | R | Catalog + default routing (auth check). |
 | `POST /v1/company/resolve` | `company_resolve` | R | Resolve a company. Business misses stay HTTP 200. |
@@ -46,13 +46,15 @@ Default `max_provider_credits` is `6` on `auto`, `2` on `value`.
 
 ### Outcomes
 
-| `answer.outcome` | `es_decision` | Stamp ZoomInfo company id? | Account Name |
-| --- | --- | --- | --- |
-| `resolved` | `hit` only when `result.zoominfo_company_id` is non-blank | Yes, that id | Fill-if-blank from `result.company_name` |
-| `resolved_without_primary_id` | `miss` | **Never** | Fill-if-blank when name present (websearch / LeadMagic-only) |
-| `no_decision` | `miss` / `noop` / `error` per reason | Never | Do not invent a name |
+| `answer.outcome` | Typical `es_decision` | Stamp / fill |
+| --- | --- | --- |
+| `resolved` | `hit` when a safe primary ZoomInfo id is present | Honor `answer.safe_to_write.zoominfo_company_id` / `.company_name` / `.company_domain` |
+| `resolved_without_primary_id` | `miss` | Honor `safe_to_write` — usually name yes, id no |
+| `no_decision` | as returned (`miss` / `noop` / `error` per reason) | Never invent a name or id |
 
-`result.company_domain` is optional hygiene — never clobber.
+Do not re-derive Account Name or stamp rules from `es_decision` alone — `answer.safe_to_write` is the control. The live `EsDecision.description` contradicts `SafeToWrite.company_name` on whether Account Name fills on `miss`; follow `safe_to_write`.
+
+`result.company_domain` is optional hygiene — write only when `safe_to_write.company_domain`; never clobber.
 
 A LeadMagic-only or websearch-only hit is `resolved_without_primary_id`. A websearch name is not terminal while ZoomInfo remains in `effectiveOrder`.
 
@@ -71,7 +73,7 @@ A LeadMagic-only or websearch-only hit is `resolved_without_primary_id`. A webse
 
 | Status | `error` | Next |
 | --- | --- | --- |
-| `400` | `validation_failed` / `invalid_routing` / `unsupported_schema` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` | Fix input, or store BYOK via `credentials` |
+| `400` | `validation_failed` / `invalid_routing` / `unsupported_schema` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` | Fix input, or store BYOK in the KingMinos app (`credentials` lists status) |
 | `401` | `unauthorized` + `detail` missing \| malformed \| mismatch | `auth` |
 | `409` | `idempotency_*` | Rotate or reuse `Idempotency-Key` per docs |
 | `429` | rate / tenant / key budget | `Retry-After` — key is **not** spent |
