@@ -24,7 +24,7 @@ This skill's default path is `GET /v1/credentials`. Store secrets in the product
 
 ## Path `provider`
 
-`zoominfo` | `leadmagic` | `findymail` | `wiza` | `aiark` | `builtwith`
+`zoominfo` | `leadmagic` | `findymail` | `wiza` | `aiark` | `builtwith` | `prospeo`
 
 `websearch` is rejected (`byok_not_supported`).
 
@@ -70,12 +70,12 @@ API-key vendors (`leadmagic`, `findymail`, `wiza`, `aiark`, `builtwith`):
 | `429` | `rate_limit_exceeded` | Retry-After |
 | `500` | `credentials_kek_missing` / `credentials_kek_invalid` / `byok_kek_version_unsupported` / `byok_decrypt_failed` | Worker KEK; UNVERIFIED, do not invent a store |
 
-Capability POSTs may return `400` `zi_credentials_required` | `findymail_credentials_required` | `wiza_credentials_required` | `aiark_credentials_required` | `builtwith_credentials_required` when a path needs a BYOK vendor that is not stored.
+Capability POSTs may return `400` `zi_credentials_required` | `findymail_credentials_required` | `wiza_credentials_required` | `aiark_credentials_required` | `builtwith_credentials_required` | `prospeo_credentials_required` when a path needs a BYOK vendor that is not stored.
 
 ## Policy
 
 - **House-key by default:** LeadMagic only.
-- **BYOK:** Findymail, ZoomInfo, Wiza, AIArk, BuiltWith.
+- **BYOK:** Findymail, ZoomInfo, Wiza, AIArk, BuiltWith, Prospeo.
 - **House-only:** websearch.
 - Live writes need `CREDENTIALS_KEK` on Worker `kingminos-api-prod` (operator secret — never a skill input).
 - Store secrets at `https://app.kingminos.com`. Never paste a vendor secret into chat.
