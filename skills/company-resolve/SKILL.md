@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # KingMinos company resolve
@@ -43,10 +43,10 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    - `safe_to_write.company_domain` → optional domain hygiene; never clobber an existing Website/domain.
    - Label the outcome from `answer.outcome`: `resolved` · `resolved_without_primary_id` · `no_decision` (honest abstain: `no_domain`, `zero_hits`, `not_configured`, credits, compliance).
    - HTTP 200 with a business miss is a decision, not UNVERIFIED.
-   - `400` `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` → hand off to `credentials` (those vendors are BYOK; store in the app UI). LeadMagic is house-key by default and should not produce a credentials_required error for a default tenant.
+   - `400` `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` → hand off to `credentials` ((ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo) are BYOK; store in the app UI). LeadMagic, Wiza, and Findymail are house-key and should not produce a credentials_required error for a default tenant.
 7. Write **SFDC** or **Salesforce**, never **SF**.
 
-Default linear order is `[websearch, zoominfo, leadmagic]` with `allow_fallbacks` and `free_first: false`. `auto` may run Wiza then Findymail only after a websearch miss/junk reject. `value` never calls those paid name hops. AIArk and Prospeo are registered but **not** on any default path (`routing.only: ["aiark"]` / `routing.only: ["prospeo"]` are escapes). ZoomInfo / Findymail / Wiza / AIArk / BuiltWith / Prospeo need tenant Your Keys (`credentials`). LeadMagic is the house-key vendor.
+Default linear order is `[websearch, zoominfo, leadmagic]` with `allow_fallbacks` and `free_first: false`. `auto` may run Wiza then Findymail only after a websearch miss/junk reject. `value` never calls those paid name hops. AIArk, Prospeo, and Apollo are registered but **not** on any default path (`routing.only: ["aiark"]` / `["prospeo"]` / `["apollo"]` are escapes). LeadMagic, Wiza, and Findymail are house-key vendors; ZoomInfo, AIArk, BuiltWith, Prospeo, and Apollo need tenant Your Keys (`credentials`).
 
 Hosted MCP is **not shipped**. The inventory tool is `company_resolve`. Do not invent `resolve_company` or a hosted MCP URL.
 

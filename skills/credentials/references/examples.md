@@ -28,7 +28,7 @@ BYOK      ████████████████████  ✓ read
 - · wiza unset
 - · aiark unset
 - · builtwith unset
-- · Findymail, ZoomInfo, Wiza, AIArk, BuiltWith, Prospeo are BYOK
+- · ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo are BYOK
 - · websearch is house-only (byok_not_supported)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
@@ -54,7 +54,7 @@ BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ miss
 `zoominfo`
 
 - ✗ zoominfo unset
-- · Findymail, ZoomInfo, Wiza, AIArk, BuiltWith, Prospeo are BYOK
+- · ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo are BYOK
 - · websearch is house-only (byok_not_supported)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
@@ -84,7 +84,7 @@ BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ miss
 `zoominfo`
 
 - ✗ zoominfo credential_rejected — vendor rejected the key; nothing was stored
-- · Findymail, ZoomInfo, Wiza, AIArk, BuiltWith, Prospeo are BYOK
+- · ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo are BYOK
 - · websearch is house-only (byok_not_supported)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 

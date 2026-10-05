@@ -17,7 +17,7 @@ providers:
     api_key: true
   - id: findymail
     label: Findymail
-    supply: byok
+    supply: house_key
     credentials_required: findymail_credentials_required
     path_enum: true
     api_key: true
@@ -29,7 +29,7 @@ providers:
     api_key: false
   - id: wiza
     label: Wiza
-    supply: byok
+    supply: house_key
     credentials_required: wiza_credentials_required
     path_enum: true
     api_key: true
@@ -49,6 +49,12 @@ providers:
     label: Prospeo
     supply: byok
     credentials_required: prospeo_credentials_required
+    path_enum: true
+    api_key: true
+  - id: apollo
+    label: Apollo
+    supply: byok
+    credentials_required: apollo_credentials_required
     path_enum: true
     api_key: true
   - id: websearch
