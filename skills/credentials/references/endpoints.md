@@ -40,7 +40,7 @@ ZoomInfo (required pair):
 { "clientId": "...", "clientSecret": "..." }
 ```
 
-API-key vendors (`leadmagic`, `findymail`, `wiza`, `aiark`, `builtwith`):
+API-key vendors (`leadmagic`, `findymail`, `wiza`, `aiark`, `builtwith`, `prospeo`):
 
 ```json
 { "apiKey": "..." }

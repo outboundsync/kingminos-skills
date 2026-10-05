@@ -5,6 +5,7 @@ import disclaimer from './disclaimer.mjs';
 import endpointMapConsistent from './endpoint-map-consistent.mjs';
 import endpointMapOpenapi from './endpoint-map-openapi.mjs';
 import frontmatter from './frontmatter.mjs';
+import providerEnum from './provider-enum.mjs';
 import links from './links.mjs';
 import linksEscapeSkill from './links-escape-skill.mjs';
 import metadata from './metadata.mjs';
@@ -28,6 +29,7 @@ export const rules = [
   writeToolsNamed,
   endpointMapConsistent,
   endpointMapOpenapi,
+  providerEnum,
   brand,
   links,
   linksEscapeSkill,

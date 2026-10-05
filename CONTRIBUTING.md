@@ -19,15 +19,17 @@ npm run validate -- --base origin/main    # also require version bumps (what CI 
 npm test                                  # validator + release tooling tests
 ```
 
-PR and push **Validate** is hermetic: it compares the api map to `scripts/validate/fixtures/openapi-inventory.yaml` only. A live API outage, deploy, or `curl` blip must not fail a typo-fix PR or block CalVer release.
+PR and push **Validate** is hermetic: it compares the api map to `scripts/validate/fixtures/openapi-inventory.yaml` and BYOK provider lists to `scripts/validate/fixtures/providers.yaml` only. A live API outage, deploy, or `curl` blip must not fail a typo-fix PR or block CalVer release.
 
-Live OpenAPI comparison is a scheduled + `workflow_dispatch` job (`.github/workflows/openapi-surfaces.yml`). It fails visibly and can open an issue. It never gates release. Run it locally when you change the map:
+Live OpenAPI comparison is a scheduled + `workflow_dispatch` job (`.github/workflows/openapi-surfaces.yml`). It fails visibly and can open an issue. It never gates release. Run it locally when you change the map or the provider inventory:
 
 ```bash
 KINGMINOS_OPENAPI_URL=https://api.kingminos.com/openapi.yaml npm run check:surfaces
 ```
 
 The inventory is **Bearer-only**. Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare no bearer security and are out of scope. `GET /v1/credentials` (`list_credentials`) is in scope. kingminos-application `check:surfaces` should use the same Bearer-only rule (do not change that repo from this pack).
+
+`endpoint-map-*` is route-only. Provider ids (`leadmagic`, `prospeo`, …) live in `providers.yaml`. When KingMinos adds a BYOK vendor, add it there first, then to every credentials / company-resolve / README / CONVENTIONS / SECURITY BYOK list, path-`provider` enum, and `*_credentials_required` list. `provider-enum` fails CI if a list is short.
 
 Run `npm run validate -- --list` to see every rule with its severity. Rules and their rationale live in `scripts/validate/rules/`, one file each; severities are in `scripts/validate/config.json`. A rule at `warn` is new and is being rolled out; it becomes an error once every skill complies.
 
@@ -41,6 +43,7 @@ Run `npm run validate -- --list` to see every rule with its severity. Rules and 
 6. Add the skill to every README list: the count, its category table, the install commands, and the "try without installing" commands.
 7. Add a line under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md).
 8. Teach only Bearer resource operations that `GET https://api.kingminos.com/openapi.yaml` exposes today. Those operations belong in `skills/api/references/endpoints.md` (METHOD /path → snake_case tool). Do not invent endpoints or tools outside that map. Do not add session/product-app ops. `npm run check:surfaces` (fixture) and the live surfaces job must stay green.
+9. When KingMinos adds a credentials / BYOK provider, add it to `scripts/validate/fixtures/providers.yaml` (and the OpenAPI fixture path-`provider` enum) before listing it in skills. `provider-enum` fails if a BYOK list, path enum, or `*_credentials_required` line is short.
 
 ## Versioning
 
