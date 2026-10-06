@@ -57,6 +57,12 @@ providers:
     credentials_required: apollo_credentials_required
     path_enum: true
     api_key: true
+  - id: companyurlfinder
+    label: Company URL Finder
+    supply: byok
+    credentials_required: companyurlfinder_credentials_required
+    path_enum: true
+    api_key: true
   - id: websearch
     label: websearch
     supply: house_only
