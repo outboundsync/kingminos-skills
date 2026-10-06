@@ -3,16 +3,16 @@ name: credentials
 description: >-
   List KingMinos vendor Your Keys and revoke a stored key after confirmation.
   LeadMagic, Wiza, and Findymail are house-key; ZoomInfo, AIArk, BuiltWith,
-  Prospeo, Apollo, Company URL Finder, and People Data Labs are BYOK. Use when the user asks to
+  Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK. Use when the user asks to
   list credentials, GET
   /v1/credentials, revoke a ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo,
-  Company URL Finder, or People Data Labs key, why they saw zi_credentials_required, or whether LeadMagic needs a
+  Company URL Finder, People Data Labs, or HG Insights key, why they saw zi_credentials_required, or whether LeadMagic needs a
   tenant key.
 license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com. Mutations only after explicit confirmation. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.1.5"
+  version: "1.1.6"
 ---
 
 # KingMinos credentials
@@ -37,9 +37,10 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | Apollo | `apollo` | BYOK | `{ "apiKey" }` |
 | Company URL Finder | `companyurlfinder` | BYOK | `{ "apiKey" }` |
 | People Data Labs | `peopledatalabs` | BYOK | `{ "apiKey" }` |
+| HG Insights | `hginsights` | BYOK | `{ "apiKey" }` |
 | websearch | `websearch` | House-only | `PUT` → `byok_not_supported` |
 
-`PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, or People Data Labs key. Do not call `PUT` from this skill.
+`PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, or HG Insights key. Do not call `PUT` from this skill.
 
 Hosted MCP is **not shipped**. List is REST `list_credentials`. Revoke is REST `delete_credentials`.
 
@@ -96,7 +97,7 @@ BYOK      <bar>  <✓|✗|·> <ready | missing <vendor> | unverified>
 `<vendor or catalog>`
 
 - <✓|·|✗> <provider> <set|unset|managed>
-- · ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, and People Data Labs are BYOK
+- · ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK
 - · websearch is house-only (byok_not_supported)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
