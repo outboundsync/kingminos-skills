@@ -3,8 +3,8 @@
 **Canonical path (this repo):** `docs/byok-provider-playbook.md`. The same playbook is mirrored at `docs/byok-provider-playbook.md` in `kingminos-application`, `kingminos-website`, and `kingminos-mcp` — keep copies aligned when you change rollout steps.
 
 **Audience:** cheap DeepSeek (or similar) coding agents + humans reviewing them.  
-**Golden path:** Apollo (2026-10-05) — app [#158](https://github.com/outboundsync/kingminos-application/pull/158), website [#34](https://github.com/outboundsync/kingminos-website/pull/34), skills [#6](https://github.com/outboundsync/kingminos-skills/pull/6), mcp [#10](https://github.com/outboundsync/kingminos-mcp/pull/10).  
-**Prior same-day reference:** Prospeo (app main commits `6e4e41e` → `7fcc6c7`, website [#33](https://github.com/outboundsync/kingminos-website/pull/33), skills [#4](https://github.com/outboundsync/kingminos-skills/pull/4), mcp [#8](https://github.com/outboundsync/kingminos-mcp/pull/8)).  
+**Golden path:** Apollo (2026-10-05) — `kingminos-application#158`, `kingminos-website#34`, `kingminos-skills#6`, `kingminos-mcp#10`.  
+**Prior same-day reference:** Prospeo (app main commits `6e4e41e` → `7fcc6c7`, `kingminos-website#33`, `kingminos-skills#4`, `kingminos-mcp#8`).  
 **Plan artifact (Apollo):** `kingminos-application/docs/future/apollo-byok-four-repos.md`.
 
 **Goal:** add **one** paid data vendor as a **BYOK opt-in hop** (off every default routing path), then propagate enums/docs to website / MCP / skills. Do not invent House Keys. Prefer reading `gh pr diff` / `gh api …/contents/…` over full clones.
@@ -265,7 +265,7 @@ Per-repo green checks from §3. Redeploy website (`kingminos-runtime`) and MCP (
 
 ## 7. What NOT to do
 
-- Do **not** merge House Keys [#132](https://github.com/outboundsync/kingminos-application/pull/132) wholesale.
+- Do **not** merge House Keys `kingminos-application#132` wholesale.
 - Do **not** add BYOK vendors to default routing / `field-stacks`.
 - Do **not** mark BuiltWith (or unsigned vendors) as customer house keys.
 - Do **not** treat dogfood `{ID}_API_KEY` as reseller House Keys.

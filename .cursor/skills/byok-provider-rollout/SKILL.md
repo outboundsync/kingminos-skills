@@ -11,7 +11,7 @@ description: >-
 
 Mechanical four-repo rollout for **one** BYOK vendor. Optimized for cheap agents: follow checklists; do not invent policy.
 
-**Golden path:** Apollo — `kingminos-application` #158, `kingminos-website` #34, `kingminos-skills` #6, `kingminos-mcp` #10. Prior: Prospeo (app main, website #33, skills #4, mcp #8).
+**Golden path:** Apollo — `kingminos-application#158`, `kingminos-website#34`, `kingminos-skills#6`, `kingminos-mcp#10`. Prior: Prospeo (app main, `kingminos-website#33`, `kingminos-skills#4`, `kingminos-mcp#8`).
 
 **Full narrative, traps, smoke tests, and prompt template:** [docs/byok-provider-playbook.md](../../../docs/byok-provider-playbook.md) (mirrored at the same path in application, website, and mcp). In-repo plan example: `kingminos-application/docs/future/apollo-byok-four-repos.md`.
 
@@ -40,7 +40,7 @@ Stop if any are missing:
 2. Dogfood `VENDOR_API_KEY` for tenant `default` is OK; that is **not** house resale.
 3. **BuiltWith** stays BYOK-only (ToS / reseller parked); tenant cache isolation; never customer house.
 4. Never put BYOK vendors on default routing (`field-stacks`). Opt-in via `routing.only` after `presetProvidersFor`.
-5. Do **not** merge closed House Keys PR `kingminos-application` #132 wholesale.
+5. Do **not** merge closed House Keys PR `kingminos-application#132` wholesale.
 6. Say **SFDC**, never “SF”.
 7. No secrets, KEKs, or live API keys in commits or this skill.
 8. Merge ≠ live: API Worker `kingminos-api-prod`, website Worker `kingminos-runtime`, MCP Worker `kingminos-mcp-prod` each need deploy/redeploy.
