@@ -47,6 +47,10 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 7. Write **SFDC** or **Salesforce**, never **SF**.
 
 Default linear order is `[websearch, zoominfo, leadmagic]` with `allow_fallbacks` and `free_first: false`. `auto` may run Wiza then Findymail only after a websearch miss/junk reject. `value` never calls those paid name hops. AIArk, Prospeo, and Apollo are registered but **not** on any default resolve path (`routing.only: ["aiark"]` / `["prospeo"]` / `["apollo"]` are escapes). Company URL Finder is a **`company.domain`** name→domain hop (`routing.only: ["companyurlfinder"]`), not resolve. LeadMagic, Wiza, and Findymail are house-key vendors; ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, and Company URL Finder are BYOK — store Company URL Finder keys for `company.domain`, not for resolve (`credentials`).
+   - `400` `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `peopledatalabs_credentials_required` → hand off to `credentials` (ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, and People Data Labs are BYOK; store in the app UI). LeadMagic, Wiza, and Findymail are house-key and should not produce a credentials_required error for a default tenant.
+7. Write **SFDC** or **Salesforce**, never **SF**.
+
+Default linear order is `[websearch, zoominfo, leadmagic]` with `allow_fallbacks` and `free_first: false`. `auto` may run Wiza then Findymail only after a websearch miss/junk reject. `value` never calls those paid name hops. AIArk, Prospeo, Apollo, and People Data Labs are registered but **not** on any default path (`routing.only: ["aiark"]` / `["prospeo"]` / `["apollo"]` / `["peopledatalabs"]` are escapes). LeadMagic, Wiza, and Findymail are house-key vendors; ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, and People Data Labs need tenant Your Keys (`credentials`).
 
 Hosted MCP is **not shipped**. The inventory tool is `company_resolve`. Do not invent `resolve_company` or a hosted MCP URL.
 

@@ -65,6 +65,10 @@ providers:
     supply: byok
     credentials_required: companyurlfinder_credentials_required
     company_resolve_surface: false
+  - id: peopledatalabs
+    label: People Data Labs
+    supply: byok
+    credentials_required: peopledatalabs_credentials_required
     path_enum: true
     api_key: true
   - id: websearch
