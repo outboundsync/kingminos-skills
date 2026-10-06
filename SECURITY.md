@@ -7,7 +7,7 @@ This repository is documentation-only Agent Skills (instruction packs) for **Kin
 - Enrichment inputs (emails, names, domains) and CRM fields can contain untrusted text, including prompt-injection attempts.
 - Agent runtimes may have powerful tools (shell, file, network), depending on user setup.
 - Skill metadata can be abused as a social-engineering channel if behavior is surprising.
-- Vendor Your Keys (ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder) are secrets. LeadMagic, Wiza, and Findymail are house-key vendors; a tenant may still store their own key for those in the product app.
+- Vendor Your Keys (ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs) are secrets. LeadMagic, Wiza, and Findymail are house-key vendors; a tenant may still store their own key for those in the product app.
 
 ## Safe defaults (all modes)
 
