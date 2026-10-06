@@ -89,7 +89,11 @@ These skills reflect KingMinos by OutboundSync practices, shared freely and with
 
 ## Maintainers
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for adding or changing a skill. New skills follow [CONVENTIONS.md](CONVENTIONS.md). Validate before pushing (Node 22+):
+See [CONTRIBUTING.md](CONTRIBUTING.md) for adding or changing a skill. New skills follow [CONVENTIONS.md](CONVENTIONS.md).
+
+**BYOK provider rollout** (four-repo mechanical checklist): [docs/byok-provider-playbook.md](docs/byok-provider-playbook.md) (same file in `kingminos-application`, `kingminos-website`, and `kingminos-mcp`). Cursor-only maintainer skill: [.cursor/skills/byok-provider-rollout/SKILL.md](.cursor/skills/byok-provider-rollout/SKILL.md).
+
+Validate before pushing (Node 22+):
 
 ```bash
 npm ci
