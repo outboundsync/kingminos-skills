@@ -74,6 +74,7 @@ export function parseProviders(raw) {
       label,
       supply,
       credentialsRequired: typeof cred === 'string' && cred.trim() ? cred.trim() : null,
+      companyResolveSurface: row.company_resolve_surface === false ? false : true,
       pathEnum: asBool(row.path_enum, supply !== 'house_only'),
       apiKey: asBool(row.api_key, false),
     });
@@ -213,7 +214,11 @@ function pushMissing(out, file, line, kind, present, expected) {
   return true;
 }
 
-function classifyLine(line, providers, previous = '') {
+export function resolveCredentialsRequiredProviders(providers) {
+  return providers.filter((p) => p.supply === 'byok' && p.credentialsRequired && p.companyResolveSurface !== false);
+}
+
+function classifyLine(line, providers, previous = '', file = '') {
   if (isRoutingDefault(line)) return null;
   const window = previous ? `${previous} ${line}` : line;
   const mentioned = mentionedProviders(line, providers);
@@ -225,7 +230,9 @@ function classifyLine(line, providers, previous = '') {
   const ids = backtickIds(line).filter((id) => providers.some((p) => p.id === id));
 
   if (codes.length >= 2) {
-    return { kind: 'credentials_required', expected: byok.filter((p) => p.credentialsRequired), present: mentioned };
+    const onResolveSurface = String(file).startsWith('skills/company-resolve/');
+    const expected = onResolveSurface ? resolveCredentialsRequiredProviders(providers) : byok.filter((p) => p.credentialsRequired);
+    return { kind: 'credentials_required', expected, present: mentioned };
   }
   if (/API-key vendors\s*\(/i.test(line)) {
     return { kind: 'API-key vendor list', expected: apiKey, present: mentioned };
@@ -258,7 +265,7 @@ export function checkProviderSurfaces(files, providers) {
     const kinds = new Set();
     const lines = String(text).split('\n');
     lines.forEach((line, index) => {
-      const classified = classifyLine(line, providers, index > 0 ? lines[index - 1] : '');
+      const classified = classifyLine(line, providers, index > 0 ? lines[index - 1] : '', file);
       if (!classified) return;
       kinds.add(classified.kind);
       pushMissing(out, file, index + 1, classified.kind, classified.present, classified.expected);
@@ -295,7 +302,10 @@ export function checkProviderSurfaces(files, providers) {
       const aliases = kindAliases[kind] ?? [kind];
       if (aliases.some((name) => found.has(name))) continue;
       if (kind === 'byok' && found.has('credentials_required')) continue;
-      const expected = kind === 'path_enum' ? pathEnum : kind === 'api_key' ? apiKey : kind === 'policy_table' ? pathEnum : byok;
+      let expected = kind === 'path_enum' ? pathEnum : kind === 'api_key' ? apiKey : kind === 'policy_table' ? pathEnum : byok;
+      if (kind === 'credentials_required' && surface.file.startsWith('skills/company-resolve/')) {
+        expected = resolveCredentialsRequiredProviders(providers);
+      }
       out.push({
         file: surface.file,
         line: 0,

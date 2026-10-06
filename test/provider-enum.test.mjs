@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -10,6 +10,7 @@ import {
   credentialsProviderEnumFromOpenApi,
   mentionsProvider,
   parseProviders,
+  resolveCredentialsRequiredProviders,
 } from '../scripts/validate/rules/provider-enum.mjs';
 import { makeRepo, readmeFor, skillMd } from './helpers/fixture.mjs';
 
@@ -90,6 +91,13 @@ test('parseProviders reads the inventory and rejects unknown supply', () => {
   ]);
   assert.equal(providers.find((p) => p.id === 'zoominfo').credentialsRequired, 'zi_credentials_required');
   assert.equal(parseProviders('providers:\n  - { id: x, label: X, supply: paid }\n').problems[0].msg.includes('unknown supply'), true);
+});
+
+test('resolveCredentialsRequiredProviders skips company_resolve_surface: false', () => {
+  const { providers } = parseProviders(readFileSync(path.join(process.cwd(), FIXTURE), 'utf8'));
+  const ids = resolveCredentialsRequiredProviders(providers).map((p) => p.id);
+  assert.equal(ids.includes('apollo'), true);
+  assert.equal(ids.includes('companyurlfinder'), false);
 });
 
 test('mentionsProvider matches id, label, and zi_credentials_required', () => {

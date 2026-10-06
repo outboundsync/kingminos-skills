@@ -9,6 +9,7 @@
 - Maintainer docs: [docs/byok-provider-playbook.md](docs/byok-provider-playbook.md) (BYOK four-repo rollout; mirrored in application, website, mcp) and Cursor skill `.cursor/skills/byok-provider-rollout/SKILL.md`.
 - Prospeo BYOK support: `prospeo` is a storable API-key vendor (`PUT /v1/credentials/prospeo`) and an off-path `company.resolve` provider forceable via `routing.only: ["prospeo"]`. Adds `prospeo_credentials_required`.
 - Apollo BYOK support: `apollo` is a storable API-key vendor and an off-path `company.resolve` firmographic hop (`GET /organizations/enrich`) forceable via `routing.only: ["apollo"]`. Adds `apollo_credentials_required`. Also corrects the house-key policy copy: house-key = LeadMagic, Wiza, Findymail; BYOK = ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo.
+- Company URL Finder BYOK support: `companyurlfinder` is a storable API-key vendor and an off-path `company.domain` name-to-domain hop (`POST /v2/services/name_to_domain`) forceable via `routing.only: ["companyurlfinder"]`. Adds `companyurlfinder_credentials_required`.
 - `provider-enum` validator: CI fails when skills BYOK lists, path-`provider` enums, or `*_credentials_required` lists omit a provider from the checked-in KingMinos inventory (`scripts/validate/fixtures/providers.yaml`). Endpoint-map rules stay route-only; this check is what makes a new vendor visible.
 
 ### Changed
@@ -21,6 +22,7 @@
 
 ### Fixed
 
+- `company-resolve` no longer lists `companyurlfinder_credentials_required` as a normal resolve `400`; Company URL Finder stays BYOK on `company.domain` / name→domain (`credentials` skill unchanged).
 - Secrets rule detects `km_` tokens, scans all tracked text, and treats `\$\{` as a placeholder.
 - Hard-coded API inventory counts and lists are checked against the canonical map.
 - credentials API-key vendor list includes `prospeo` (missed when Prospeo landed in #4).

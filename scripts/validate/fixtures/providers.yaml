@@ -3,6 +3,9 @@
 # Live compare is optional: KINGMINOS_OPENAPI_URL=https://api.kingminos.com/openapi.yaml
 # npm run check:surfaces. A served-spec outage must not block PRs or CalVer release.
 #
+# company_resolve_surface: when false, provider-enum still requires the id on
+# company-resolve BYOK lists but not on resolve-path *_credentials_required rows
+# (e.g. companyurlfinder is company.domain / name_to_domain only).
 # path_enum: storable Your Keys ids on PUT/DELETE /v1/credentials/{provider}.
 # websearch is house-only (byok_not_supported) and is not in path_enum.
 # Infra hops (dns, site_probe, wikidata, gleif, rdap) are not credential providers.
@@ -55,6 +58,13 @@ providers:
     label: Apollo
     supply: byok
     credentials_required: apollo_credentials_required
+    path_enum: true
+    api_key: true
+  - id: companyurlfinder
+    label: Company URL Finder
+    supply: byok
+    credentials_required: companyurlfinder_credentials_required
+    company_resolve_surface: false
     path_enum: true
     api_key: true
   - id: websearch
