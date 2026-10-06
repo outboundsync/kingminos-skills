@@ -22,6 +22,7 @@
 
 ### Fixed
 
+- `company-resolve` no longer lists `companyurlfinder_credentials_required` as a normal resolve `400`; Company URL Finder stays BYOK on `company.domain` / name→domain (`credentials` skill unchanged).
 - Secrets rule detects `km_` tokens, scans all tracked text, and treats `\$\{` as a placeholder.
 - Hard-coded API inventory counts and lists are checked against the canonical map.
 - credentials API-key vendor list includes `prospeo` (missed when Prospeo landed in #4).
