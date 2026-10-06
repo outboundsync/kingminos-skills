@@ -36,13 +36,10 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | Prospeo | `prospeo` | BYOK | `{ "apiKey" }` |
 | Apollo | `apollo` | BYOK | `{ "apiKey" }` |
 | Company URL Finder | `companyurlfinder` | BYOK | `{ "apiKey" }` |
-| websearch | `websearch` | House-only | `PUT` → `byok_not_supported` |
-
-`PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, or Company URL Finder key. Do not call `PUT` from this skill.
 | People Data Labs | `peopledatalabs` | BYOK | `{ "apiKey" }` |
 | websearch | `websearch` | House-only | `PUT` → `byok_not_supported` |
 
-`PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, or People Data Labs key. Do not call `PUT` from this skill.
+`PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, or People Data Labs key. Do not call `PUT` from this skill.
 
 Hosted MCP is **not shipped**. List is REST `list_credentials`. Revoke is REST `delete_credentials`.
 
@@ -99,8 +96,7 @@ BYOK      <bar>  <✓|✗|·> <ready | missing <vendor> | unverified>
 `<vendor or catalog>`
 
 - <✓|·|✗> <provider> <set|unset|managed>
-- · ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder are BYOK
-- · ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, People Data Labs are BYOK
+- · ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, and People Data Labs are BYOK
 - · websearch is house-only (byok_not_supported)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
