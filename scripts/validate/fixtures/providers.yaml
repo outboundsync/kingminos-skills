@@ -73,6 +73,12 @@ providers:
     credentials_required: peopledatalabs_credentials_required
     path_enum: true
     api_key: true
+  - id: hginsights
+    label: HG Insights
+    supply: byok
+    credentials_required: hginsights_credentials_required
+    path_enum: true
+    api_key: true
   - id: websearch
     label: websearch
     supply: house_only
