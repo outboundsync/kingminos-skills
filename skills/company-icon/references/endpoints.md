@@ -57,7 +57,7 @@ Default ladder: **house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-f
 - Brandfetch prefers **icon** over wider brand **logo** when both exist.
 - **Enrich-CRM, AI Ark, LeadMagic, and Prospeo are not icon sources.**
 - **Wiza**, **Findymail**, **websearch**, and other resolve/B2B BYOK hops are **not** default — `routing.only` when explicitly needed.
-- BYOK: ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist — default `company.icon` uses Brandfetch then ZoomInfo only; other hop vendors are `routing.only` only **except Lemlist** (Your Keys catalog only — no hop on this route).
+- BYOK: ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io — default `company.icon` uses Brandfetch then ZoomInfo only; other hop vendors are `routing.only` only **except Lemlist and Snov.io** (Your Keys catalog only — no hop on this route).
 - **Brandfetch** and **ZoomInfo** need tenant Your Keys when their ladder step runs (`credentials`).
 
 ## Errors (run not started)
