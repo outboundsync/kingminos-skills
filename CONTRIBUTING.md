@@ -19,7 +19,7 @@ npm run validate -- --base origin/main    # also require version bumps (what CI 
 npm test                                  # validator + release tooling tests
 ```
 
-The `validate` job is the required check on `main`, and branches must be up to date (CI map for all kingminos-* repos: `kingminos-application/docs/ci.md`).
+The `validate` job is the required check on `main` (`npm run ci` runs the same thing locally); branches must be up to date and protection applies to admins (CI map for all kingminos-* repos: `kingminos-application/docs/ci.md`).
 
 PR and push **Validate** is hermetic: it compares the api map to `scripts/validate/fixtures/openapi-inventory.yaml` and BYOK provider lists to `scripts/validate/fixtures/providers.yaml` only. A live API outage, deploy, or `curl` blip must not fail a typo-fix PR or block CalVer release.
 
