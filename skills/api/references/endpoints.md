@@ -47,6 +47,7 @@ Discovery (`GET /health`, `GET /openapi.yaml`, `GET /openapi.json`, `GET /v1/ope
 | `GET /v1/capabilities` | `get_capabilities` | R | Capability catalog + default routing. Auth check. → `auth`. |
 | `POST /v1/company/hierarchy` | `company_hierarchy` | R | Immediate / ultimate parent + capped subsidiaries. Live; no dedicated skill yet. |
 | `POST /v1/company/b2b-social` | `company_b2b_social` | R | LinkedIn company page (`result.linkedin_url` = Serper-confirmed `https://www.linkedin.com/company/{slug}` or null). Paths `speed` \| `balance` (default) \| `accuracy` \| `coverage`; default stacks are house keys (balance = websearch → house AI Ark). BYOK via `routing.only`. → `company-b2b-social`. |
+| `POST /v1/company/icon` | `company_icon` | R | Square company `icon_url` (`company.icon`) — live `https://` favicon-style stamp only; default ladder favicon-fetch → Brandfetch (icon before logo) → ZoomInfo enrich. LeadMagic not on default path. No R2/D1 cache URL. → `company-icon`. |
 | `POST /v1/company/domain` | `company_domain` | R | Write-safe domain stamp + account aliases. Live; no dedicated skill yet. |
 | `POST /v1/company/resolve` | `company_resolve` | R | Email/domain/website → one `answer`. Business misses stay 200. → `company-resolve`. |
 | `POST /v1/person/verify-employment` | `person_verify_employment` | R | Pre-flight send decision. Live; no dedicated skill yet. |

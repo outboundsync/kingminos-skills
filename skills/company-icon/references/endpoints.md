@@ -1,4 +1,4 @@
-# company.b2b_social endpoints
+# company.icon endpoints
 
 Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP (`https://mcp.kingminos.com`) share the same Bearer inventory. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
 
@@ -7,30 +7,27 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP
 | REST | Tool id (OpenAPI operationId) | Access | Owner / notes |
 | --- | --- | --- | --- |
 | `GET /v1/capabilities` | `get_capabilities` | R | Catalog + default routing (auth check). |
-| `POST /v1/company/b2b-social` | `company_b2b_social` | R | LinkedIn company page decision. Business misses stay HTTP 200. |
+| `POST /v1/company/icon` | `company_icon` | R | Square company `icon_url` stamp decision (`company.icon`). Business misses stay HTTP 200. |
 | `GET /v1/runs/{id}` | `get_run` | R | Replay a recorded run. |
 
 | Method | Path | Auth | Purpose |
 | --- | --- | --- | --- |
-| `POST` | `/v1/company/b2b-social` | Bearer | B2B social company page (`company.b2b_social`). |
+| `POST` | `/v1/company/icon` | Bearer | Company icon (`company.icon`) — live HTTPS `icon_url` only. |
 | `GET` | `/v1/runs/{id}` | Bearer | Replay a recorded run. |
 | `GET` | `/v1/capabilities` | Bearer | Catalog + default routing (auth check). |
 
 ## Request
 
-`CompanyB2bSocialInput` keys are always present on the echo (`name`, `domain`, `website`, `email`, `linkedin_url`) and may be null.
+`CompanyIconInput` keys are always present on the echo (`name`, `domain`, `website`, `email`) and may be null.
 
 | Field | Required | Notes |
 | --- | --- | --- |
 | `domain` | subject required | Or `website` / `email` → same registrable domain after hygiene |
-| `name` | no | Optional unit/brand corroboration |
+| `name` | no | Optional corroboration |
 | `website` | no | |
 | `email` | no | |
-| `linkedin_url` | no | Must already be `https://www.linkedin.com/company/{slug}`; person `/in/` is `400` |
 | `external_ref` | no | Client correlation key; echoed |
-| `routing.path` | no | `speed` \| `balance` \| `accuracy` \| `coverage` (omit = `balance`). Legacy aliases (`auto`, `value`, `fast`, `name_only`) normalize — echoed paths are the four live names. |
-| `routing.preset` | no | Back-compat; nested `routing.path` wins when both are sent |
-| `routing.only` | no | BYOK / escape providers (e.g. `["zoominfo"]` for scoped enrich, `["aiark"]` for AI Ark alone) |
+| `routing.only` | no | BYOK / escape providers (e.g. `["brandfetch"]`, `["zoominfo"]`) |
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
 | `dry_run` | no | Default false |
 
@@ -40,27 +37,31 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 
 | Layer | Fields | Use |
 | --- | --- | --- |
-| Control | `answer.outcome`, `es_decision`, `answer.reason_code`, `result.linkedin_url`, `result.verification.status` | Branch here |
-| Explain | `answer.summary`, `sources`, `result.unverified` | Humans only; unverified array is not a hit |
+| Control | `answer.outcome`, `es_decision`, `answer.safe_to_write.icon_url`, `answer.reason_code`, `result.icon_url` | Branch here |
+| Explain | `answer.summary`, `sources` | Humans only |
 | Audit | `trace.*` when `explain=full` | Debug |
 
 ### Outcomes
 
-| `answer.outcome` | `result.linkedin_url` | Meaning |
+| `answer.outcome` | `result.icon_url` | Meaning |
 | --- | --- | --- |
-| `hit` | Serper-confirmed company URL or null per path rules | Decision returned |
-| `no_decision` | null | Honest abstain |
+| `hit` | Live `https://` square icon/favicon URL | Decision returned — stamp when `safe_to_write.icon_url` |
+| `no_decision` | null | Honest abstain — do not invent an icon |
 
-Output `result.linkedin_url` is only the accept form `https://www.linkedin.com/company/{slug}` (slug lowercased) after Serper confirmation, or null. Reject `/in/`, school/showcase, unverified title/snippet misses, and parent brand pages when the input is a distinct unit.
+Output `result.icon_url` is only a **live HTTPS** URL suitable for favicon-style stamping. **No R2/D1 cache URLs.** Reject `http://`, data URLs, and non-square marketing assets unless the Worker accepted them as `icon_url`.
 
 ## Routing (live Worker)
 
-- `speed`: websearch company-page query (cap 1)
-- `balance` (default): websearch then house **AI Ark** even after a search candidate (cap 2)
-- `accuracy`: LeadMagic, house AI Ark, then Wiza (cap 5) — verified-only accept
-- `coverage`: adds Findymail (cap 6) — structurally valid pages with confidence tiers
-- Default stacks: **house keys only** (LeadMagic, Wiza, Findymail, AI Ark, websearch)
-- BYOK: ZoomInfo (`company_linkedin_enrich` — search → scoped company enrich `socialMediaUrls`), BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights — `routing.only` / explicit order only (not default stacks)
+Default linear order (house then BYOK):
+
+1. **favicon-fetch** (house) — on-domain favicon / touch icon fetch
+2. **brandfetch** (BYOK) — Brandfetch brand API; prefer **icon** type over wider **logo** type when both exist
+3. **zoominfo** (BYOK) — company enrich; vendor logo field as final hop for `icon_url`
+
+- **LeadMagic** is **not** on the default `company.icon` stamp ladder.
+- **Wiza**, **Findymail**, **AIArk**, **websearch**, and resolve-only BYOK hops are **not** default — `routing.only` when explicitly needed.
+- BYOK: ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights — default `company.icon` uses Brandfetch then ZoomInfo; others are `routing.only` only.
+- **Brandfetch** and **ZoomInfo** need tenant Your Keys when their ladder step runs (`credentials`).
 
 ## Errors (run not started)
 

@@ -14,11 +14,11 @@ Catalog     ████████████████████  ✓ re
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 12 resource operations`
+`https://api.kingminos.com · Bearer · 13 resource operations`
 
 - ✓ Key present in KINGMINOS_API_KEY
 - ✓ Catalog readable — get_capabilities
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: company-resolve
 
 ## Failing — missing key
@@ -33,11 +33,11 @@ Catalog     ░░░░░░░░░░░░░░░░░░░░  ✗ mi
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 12 resource operations`
+`https://api.kingminos.com · Bearer · 13 resource operations`
 
 - ✗ KINGMINOS_API_KEY is unset
 - ✗ Catalog not called — no Bearer token
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: auth
 
 ### Next
@@ -56,11 +56,11 @@ Catalog     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  · unv
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 12 resource operations`
+`https://api.kingminos.com · Bearer · 13 resource operations`
 
 - ✓ Key present in KINGMINOS_API_KEY
 - · UNVERIFIED — timeout
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: none — REST for a live tool with no dedicated skill
 
 ### Next

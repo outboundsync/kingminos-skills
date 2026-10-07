@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.8"
+  version: "1.1.10"
 ---
 
 # KingMinos company resolve
@@ -46,7 +46,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    - `400` `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` → hand off to `credentials` (ZoomInfo, BuiltWith, Prospeo, Apollo, People Data Labs, and HG Insights are BYOK on resolve; store in the app UI). LeadMagic, Wiza, Findymail, and AIArk are house-key and should not produce a credentials_required error for a default tenant. `companyurlfinder_credentials_required` is **`company.domain` / name→domain only** — not a normal `company.resolve` 400.
 7. Write **SFDC** or **Salesforce**, never **SF**.
 
-Default linear order is `[websearch, zoominfo, leadmagic]` with `allow_fallbacks` and `free_first: false`. `auto` may run Wiza then Findymail only after a websearch miss/junk reject. `value` never calls those paid name hops. AIArk, Prospeo, Apollo, People Data Labs, and HG Insights are registered but **not** on any default resolve path (`routing.only` escapes). Company URL Finder is a **`company.domain`** name→domain hop (`routing.only: ["companyurlfinder"]`), not resolve. For LinkedIn company pages use **`company-b2b-social`** (`POST /v1/company/b2b-social`), not resolve. LeadMagic, Wiza, Findymail, and AIArk are house-key vendors; ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK — store Company URL Finder keys for `company.domain`, not for resolve (`credentials`).
+Default linear order is `[websearch, zoominfo, leadmagic]` with `allow_fallbacks` and `free_first: false`. `auto` may run Wiza then Findymail only after a websearch miss/junk reject. `value` never calls those paid name hops. AIArk, Prospeo, Apollo, People Data Labs, and HG Insights are registered but **not** on any default resolve path (`routing.only` escapes). Company URL Finder is a **`company.domain`** name→domain hop (`routing.only: ["companyurlfinder"]`), not resolve. For LinkedIn company pages use **`company-b2b-social`** (`POST /v1/company/b2b-social`), not resolve. For favicon-style **`icon_url`** stamping use **`company-icon`** (`POST /v1/company/icon`, `company.icon`) — LeadMagic is not on that default ladder. LeadMagic, Wiza, Findymail, and AIArk are house-key vendors; ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK — store Company URL Finder keys for `company.domain`, Brandfetch keys for `company.icon`, not for resolve (`credentials`).
 
 Hosted MCP (`https://mcp.kingminos.com`) tool: `company_resolve`. Do not invent `resolve_company` or tools outside the pack map.
 

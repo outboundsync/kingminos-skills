@@ -6,7 +6,7 @@ Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enr
 
 **This is not the OutboundSync CRM / sequencer skills pack.** That sister repository is [`outboundsync/skills`](https://github.com/outboundsync/skills). Do not install this pack expecting launch preflight, sync monitoring, or cold-email copy. KingMinos decides company identity and vendor credentials; OutboundSync syncs sequencer events into the CRM.
 
-The pack ships **5** skills.
+The pack ships **6** skills.
 
 **Output style.** Every skill renders a fixed, terminal-friendly Markdown shape. Readiness checks (`auth`, `credentials`) and `company-resolve` lead with a verdict and a `█░▒` status gauge, then one card per system and a `Next` list. A failed lookup always shows as `UNVERIFIED`, never as a pass or an empty result. Business misses on `company.resolve` stay HTTP 200 and use `answer.outcome` / `es_decision`. See [CONVENTIONS.md](CONVENTIONS.md) and each skill's `references/examples.md`.
 
@@ -18,7 +18,8 @@ The pack ships **5** skills.
 | `auth` | [`skills/auth/`](skills/auth/) | Yes (`KINGMINOS_API_KEY`) | Bearer auth against `https://api.kingminos.com`, 401 `missing` / `malformed` / `mismatch`, SFDC Named Credential Custom Headers, `GET /v1/capabilities` |
 | `company-resolve` | [`skills/company-resolve/`](skills/company-resolve/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/resolve` — email/domain/website in, one `answer` back; honor `answer.safe_to_write` for stamp/fill |
 | `company-b2b-social` | [`skills/company-b2b-social/`](skills/company-b2b-social/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/b2b-social` — Serper-verified LinkedIn `https://www.linkedin.com/company/{slug}` or null; paths `speed` / `balance` / `accuracy` / `coverage` |
-| `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic, Wiza, Findymail, and AIArk are house-key; ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK |
+| `company-icon` | [`skills/company-icon/`](skills/company-icon/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/icon` (`company.icon`) — live HTTPS `icon_url` for favicon-style stamping; ladder favicon-fetch → Brandfetch → ZoomInfo; LeadMagic not on default path |
+| `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic, Wiza, Findymail, and AIArk are house-key; ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK |
 
 REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — same Bearer token and snake_case tool inventory as the `api` map. Session/product-app ops are out of scope. Do not invent tools outside that map.
 
@@ -32,6 +33,7 @@ npx skills add outboundsync/kingminos-skills --skill api -g
 npx skills add outboundsync/kingminos-skills --skill auth -g
 npx skills add outboundsync/kingminos-skills --skill company-resolve -g
 npx skills add outboundsync/kingminos-skills --skill company-b2b-social -g
+npx skills add outboundsync/kingminos-skills --skill company-icon -g
 npx skills add outboundsync/kingminos-skills --skill credentials -g
 ```
 
@@ -44,6 +46,7 @@ npx skills use outboundsync/kingminos-skills --skill api
 npx skills use outboundsync/kingminos-skills --skill auth
 npx skills use outboundsync/kingminos-skills --skill company-resolve
 npx skills use outboundsync/kingminos-skills --skill company-b2b-social
+npx skills use outboundsync/kingminos-skills --skill company-icon
 npx skills use outboundsync/kingminos-skills --skill credentials
 ```
 
@@ -70,6 +73,7 @@ Or put the same variable in a gitignored `.env` (see [`.env.example`](.env.examp
 | LeadMagic | House-key by default (OutboundSync-provided). Tenant store is optional, not required. |
 | Findymail | House-key (approved; OutboundSync-provided). Tenant store is optional. |
 | ZoomInfo | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
+| Brandfetch | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys); default `company.icon` ladder after house favicon-fetch |
 | Wiza | House-key (approved; OutboundSync-provided). Tenant store is optional. |
 | AIArk | House-key (approved; OutboundSync-provided). Tenant store is optional. Default on `company.b2b_social` `balance` / `accuracy`; `routing.only: ["aiark"]` for AI-Ark-only. |
 | BuiltWith | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |

@@ -48,6 +48,11 @@ paths:
       operationId: company_b2b_social
       security:
         - bearer: []
+  /v1/company/icon:
+    post:
+      operationId: company_icon
+      security:
+        - bearer: []
   /v1/company/domain:
     post:
       operationId: company_domain
@@ -80,7 +85,7 @@ paths:
         required: true
         schema:
           type: string
-          enum: [zoominfo, leadmagic, findymail, wiza, aiark, builtwith, prospeo, apollo, companyurlfinder, peopledatalabs, hginsights]
+          enum: [zoominfo, leadmagic, findymail, wiza, aiark, builtwith, prospeo, apollo, companyurlfinder, peopledatalabs, hginsights, brandfetch]
     put:
       operationId: put_credentials
       security:

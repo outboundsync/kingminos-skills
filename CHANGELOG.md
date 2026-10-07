@@ -6,6 +6,7 @@
 
 ### Added
 
+- `company-icon` skill: `POST /v1/company/icon` / MCP `company_icon` (`company.icon`) — live HTTPS `icon_url`, default ladder favicon-fetch → Brandfetch (icon before logo) → ZoomInfo enrich; LeadMagic off the stamp path; no R2/D1 cache URLs. `brandfetch` BYOK in `providers.yaml`.
 - `company-b2b-social` skill: `POST /v1/company/b2b-social` / MCP `company_b2b_social` — paths, Serper-verified `result.linkedin_url`, house AI Ark on default `balance` stack (aligned with live OpenAPI).
 - Document hosted MCP at `https://mcp.kingminos.com` (same Bearer tool inventory as REST); remove stale “MCP not shipped” / “do not invent mcp.kingminos.com” copy.
 - Lychee: [`.lychee.toml`](.lychee.toml) excludes template LinkedIn company URLs; `placeholder-linkedin-links` validate rule; CONTRIBUTING guidance on backticks vs Markdown links.

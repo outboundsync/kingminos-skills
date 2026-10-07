@@ -28,7 +28,7 @@ BYOK      ████████████████████  ✓ read
 - · wiza managed — house-key
 - · aiark managed — house-key
 - · builtwith unset
-- · ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK
+- · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK
 - · LeadMagic, Wiza, Findymail, and AIArk are house-key (tenant Your Keys optional)
 - · websearch is house-only (byok_not_supported)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
@@ -55,7 +55,7 @@ BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ miss
 `zoominfo`
 
 - ✗ zoominfo unset
-- · ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK
+- · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK
 - · websearch is house-only (byok_not_supported)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
@@ -85,7 +85,7 @@ BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ miss
 `zoominfo`
 
 - ✗ zoominfo credential_rejected — vendor rejected the key; nothing was stored
-- · ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK
+- · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK
 - · websearch is house-only (byok_not_supported)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
