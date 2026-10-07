@@ -60,7 +60,7 @@ Output `result.linkedin_url` is only the accept form `https://www.linkedin.com/c
 - `accuracy`: LeadMagic, house AI Ark, then Wiza (cap 5) — verified-only accept
 - `coverage`: adds Findymail (cap 6) — structurally valid pages with confidence tiers
 - Default stacks: **house keys only** (LeadMagic, Wiza, Findymail, AI Ark, websearch)
-- BYOK: ZoomInfo (`company_linkedin_enrich` — search → scoped company enrich `socialMediaUrls`), BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist — `routing.only` / explicit order only (not default stacks)
+- BYOK: ZoomInfo (`company_linkedin_enrich` — search → scoped company enrich `socialMediaUrls`), BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist — `routing.only` / explicit order only for hop vendors above **except Lemlist** (Your Keys catalog only on this route; `company.resolve` hop only — `company-resolve`)
 
 ## Errors (run not started)
 
