@@ -46,6 +46,8 @@ const cases = [
   ['write-tools-named: vague wildcard', { 'skills/demo/SKILL.md': skillMd({ body: `${defaultBody()}\nUse the matching write tools.\n` }) }, ['write-tools-named']],
   ['write-tools-named: Mutations must name REST paths and the protocol', { 'skills/demo/SKILL.md': skillMd({ body: `${defaultBody()}\n## Mutations\n\n| POST /webhooks | creates |\n` }) }, ['write-tools-named']],
   ['write-tools-named: well-formed Mutations', { 'skills/demo/SKILL.md': skillMd({ body: `${defaultBody()}\n## Mutations\n\nFollow the write-on-confirm protocol.\n\n- \`PUT /v1/credentials/zoominfo\` — store tenant Your Keys. REST or hosted MCP at https://mcp.kingminos.com.\n` }) }, []],
+  ['placeholder-linkedin-links: bare placeholder URL', { 'skills/demo/SKILL.md': skillMd({ body: `${defaultBody()}\nSee https://www.linkedin.com/company/acme-example for shape.\n` }) }, ['placeholder-linkedin-links']],
+  ['placeholder-linkedin-links: backtick template is OK', { 'skills/demo/SKILL.md': skillMd({ body: `${defaultBody()}\nTemplate \`https://www.linkedin.com/company/{slug}\`.\n` }) }, []],
   ['endpoint-map-consistent: trimmed copy disagrees', {
     'skills/api/SKILL.md': skillMd({ name: 'api' }).replace('references/rubric.md', 'references/endpoints.md'),
     'skills/api/references/endpoints.md': '| REST | MCP tool | Access | Notes |\n| --- | --- | --- | --- |\n| `GET /v1/capabilities` | `get_capabilities` | R | x |\n',

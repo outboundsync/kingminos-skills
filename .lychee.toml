@@ -1,0 +1,14 @@
+# External link check (see .github/workflows/links.yml). Keep excludes narrow —
+# do not blanket-ignore linkedin.com. Template / illustrative company URLs only.
+exclude_path = ["node_modules", "test"]
+
+exclude = [
+  "^https://api\\.kingminos\\.com",
+  "example\\.(com|org)",
+  "^https://(x|twitter)\\.com/",
+  "^https://github\\.com/outboundsync/kingminos-skills/(blob|tree)/main/",
+  # Placeholder LinkedIn company pages (use backticks in Markdown instead)
+  "^https://(?:www\\.)?linkedin\\.com/company/%7B",
+  "^https://(?:www\\.)?linkedin\\.com/company/acme-example",
+  "linkedin\\.com/company/[^/]*%7B",
+]

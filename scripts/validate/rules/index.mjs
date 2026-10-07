@@ -10,6 +10,7 @@ import links from './links.mjs';
 import linksEscapeSkill from './links-escape-skill.mjs';
 import metadata from './metadata.mjs';
 import outputContract from './output-contract.mjs';
+import placeholderLinkedinLinks from './placeholder-linkedin-links.mjs';
 import readmeIndex from './readme-index.mjs';
 import scoreMeter from './score-meter.mjs';
 import secrets from './secrets.mjs';
@@ -33,6 +34,7 @@ export const rules = [
   brand,
   links,
   linksEscapeSkill,
+  placeholderLinkedinLinks,
   stalePaths,
   secrets,
   skillsOnlyDocs,

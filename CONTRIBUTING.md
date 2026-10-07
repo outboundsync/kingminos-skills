@@ -35,6 +35,14 @@ For the full four-repo rollout (application → website → mcp → skills), use
 
 Run `npm run validate -- --list` to see every rule with its severity. Rules and their rationale live in `scripts/validate/rules/`, one file each; severities are in `scripts/validate/config.json`. A rule at `warn` is new and is being rolled out; it becomes an error once every skill complies.
 
+## External links (Lychee)
+
+CI runs [lychee](https://github.com/lycheeverse/lychee) on `**/*.md` (`.github/workflows/links.yml`, config: [`.lychee.toml`](.lychee.toml)).
+
+**Never publish placeholder or template URLs as clickable Markdown** — no `[label](https://www.linkedin.com/company/{slug})`, no autolinks `<https://…>`, and no bare `https://…` outside fenced code blocks. Put contract templates in **inline code** instead, e.g. `` `https://www.linkedin.com/company/{slug}` ``. Illustrative slugs (`acme-example`) and brace placeholders (`{slug}`) must stay inside backticks so link checkers do not HTTP-fetch 404s.
+
+`npm run validate` enforces this for LinkedIn company URLs via `placeholder-linkedin-links`. `.lychee.toml` also excludes a few template URL shapes as a safety net — that does **not** replace backticks in docs.
+
 ## Add a skill
 
 1. Copy [`templates/SKILL.template.md`](templates/SKILL.template.md) to `skills/<name>/SKILL.md`. The folder name and the `name:` field must match (lowercase kebab-case).
