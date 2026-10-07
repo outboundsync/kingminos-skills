@@ -13,7 +13,8 @@
     "check:surfaces:live": "KINGMINOS_OPENAPI_URL=https://api.kingminos.com/openapi.yaml node scripts/validate/cli.mjs --only endpoint-map-consistent,endpoint-map-openapi,provider-enum",
     "test": "node --test \"test/**/*.test.mjs\"",
     "release:preview": "node scripts/release-calver.mjs --dry-run",
-    "release:apply": "node scripts/release-calver.mjs --apply"
+    "release:apply": "node scripts/release-calver.mjs --apply",
+    "ci": "npm run validate -- --base origin/main && npm test"
   },
   "dependencies": {
     "yaml": "2.9.1"
