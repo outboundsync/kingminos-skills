@@ -43,6 +43,11 @@ paths:
       operationId: company_hierarchy
       security:
         - bearer: []
+  /v1/company/b2b-social:
+    post:
+      operationId: company_b2b_social
+      security:
+        - bearer: []
   /v1/company/domain:
     post:
       operationId: company_domain

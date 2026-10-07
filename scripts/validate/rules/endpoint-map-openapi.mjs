@@ -25,6 +25,7 @@ export const FALLBACK_TOOLS = {
   'POST /v1/company/resolve': 'company_resolve',
   'POST /v1/company/domain': 'company_domain',
   'POST /v1/company/hierarchy': 'company_hierarchy',
+  'POST /v1/company/b2b-social': 'company_b2b_social',
   'POST /v1/person/verify-employment': 'person_verify_employment',
   'GET /v1/runs/{id}': 'get_run',
   'GET /v1/credentials': 'list_credentials',

@@ -8,7 +8,7 @@ How KingMinos Agent Skills render their output. **New skills follow these by def
 - Byline: **KingMinos by OutboundSync**.
 - This pack teaches the enrichment API at `https://api.kingminos.com`. It is not the OutboundSync CRM / sequencer skills pack.
 - Write **SFDC** or **Salesforce**. Never the abbreviation **SF**.
-- LeadMagic, Wiza, and Findymail are house-key vendors. ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK. `websearch` is house-only.
+- LeadMagic, Wiza, Findymail, and AIArk are house-key vendors (tenant Your Keys optional). ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK. House AI Ark is usable on `company.b2b_social` via `routing.only: ["aiark"]`. `websearch` is house-only.
 
 ## Shared visual language
 

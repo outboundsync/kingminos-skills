@@ -17,7 +17,7 @@ The pack ships **4** skills.
 | `api` | [`skills/api/`](skills/api/) | Yes (`KINGMINOS_API_KEY`) | KingMinos REST ↔ tool inventory (`skills/api/references/endpoints.md`): one row per OpenAPI Bearer resource operation; routes to `auth`, `company-resolve`, `credentials` |
 | `auth` | [`skills/auth/`](skills/auth/) | Yes (`KINGMINOS_API_KEY`) | Bearer auth against `https://api.kingminos.com`, 401 `missing` / `malformed` / `mismatch`, SFDC Named Credential Custom Headers, `GET /v1/capabilities` |
 | `company-resolve` | [`skills/company-resolve/`](skills/company-resolve/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/resolve` — email/domain/website in, one `answer` back; honor `answer.safe_to_write` for stamp/fill |
-| `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic, Wiza, and Findymail are house-key; ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK |
+| `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic, Wiza, Findymail, and AIArk are house-key; ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK |
 
 Hosted MCP is **not shipped**. Prefer REST. Tool names in the `api` map are the OpenAPI Bearer resource inventory (snake_case `operationId`). Session/product-app ops are out of scope. Do not invent a host or tools outside that map.
 
@@ -68,7 +68,7 @@ Or put the same variable in a gitignored `.env` (see [`.env.example`](.env.examp
 | Findymail | House-key (approved; OutboundSync-provided). Tenant store is optional. |
 | ZoomInfo | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
 | Wiza | House-key (approved; OutboundSync-provided). Tenant store is optional. |
-| AIArk | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
+| AIArk | House-key (approved; OutboundSync-provided). Tenant store is optional. Usable on `company.b2b_social` via `routing.only: ["aiark"]`. |
 | BuiltWith | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
 | Prospeo | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
 | Apollo | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |

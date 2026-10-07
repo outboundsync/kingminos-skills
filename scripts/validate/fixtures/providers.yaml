@@ -38,7 +38,7 @@ providers:
     api_key: true
   - id: aiark
     label: AIArk
-    supply: byok
+    supply: house_key
     credentials_required: aiark_credentials_required
     path_enum: true
     api_key: true

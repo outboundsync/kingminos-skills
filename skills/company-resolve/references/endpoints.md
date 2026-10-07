@@ -65,8 +65,8 @@ A LeadMagic-only or websearch-only hit is `resolved_without_primary_id`. A webse
 - `value`: cheap names; no Wiza / Findymail
 - `accuracy` / `coverage`: deeper corroboration / fill
 - AIArk / Prospeo / Apollo / People Data Labs / HG Insights: registered, **not** on default paths
-- House-key vendors: **LeadMagic, Wiza, Findymail**
-- BYOK: ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, People Data Labs, HG Insights, Company URL Finder — resolve uses ZoomInfo/AIArk/BuiltWith/Prospeo/Apollo/People Data Labs/HG Insights; Company URL Finder is `company.domain` / name→domain only (`routing.only: ["companyurlfinder"]`, not `POST /v1/company/resolve`)
+- House-key vendors: **LeadMagic, Wiza, Findymail, AIArk** (`company.b2b_social` may use house AI Ark via `routing.only: ["aiark"]`)
+- BYOK: ZoomInfo, BuiltWith, Prospeo, Apollo, People Data Labs, HG Insights, Company URL Finder — resolve uses ZoomInfo/BuiltWith/Prospeo/Apollo/People Data Labs/HG Insights; Company URL Finder is `company.domain` / name→domain only (`routing.only: ["companyurlfinder"]`, not `POST /v1/company/resolve`)
 - `websearch`: house-only
 
 ## Errors (run not started)
