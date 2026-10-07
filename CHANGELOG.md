@@ -6,6 +6,7 @@
 
 ### Added
 
+- Snov.io BYOK credential vendor: `snovio` is a storable **OAuth** Your Keys vendor (`PUT /v1/credentials/snovio`, `{ "clientId", "clientSecret" }`) — **credential vendor only, no routing hop yet** (the `company.resolve` `domain-search` hop lands once a live key proves the flow). `supply: byok`, `api_key: false`, `credentials_required: null`, `path_enum: true`, `company_resolve_surface: false`. Not cleared for house-key resale.
 - `api` endpoint map: `POST /v1/company/description` / MCP `company_description` (`company.description`) row and hermetic OpenAPI inventory entry (live in production OpenAPI); no dedicated skill yet.
 - `company-icon` skill: `POST /v1/company/icon` / MCP `company_icon` (`company.icon`) — live HTTPS `icon_url`, default ladder house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1); Enrich-CRM, AI Ark, LeadMagic, and Prospeo are not icon sources; no R2/D1 cache URLs. `brandfetch` BYOK in `providers.yaml` (alongside Enrich-CRM from #13).
 - `company-b2b-social` skill: `POST /v1/company/b2b-social` / MCP `company_b2b_social` — paths, Serper-verified `result.linkedin_url`, house AI Ark on default `balance` stack (aligned with live OpenAPI).

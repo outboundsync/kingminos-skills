@@ -19,7 +19,7 @@ The pack ships **6** skills.
 | `company-resolve` | [`skills/company-resolve/`](skills/company-resolve/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/resolve` — email/domain/website in, one `answer` back; honor `answer.safe_to_write` for stamp/fill |
 | `company-b2b-social` | [`skills/company-b2b-social/`](skills/company-b2b-social/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/b2b-social` — Serper-verified LinkedIn `https://www.linkedin.com/company/{slug}` or null; paths `speed` / `balance` / `accuracy` / `coverage` |
 | `company-icon` | [`skills/company-icon/`](skills/company-icon/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/icon` (`company.icon`) — live HTTPS `icon_url`; ladder house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1) |
-| `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic, Wiza, Findymail, and AIArk are house-key; ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, and Enrich-CRM are BYOK |
+| `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic, Wiza, Findymail, and AIArk are house-key; ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, and Snov.io are BYOK |
 
 REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — same Bearer token and snake_case tool inventory as the `api` map. Session/product-app ops are out of scope. Do not invent tools outside that map.
 
@@ -83,6 +83,7 @@ Or put the same variable in a gitignored `.env` (see [`.env.example`](.env.examp
 | People Data Labs | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
 | HG Insights | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
 | Enrich-CRM | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
+| Snov.io | BYOK — OAuth (client ID + secret). Store at `https://app.kingminos.com` (Vendor keys / Your Keys). Credential vendor only — no routing hop yet |
 | websearch | House-only. `PUT` is `byok_not_supported`. |
 
 `GET /v1/credentials` lists `status` (`set` \| `managed` \| `unset`) and never echoes the raw vendor key.
