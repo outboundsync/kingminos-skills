@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com for live calls. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # KingMinos auth

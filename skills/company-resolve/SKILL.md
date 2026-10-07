@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.1.6"
+  version: "1.1.7"
 ---
 
 # KingMinos company resolve
@@ -43,10 +43,10 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    - `safe_to_write.company_domain` → optional domain hygiene; never clobber an existing Website/domain.
    - Label the outcome from `answer.outcome`: `resolved` · `resolved_without_primary_id` · `no_decision` (honest abstain: `no_domain`, `zero_hits`, `not_configured`, credits, compliance).
    - HTTP 200 with a business miss is a decision, not UNVERIFIED.
-   - `400` `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` → hand off to `credentials` (ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, People Data Labs, and HG Insights are BYOK on resolve; store in the app UI). LeadMagic, Wiza, and Findymail are house-key and should not produce a credentials_required error for a default tenant. `companyurlfinder_credentials_required` is **`company.domain` / name→domain only** — not a normal `company.resolve` 400.
+   - `400` `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` → hand off to `credentials` (ZoomInfo, BuiltWith, Prospeo, Apollo, People Data Labs, and HG Insights are BYOK on resolve; store in the app UI). LeadMagic, Wiza, Findymail, and AIArk are house-key and should not produce a credentials_required error for a default tenant. `companyurlfinder_credentials_required` is **`company.domain` / name→domain only** — not a normal `company.resolve` 400.
 7. Write **SFDC** or **Salesforce**, never **SF**.
 
-Default linear order is `[websearch, zoominfo, leadmagic]` with `allow_fallbacks` and `free_first: false`. `auto` may run Wiza then Findymail only after a websearch miss/junk reject. `value` never calls those paid name hops. AIArk, Prospeo, Apollo, People Data Labs, and HG Insights are registered but **not** on any default resolve path (`routing.only: ["aiark"]` / `["prospeo"]` / `["apollo"]` / `["peopledatalabs"]` / `["hginsights"]` are escapes). Company URL Finder is a **`company.domain`** name→domain hop (`routing.only: ["companyurlfinder"]`), not resolve. LeadMagic, Wiza, and Findymail are house-key vendors; ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK — store Company URL Finder keys for `company.domain`, not for resolve (`credentials`).
+Default linear order is `[websearch, zoominfo, leadmagic]` with `allow_fallbacks` and `free_first: false`. `auto` may run Wiza then Findymail only after a websearch miss/junk reject. `value` never calls those paid name hops. AIArk, Prospeo, Apollo, People Data Labs, and HG Insights are registered but **not** on any default resolve path (`routing.only: ["aiark"]` / `["prospeo"]` / `["apollo"]` / `["peopledatalabs"]` / `["hginsights"]` are escapes). House AI Ark is also available on **`company.b2b_social`** via `routing.only: ["aiark"]` (default `company.b2b_social` stacks are websearch + house LeadMagic / Wiza / Findymail). Company URL Finder is a **`company.domain`** name→domain hop (`routing.only: ["companyurlfinder"]`), not resolve. LeadMagic, Wiza, Findymail, and AIArk are house-key vendors; ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK — store Company URL Finder keys for `company.domain`, not for resolve (`credentials`).
 
 Hosted MCP is **not shipped**. The inventory tool is `company_resolve`. Do not invent `resolve_company` or a hosted MCP URL.
 

@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com for live calls. KingMinos MCP is not shipped; use REST.
 metadata:
   author: outboundsync
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # KingMinos API
@@ -50,7 +50,7 @@ Hosted MCP is **not shipped**. Prefer REST. Tool names in the map are the OpenAP
 | Does my key work? 401? SFDC Named Credential header? | `auth` · `get_capabilities` |
 | Resolve a company / stamp ZoomInfo company id | `company-resolve` · `company_resolve` |
 | List or revoke vendor Your Keys (store in the app UI) | `credentials` · `list_credentials` / `delete_credentials` |
-| Domain stamp, hierarchy, employment verify | Live tools `company_domain`, `company_hierarchy`, `person_verify_employment` — no dedicated skill yet; stay on REST |
+| Domain stamp, B2B social, hierarchy, employment verify | Live tools `company_domain`, `company_b2b_social`, `company_hierarchy`, `person_verify_employment` — no dedicated skill yet; stay on REST |
 | Erase a subject | `delete_subject` — **not** these skills (`erase` scope) |
 
 Do not call `put_credentials`, `delete_credentials`, or `delete_subject` from this skill.
@@ -77,11 +77,11 @@ Catalog     <bar>  <✓|✗|·> <ready | 401 <detail> | missing | unverified>
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 11 resource operations`
+`https://api.kingminos.com · Bearer · 12 resource operations`
 
 - <✓ Key present in KINGMINOS_API_KEY | ✗ KINGMINOS_API_KEY is unset | · UNVERIFIED — <reason>>
 - <✓ Catalog readable — get_capabilities | ✗ 401 <missing|malformed|mismatch> | ✗ Catalog not called — no Bearer token | · UNVERIFIED — <status>>
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: <auth | company-resolve | credentials | none — REST for a live tool with no dedicated skill>
 
 ### Next

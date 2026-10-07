@@ -19,7 +19,7 @@ Capabilities   ████████████████████  ✓
 
 - ✓ Key present in KINGMINOS_API_KEY
 - ✓ Bearer accepted
-- ✓ Catalog readable — company.resolve, person.verify_employment, company.domain, company.hierarchy
+- ✓ Catalog readable — company.resolve, person.verify_employment, company.domain, company.hierarchy, company.b2b_social
 - · Health — kingminos-api-prod (unauthenticated)
 
 ## Failing — missing key

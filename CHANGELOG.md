@@ -6,6 +6,8 @@
 
 ### Added
 
+- AI Ark house-key (resale cleared): `aiark` is `supply: house_key` in the hermetic provider inventory alongside LeadMagic, Wiza, and Findymail; tenant Your Keys remain optional. Policy copy notes `company.b2b_social` may use house AI Ark via `routing.only: ["aiark"]`. ZoomInfo and BuiltWith stay BYOK.
+
 - Maintainer docs: [docs/byok-provider-playbook.md](docs/byok-provider-playbook.md) (BYOK four-repo rollout; mirrored in application, website, mcp) and Cursor skill `.cursor/skills/byok-provider-rollout/SKILL.md`.
 - Prospeo BYOK support: `prospeo` is a storable API-key vendor (`PUT /v1/credentials/prospeo`) and an off-path `company.resolve` provider forceable via `routing.only: ["prospeo"]`. Adds `prospeo_credentials_required`.
 - Apollo BYOK support: `apollo` is a storable API-key vendor and an off-path `company.resolve` firmographic hop (`GET /organizations/enrich`) forceable via `routing.only: ["apollo"]`. Adds `apollo_credentials_required`. Also corrects the house-key policy copy: house-key = LeadMagic, Wiza, Findymail; BYOK = ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo.

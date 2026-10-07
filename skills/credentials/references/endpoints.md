@@ -30,7 +30,7 @@ This skill's default path is `GET /v1/credentials`. Store secrets in the product
 
 ## GET `/v1/credentials` 200
 
-Each item: `provider`, `label`, `kind` (`api_key` \| `oauth`), `status` (`set` \| `managed` \| `unset`), `configured`, `house_managed`, `mask` (nullable). LeadMagic, Wiza, and Findymail without a tenant row are `managed` (house key). Other vendors are `unset` until stored. Print `mask` only as returned.
+Each item: `provider`, `label`, `kind` (`api_key` \| `oauth`), `status` (`set` \| `managed` \| `unset`), `configured`, `house_managed`, `mask` (nullable). LeadMagic, Wiza, Findymail, and AIArk without a tenant row are `managed` (house key). Other vendors are `unset` until stored. Print `mask` only as returned.
 
 ## PUT bodies (app UI / REST — never chat)
 
@@ -74,8 +74,8 @@ Capability POSTs may return `400` `zi_credentials_required` | `findymail_credent
 
 ## Policy
 
-- **House-key:** LeadMagic, Wiza, Findymail.
-- **BYOK:** ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights.
+- **House-key:** LeadMagic, Wiza, Findymail, AIArk (optional tenant store; `company.b2b_social` may use `routing.only: ["aiark"]`).
+- **BYOK:** ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights.
 - **House-only:** websearch.
 - Live writes need `CREDENTIALS_KEK` on Worker `kingminos-api-prod` (operator secret — never a skill input).
 - Store secrets at `https://app.kingminos.com`. Never paste a vendor secret into chat.

@@ -17,7 +17,7 @@ Always say **SFDC**, never “SF”, if Salesforce is mentioned.
 
 | Fact | Rule |
 | --- | --- |
-| **House-key cleared** | **LeadMagic, Wiza, Findymail** only (`HOUSE_KEY_RESALE_OS_PROVIDERS` + website `house: true` / skills `supply: house_key`). |
+| **House-key cleared** | **LeadMagic, Wiza, Findymail, AI Ark** (`HOUSE_KEY_RESALE_OS_PROVIDERS` + website `house: true` / skills `supply: house_key`). ZoomInfo and BuiltWith stay BYOK. |
 | **Everything else** | **BYOK** until written reseller terms (`resaleAllowed: false`; do **not** add to `HOUSE_KEY_RESALE_OS_PROVIDERS`). |
 | **Dogfood env hooks** | `VENDOR_API_KEY` on Worker for tenant `default` only is OK for internal dogfood (Prospeo/Apollo pattern). That is **not** house resale. |
 | **BuiltWith** | Parked for customer House Keys (ToS). BYOK only; keep tenant cache isolation; never customer house. |
@@ -114,7 +114,7 @@ npm run check:types && npm run lint && npm test && npm run check:surfaces
 - [ ] Docs MDX: `src/content/docs/docs/api/credentials.mdx`, capability page (e.g. `company-resolve.mdx`), `docs/mcp`, `docs/skills`, `docs/cli`, maybe `docs/index.mdx`
 - [ ] `scripts/check-agent-surfaces.mjs` if it pins keys-screen / provider presence
 
-**House-key copy must read:** LeadMagic, Wiza, Findymail = house; ZoomInfo, AI Ark, BuiltWith, Prospeo, Apollo, **+ new BYOK** = BYOK.
+**House-key copy must read:** LeadMagic, Wiza, Findymail, AI Ark = house; ZoomInfo, BuiltWith, Prospeo, Apollo, **+ new BYOK** = BYOK.
 
 **Website verify**
 ```bash
