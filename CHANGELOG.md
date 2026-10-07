@@ -22,6 +22,7 @@
 - People Data Labs BYOK support: `peopledatalabs` is a storable API-key vendor and an off-path `company.resolve` hop (`GET /company/enrich`, website -> company, `min_likelihood` 6) forceable via `routing.only: ["peopledatalabs"]`. Adds `peopledatalabs_credentials_required`.
 - Enrich-CRM BYOK support: `enrichcrm` is a storable API-key vendor and an off-path `company.resolve` hop (`GET /api/ingress/v4/firmographic`, domain -> firmographics, auth via the `apiId` QUERY PARAM only) forceable via `routing.only: ["enrichcrm"]`. Adds `enrichcrm_credentials_required`.
 - HG Insights BYOK support: `hginsights` is a storable API-key vendor and an off-path `company.resolve` hop (`POST /companies/enrich`, domain -> firmographics, Bearer) forceable via `routing.only: ["hginsights"]`. Adds `hginsights_credentials_required`.
+- Lemlist BYOK support: `lemlist` is a storable API-key vendor and an off-path `company.resolve` hop (`POST /api/database/companies`, website/domain database filter -> company, HTTP Basic auth; filter id unverified until live-key validation) forceable via `routing.only: ["lemlist"]`. Adds `lemlist_credentials_required`.
 - `provider-enum` validator: CI fails when skills BYOK lists, path-`provider` enums, or `*_credentials_required` lists omit a provider from the checked-in KingMinos inventory (`scripts/validate/fixtures/providers.yaml`). Endpoint-map rules stay route-only; this check is what makes a new vendor visible.
 
 ### Changed

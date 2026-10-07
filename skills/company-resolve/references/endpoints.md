@@ -64,16 +64,16 @@ A LeadMagic-only or websearch-only hit is `resolved_without_primary_id`. A webse
 - `auto`: Wiza then Findymail only after a websearch miss/junk reject
 - `value`: cheap names; no Wiza / Findymail
 - `accuracy` / `coverage`: deeper corroboration / fill
-- AIArk / Prospeo / Apollo / People Data Labs / HG Insights / Enrich-CRM: registered, **not** on default paths
+- AIArk / Prospeo / Apollo / People Data Labs / HG Insights / Enrich-CRM / Lemlist: registered, **not** on default paths
 - House-key vendors: **LeadMagic, Wiza, Findymail, AIArk** (AI Ark on default `company.b2b_social` `balance` path — see `company-b2b-social`)
-- BYOK: ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, People Data Labs, HG Insights, Enrich-CRM, Snov.io, Company URL Finder — resolve uses ZoomInfo/BuiltWith/Prospeo/Apollo/People Data Labs/HG Insights/Enrich-CRM; Brandfetch is `company.icon` (`company-icon`); Snov.io is a credential vendor only (no hop); Company URL Finder is `company.domain` / name→domain only (`routing.only: ["companyurlfinder"]`, not `POST /v1/company/resolve`)
+- BYOK: ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Company URL Finder — resolve uses ZoomInfo/BuiltWith/Prospeo/Apollo/People Data Labs/HG Insights/Enrich-CRM/Lemlist; Brandfetch is `company.icon` (`company-icon`); Snov.io is a credential vendor only (no hop); Company URL Finder is `company.domain` / name→domain only (`routing.only: ["companyurlfinder"]`, not `POST /v1/company/resolve`)
 - `websearch`: house-only
 
 ## Errors (run not started)
 
 | Status | `error` | Next |
 | --- | --- | --- |
-| `400` | `validation_failed` / `invalid_routing` / `unsupported_schema` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` / `enrichcrm_credentials_required` | Fix input, or store BYOK in the KingMinos app (`credentials` lists status) |
+| `400` | `validation_failed` / `invalid_routing` / `unsupported_schema` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` / `enrichcrm_credentials_required` / `lemlist_credentials_required` | Fix input, or store BYOK in the KingMinos app (`credentials` lists status) |
 
 `companyurlfinder_credentials_required` belongs to **`company.domain`** / `POST /v2/services/name_to_domain`, not `POST /v1/company/resolve`.
 | `401` | `unauthorized` + `detail` missing \| malformed \| mismatch | `auth` |

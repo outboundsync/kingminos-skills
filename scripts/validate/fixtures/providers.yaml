@@ -92,6 +92,12 @@ providers:
     credentials_required: enrichcrm_credentials_required
     path_enum: true
     api_key: true
+  - id: lemlist
+    label: Lemlist
+    supply: byok
+    credentials_required: lemlist_credentials_required
+    path_enum: true
+    api_key: true
   - id: snovio
     label: Snov.io
     supply: byok
