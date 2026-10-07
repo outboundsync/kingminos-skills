@@ -8,7 +8,7 @@ How KingMinos Agent Skills render their output. **New skills follow these by def
 - Byline: **KingMinos by OutboundSync**.
 - This pack teaches the enrichment API at `https://api.kingminos.com`. It is not the OutboundSync CRM / sequencer skills pack.
 - Write **SFDC** or **Salesforce**. Never the abbreviation **SF**.
-- LeadMagic, Wiza, Findymail, and AIArk are house-key vendors (tenant Your Keys optional). ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK. House AI Ark is on the default `company.b2b_social` `balance` / `accuracy` stacks; BYOK ZoomInfo LinkedIn uses `company_linkedin_enrich` via `routing.only`. Default `company.icon` is favicon-fetch → Brandfetch → ZoomInfo (`company-icon`); LeadMagic is not on that stamp ladder. `websearch` is house-only. Hosted MCP: `https://mcp.kingminos.com` (same Bearer tool inventory as REST).
+- LeadMagic, Wiza, Findymail, and AIArk are house-key vendors (tenant Your Keys optional). ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, and Enrich-CRM are BYOK. House AI Ark is on the default `company.b2b_social` `balance` / `accuracy` stacks; BYOK ZoomInfo LinkedIn uses `company_linkedin_enrich` via `routing.only`. Default `company.icon` is house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1) (`company-icon`); Enrich-CRM, AI Ark, LeadMagic, and Prospeo are not icon sources. `websearch` is house-only. Hosted MCP: `https://mcp.kingminos.com` (same Bearer tool inventory as REST).
 
 ## Shared visual language
 

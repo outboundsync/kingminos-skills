@@ -6,7 +6,7 @@
 
 ### Added
 
-- `company-icon` skill: `POST /v1/company/icon` / MCP `company_icon` (`company.icon`) — live HTTPS `icon_url`, default ladder favicon-fetch → Brandfetch (icon before logo) → ZoomInfo enrich; LeadMagic off the stamp path; no R2/D1 cache URLs. `brandfetch` BYOK in `providers.yaml`.
+- `company-icon` skill: `POST /v1/company/icon` / MCP `company_icon` (`company.icon`) — live HTTPS `icon_url`, default ladder house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1); Enrich-CRM, AI Ark, LeadMagic, and Prospeo are not icon sources; no R2/D1 cache URLs. `brandfetch` BYOK in `providers.yaml` (alongside Enrich-CRM from #13).
 - `company-b2b-social` skill: `POST /v1/company/b2b-social` / MCP `company_b2b_social` — paths, Serper-verified `result.linkedin_url`, house AI Ark on default `balance` stack (aligned with live OpenAPI).
 - Document hosted MCP at `https://mcp.kingminos.com` (same Bearer tool inventory as REST); remove stale “MCP not shipped” / “do not invent mcp.kingminos.com” copy.
 - Lychee: [`.lychee.toml`](.lychee.toml) excludes template LinkedIn company URLs; `placeholder-linkedin-links` validate rule; CONTRIBUTING guidance on backticks vs Markdown links.
@@ -18,6 +18,7 @@
 - Apollo BYOK support: `apollo` is a storable API-key vendor and an off-path `company.resolve` firmographic hop (`GET /organizations/enrich`) forceable via `routing.only: ["apollo"]`. Adds `apollo_credentials_required`. Also corrects the house-key policy copy: house-key = LeadMagic, Wiza, Findymail; BYOK = ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo.
 - Company URL Finder BYOK support: `companyurlfinder` is a storable API-key vendor and an off-path `company.domain` name-to-domain hop (`POST /v2/services/name_to_domain`) forceable via `routing.only: ["companyurlfinder"]`. Adds `companyurlfinder_credentials_required`.
 - People Data Labs BYOK support: `peopledatalabs` is a storable API-key vendor and an off-path `company.resolve` hop (`GET /company/enrich`, website -> company, `min_likelihood` 6) forceable via `routing.only: ["peopledatalabs"]`. Adds `peopledatalabs_credentials_required`.
+- Enrich-CRM BYOK support: `enrichcrm` is a storable API-key vendor and an off-path `company.resolve` hop (`GET /api/ingress/v4/firmographic`, domain -> firmographics, auth via the `apiId` QUERY PARAM only) forceable via `routing.only: ["enrichcrm"]`. Adds `enrichcrm_credentials_required`.
 - HG Insights BYOK support: `hginsights` is a storable API-key vendor and an off-path `company.resolve` hop (`POST /companies/enrich`, domain -> firmographics, Bearer) forceable via `routing.only: ["hginsights"]`. Adds `hginsights_credentials_required`.
 - `provider-enum` validator: CI fails when skills BYOK lists, path-`provider` enums, or `*_credentials_required` lists omit a provider from the checked-in KingMinos inventory (`scripts/validate/fixtures/providers.yaml`). Endpoint-map rules stay route-only; this check is what makes a new vendor visible.
 

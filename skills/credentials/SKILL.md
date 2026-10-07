@@ -3,16 +3,16 @@ name: credentials
 description: >-
   List KingMinos vendor Your Keys and revoke a stored key after confirmation.
   LeadMagic, Wiza, Findymail, and AIArk are house-key; ZoomInfo, BuiltWith,
-  Prospeo, Apollo, Brandfetch, Company URL Finder, People Data Labs, and HG Insights are BYOK. Use when the user asks to
+  Prospeo, Apollo, Brandfetch, Company URL Finder, People Data Labs, HG Insights, and Enrich-CRM are BYOK. Use when the user asks to
   list credentials, GET
   /v1/credentials, revoke a ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo,
-  Company URL Finder, People Data Labs, or HG Insights key, why they saw a BYOK `*_credentials_required`, or whether LeadMagic needs a
+  Company URL Finder, People Data Labs, HG Insights, or Enrich-CRM key, why they saw a BYOK `*_credentials_required`, or whether LeadMagic needs a
   tenant key.
 license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP). Mutations only after explicit confirmation.
 metadata:
   author: outboundsync
-  version: "1.1.10"
+  version: "1.1.11"
 ---
 
 # KingMinos credentials
@@ -39,9 +39,10 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | Company URL Finder | `companyurlfinder` | BYOK | `{ "apiKey" }` |
 | People Data Labs | `peopledatalabs` | BYOK | `{ "apiKey" }` |
 | HG Insights | `hginsights` | BYOK | `{ "apiKey" }` |
+| Enrich-CRM | `enrichcrm` | BYOK | `{ "apiKey" }` |
 | websearch | `websearch` | House-only | `PUT` → `byok_not_supported` |
 
-`PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, or HG Insights key. Do not call `PUT` from this skill.
+`PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, or Enrich-CRM key. Do not call `PUT` from this skill.
 
 List: REST `GET /v1/credentials` or MCP `list_credentials`. Revoke after confirm: REST `DELETE` or MCP `delete_credentials`.
 
@@ -98,7 +99,7 @@ BYOK      <bar>  <✓|✗|·> <ready | missing <vendor> | unverified>
 `<vendor or catalog>`
 
 - <✓|·|✗> <provider> <set|unset|managed>
-- · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, and HG Insights are BYOK
+- · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, and Enrich-CRM are BYOK
 - · LeadMagic, Wiza, Findymail, and AIArk are house-key (tenant Your Keys optional)
 - · websearch is house-only (byok_not_supported)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.

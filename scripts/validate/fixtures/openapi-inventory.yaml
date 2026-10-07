@@ -85,7 +85,7 @@ paths:
         required: true
         schema:
           type: string
-          enum: [zoominfo, leadmagic, findymail, wiza, aiark, builtwith, prospeo, apollo, companyurlfinder, peopledatalabs, hginsights, brandfetch]
+          enum: [zoominfo, leadmagic, findymail, wiza, aiark, builtwith, prospeo, apollo, companyurlfinder, peopledatalabs, hginsights, brandfetch, enrichcrm]
     put:
       operationId: put_credentials
       security:

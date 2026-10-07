@@ -52,22 +52,19 @@ Output `result.icon_url` is only a **live HTTPS** URL suitable for favicon-style
 
 ## Routing (live Worker)
 
-Default linear order (house then BYOK):
+Default ladder: **house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1)**
 
-1. **favicon-fetch** (house) — on-domain favicon / touch icon fetch
-2. **brandfetch** (BYOK) — Brandfetch brand API; prefer **icon** type over wider **logo** type when both exist
-3. **zoominfo** (BYOK) — company enrich; vendor logo field as final hop for `icon_url`
-
-- **LeadMagic** is **not** on the default `company.icon` stamp ladder.
-- **Wiza**, **Findymail**, **AIArk**, **websearch**, and resolve-only BYOK hops are **not** default — `routing.only` when explicitly needed.
-- BYOK: ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights — default `company.icon` uses Brandfetch then ZoomInfo; others are `routing.only` only.
+- Brandfetch prefers **icon** over wider brand **logo** when both exist.
+- **Enrich-CRM, AI Ark, LeadMagic, and Prospeo are not icon sources.**
+- **Wiza**, **Findymail**, **websearch**, and other resolve/B2B BYOK hops are **not** default — `routing.only` when explicitly needed.
+- BYOK: ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM — default `company.icon` uses Brandfetch then ZoomInfo only; others are `routing.only` only.
 - **Brandfetch** and **ZoomInfo** need tenant Your Keys when their ladder step runs (`credentials`).
 
 ## Errors (run not started)
 
 | Status | `error` | Next |
 | --- | --- | --- |
-| `400` | `validation_failed` / `name_only_unsupported` / `invalid_routing` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `brandfetch_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `companyurlfinder_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` | Fix input or store BYOK (`credentials`) |
+| `400` | `validation_failed` / `name_only_unsupported` / `invalid_routing` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `brandfetch_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `companyurlfinder_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` / `enrichcrm_credentials_required` | Fix input or store BYOK (`credentials`) |
 | `401` | `unauthorized` + `detail` | `auth` |
 | `409` | `idempotency_*` | Rotate or reuse `Idempotency-Key` per docs |
 | `429` | rate / tenant / key budget | `Retry-After` |
