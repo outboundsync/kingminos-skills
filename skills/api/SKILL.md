@@ -5,12 +5,12 @@ description: >-
   tool inventory, OpenAPI discovery, and which specialized skill to run. Use
   when the user asks how to use the KingMinos API, which endpoint or tool to
   call, OpenAPI discovery, GET /v1/capabilities, or how API work relates to
-  auth, company-resolve, and credentials.
+  auth, company-resolve, company-icon, and credentials.
 license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.2.0"
+  version: "1.3.1"
 ---
 
 # KingMinos API
@@ -51,6 +51,7 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 | Resolve a company / stamp ZoomInfo company id | `company-resolve` · `company_resolve` |
 | List or revoke vendor Your Keys (store in the app UI) | `credentials` · `list_credentials` / `delete_credentials` |
 | Company LinkedIn / B2B social page | `company-b2b-social` · `company_b2b_social` |
+| Company icon / favicon `icon_url` stamp (`company.icon`) | `company-icon` · `company_icon` |
 | Domain stamp, hierarchy, employment verify | `company_domain`, `company_hierarchy`, `person_verify_employment` — REST or MCP; no dedicated skill yet |
 | Erase a subject | `delete_subject` — **not** these skills (`erase` scope) |
 
@@ -78,11 +79,11 @@ Catalog     <bar>  <✓|✗|·> <ready | 401 <detail> | missing | unverified>
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 12 resource operations`
+`https://api.kingminos.com · Bearer · 13 resource operations`
 
 - <✓ Key present in KINGMINOS_API_KEY | ✗ KINGMINOS_API_KEY is unset | · UNVERIFIED — <reason>>
 - <✓ Catalog readable — get_capabilities | ✗ 401 <missing|malformed|mismatch> | ✗ Catalog not called — no Bearer token | · UNVERIFIED — <status>>
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: <auth | company-resolve | credentials | none — REST for a live tool with no dedicated skill>
 
 ### Next

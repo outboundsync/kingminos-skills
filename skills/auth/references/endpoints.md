@@ -65,6 +65,7 @@ Write **SFDC** or **Salesforce**, never **SF**.
 | `company-resolve` | `company_resolve` |
 | `credentials` | `list_credentials` / `delete_credentials` (store in the app UI) |
 | `company-b2b-social` | `company_b2b_social` |
+| `company-icon` | `company_icon` |
 | Live, no dedicated skill | `company_domain` · `company_hierarchy` · `person_verify_employment` |
 | Not these skills (`erase` scope) | `delete_subject` |
 | Session / product app | `/v1/auth/*` · `/v1/account/*` — out of scope |
