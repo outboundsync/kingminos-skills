@@ -34,7 +34,7 @@ Each item: `provider`, `label`, `kind` (`api_key` \| `oauth`), `status` (`set` \
 
 ## PUT bodies (app UI / REST — never chat)
 
-ZoomInfo (required pair):
+ZoomInfo and Snov.io (required OAuth pair):
 
 ```json
 { "clientId": "...", "clientSecret": "..." }
