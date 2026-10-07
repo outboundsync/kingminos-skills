@@ -53,6 +53,11 @@ paths:
       operationId: company_icon
       security:
         - bearer: []
+  /v1/company/description:
+    post:
+      operationId: company_description
+      security:
+        - bearer: []
   /v1/company/domain:
     post:
       operationId: company_domain
