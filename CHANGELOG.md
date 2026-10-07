@@ -6,6 +6,9 @@
 
 ### Added
 
+- `company-b2b-social` skill: `POST /v1/company/b2b-social` / MCP `company_b2b_social` — paths, Serper-verified `result.linkedin_url`, house AI Ark on default `balance` stack (aligned with live OpenAPI).
+- Document hosted MCP at `https://mcp.kingminos.com` (same Bearer tool inventory as REST); remove stale “MCP not shipped” / “do not invent mcp.kingminos.com” copy.
+
 - AI Ark house-key (resale cleared): `aiark` is `supply: house_key` in the hermetic provider inventory alongside LeadMagic, Wiza, and Findymail; tenant Your Keys remain optional. Policy copy notes `company.b2b_social` may use house AI Ark via `routing.only: ["aiark"]`. ZoomInfo and BuiltWith stay BYOK.
 
 - Maintainer docs: [docs/byok-provider-playbook.md](docs/byok-provider-playbook.md) (BYOK four-repo rollout; mirrored in application, website, mcp) and Cursor skill `.cursor/skills/byok-provider-rollout/SKILL.md`.

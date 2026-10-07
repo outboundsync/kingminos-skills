@@ -9,10 +9,10 @@ description: >-
   Company URL Finder, People Data Labs, or HG Insights key, why they saw zi_credentials_required, or whether LeadMagic needs a
   tenant key.
 license: MIT
-compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com. Mutations only after explicit confirmation. KingMinos MCP is not shipped; use REST.
+compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP). Mutations only after explicit confirmation.
 metadata:
   author: outboundsync
-  version: "1.1.7"
+  version: "1.1.8"
 ---
 
 # KingMinos credentials
@@ -31,7 +31,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | Findymail | `findymail` | **House-key** (approved; OutboundSync-provided). Tenant store is optional. | `{ "apiKey" }` |
 | ZoomInfo | `zoominfo` | BYOK | `{ "clientId", "clientSecret" }` |
 | Wiza | `wiza` | **House-key** (approved; OutboundSync-provided). Tenant store is optional. | `{ "apiKey" }` |
-| AIArk | `aiark` | **House-key** (approved; OutboundSync-provided). Tenant store is optional. Usable on `company.b2b_social` via `routing.only: ["aiark"]`. | `{ "apiKey" }` |
+| AIArk | `aiark` | **House-key** (approved; OutboundSync-provided). Tenant store is optional. Default on `company.b2b_social` `balance` / `accuracy`; `routing.only: ["aiark"]` for AI-Ark-only. | `{ "apiKey" }` |
 | BuiltWith | `builtwith` | BYOK | `{ "apiKey" }` |
 | Prospeo | `prospeo` | BYOK | `{ "apiKey" }` |
 | Apollo | `apollo` | BYOK | `{ "apiKey" }` |
@@ -42,7 +42,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 `PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, or HG Insights key. Do not call `PUT` from this skill.
 
-Hosted MCP is **not shipped**. List is REST `list_credentials`. Revoke is REST `delete_credentials`.
+List: REST `GET /v1/credentials` or MCP `list_credentials`. Revoke after confirm: REST `DELETE` or MCP `delete_credentials`.
 
 ## Workflow
 
@@ -62,9 +62,9 @@ Hosted MCP is **not shipped**. List is REST `list_credentials`. Revoke is REST `
 
 ## Mutations
 
-Follow the [write-on-confirm protocol](https://github.com/outboundsync/kingminos-skills/blob/main/SECURITY.md#write-on-confirm-protocol). KingMinos MCP is not shipped.
+Follow the [write-on-confirm protocol](https://github.com/outboundsync/kingminos-skills/blob/main/SECURITY.md#write-on-confirm-protocol).
 
-- `delete_credentials` / `DELETE /v1/credentials/{provider}` — revoke tenant Your Keys (`revoked_at`). REST; KingMinos MCP is not shipped.
+- `delete_credentials` / `DELETE /v1/credentials/{provider}` — revoke tenant Your Keys (`revoked_at`). REST or hosted MCP (`https://mcp.kingminos.com`) — same tool.
 
 Do not call `PUT /v1/credentials/{provider}` from this skill (store in the app UI). Do not call `DELETE /v1/subjects/{subject_key}` (`erase` scope).
 

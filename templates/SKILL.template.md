@@ -4,7 +4,7 @@ description: >-
   Draft and audit <thing> for KingMinos callers. Use when the user asks to "<trigger phrase>",
   "<trigger phrase>", or "<trigger phrase>".
 license: MIT
-compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com. KingMinos MCP is not shipped; use REST.
+compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
   version: "1.0.0"

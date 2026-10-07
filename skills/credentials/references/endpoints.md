@@ -1,6 +1,6 @@
 # Credentials endpoints
 
-Live contract: `GET https://api.kingminos.com/openapi.yaml` (also `/openapi.json`). Hosted MCP is not shipped — REST only. Responses **never** echo the raw key. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
+Live contract: `GET https://api.kingminos.com/openapi.yaml` (also `/openapi.json`). REST and hosted MCP (`https://mcp.kingminos.com`) share the Bearer tool inventory. Responses **never** echo the raw key. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
 
 This skill's default path is `GET /v1/credentials`. Store secrets in the product app (`https://app.kingminos.com` → Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
@@ -74,7 +74,7 @@ Capability POSTs may return `400` `zi_credentials_required` | `findymail_credent
 
 ## Policy
 
-- **House-key:** LeadMagic, Wiza, Findymail, AIArk (optional tenant store; `company.b2b_social` may use `routing.only: ["aiark"]`).
+- **House-key:** LeadMagic, Wiza, Findymail, AIArk (optional tenant store; house AI Ark on default `company.b2b_social` paths — `company-b2b-social`).
 - **BYOK:** ZoomInfo, BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights.
 - **House-only:** websearch.
 - Live writes need `CREDENTIALS_KEK` on Worker `kingminos-api-prod` (operator secret — never a skill input).

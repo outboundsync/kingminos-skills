@@ -5,8 +5,9 @@ The pack's single reference for the live KingMinos enrichment API and the 1:1 to
 Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare no bearer security and are **out of scope** for this pack. kingminos-application `check:surfaces` should use the same Bearer-only rule.
 
 - REST base: `https://api.kingminos.com` · `Authorization: Bearer $KINGMINOS_API_KEY`
+- Hosted MCP: `https://mcp.kingminos.com` — same Bearer token and snake_case tool inventory as this table
 - Live OpenAPI (auth-free): `GET /openapi.yaml` (also `/v1/openapi.yaml`, `/openapi.json`, `/v1/openapi.json`)
-- Hosted MCP is **not shipped**. Tool names are snake_case of each Bearer resource `operationId` — the inventory kingminos-application `check:surfaces` compares. Do not invent a host or extra tools.
+- Tool names are snake_case of each Bearer resource `operationId` — the inventory kingminos-application `check:surfaces` compares. Do not invent tools outside this map.
 
 Never print, log, or commit the key.
 
@@ -45,7 +46,7 @@ Discovery (`GET /health`, `GET /openapi.yaml`, `GET /openapi.json`, `GET /v1/ope
 | `GET /v1/providers` | `get_providers` | R | Provider registry + configured flags + `billing_mode`. → `auth` / `credentials` (advisory). |
 | `GET /v1/capabilities` | `get_capabilities` | R | Capability catalog + default routing. Auth check. → `auth`. |
 | `POST /v1/company/hierarchy` | `company_hierarchy` | R | Immediate / ultimate parent + capped subsidiaries. Live; no dedicated skill yet. |
-| `POST /v1/company/b2b-social` | `company_b2b_social` | R | B2B social company page (v1 LinkedIn `/company/{slug}`). Default stacks use house websearch + LeadMagic / Wiza / Findymail; house AI Ark via `routing.only: ["aiark"]`. Live; no dedicated skill yet. |
+| `POST /v1/company/b2b-social` | `company_b2b_social` | R | LinkedIn company page (`result.linkedin_url` = Serper-confirmed `https://www.linkedin.com/company/{slug}` or null). Paths `speed` \| `balance` (default) \| `accuracy` \| `coverage`; default stacks are house keys (balance = websearch → house AI Ark). BYOK via `routing.only`. → `company-b2b-social`. |
 | `POST /v1/company/domain` | `company_domain` | R | Write-safe domain stamp + account aliases. Live; no dedicated skill yet. |
 | `POST /v1/company/resolve` | `company_resolve` | R | Email/domain/website → one `answer`. Business misses stay 200. → `company-resolve`. |
 | `POST /v1/person/verify-employment` | `person_verify_employment` | R | Pre-flight send decision. Live; no dedicated skill yet. |
@@ -57,7 +58,7 @@ Discovery (`GET /health`, `GET /openapi.yaml`, `GET /openapi.json`, `GET /v1/ope
 
 Also: `GET /health` (unversioned liveness), `GET /openapi.yaml` / `GET /v1/openapi.yaml` / `GET /openapi.json` / `GET /v1/openapi.json` (auth-free spec). Not resource operations — do not add them as tools.
 
-Not shipped — do not call or invent: a hosted MCP URL, extra credential providers, session/product-app `/v1/auth/*` or `/v1/account/*` routes, or any Bearer path missing from live `GET /openapi.yaml`.
+Out of scope — do not call or invent: extra credential providers, session/product-app `/v1/auth/*` or `/v1/account/*` routes, MCP tools not listed here, or any Bearer path missing from live `GET /openapi.yaml`.
 
 ## Sensitive fields
 

@@ -1,7 +1,7 @@
 import { sectionText } from '../markdown.mjs';
 
 const VAGUE = /matching write tools|matching `?get_\*`? *\/ *`?list_\*`?|matching `?(?:get|list)_\*`? tools/i;
-const MCP_NOT_SHIPPED = /mcp is not shipped|kingminos mcp is not shipped|rest(?:-only)?;?\s*kingminos mcp is not shipped/i;
+const HOSTED_MCP_NOTED = /mcp\.kingminos\.com|hosted mcp/i;
 
 export default {
   id: 'write-tools-named',
@@ -25,8 +25,8 @@ export default {
       if (rows.length === 0) out.push({ file: skill.skillPath, line: mutations.line, msg: '`## Mutations` lists no calls (one row per METHOD /path)' });
       for (const row of rows) {
         const namesTool = /`[a-z][a-z0-9_]*`/.test(row);
-        if (!namesTool && !MCP_NOT_SHIPPED.test(row) && !MCP_NOT_SHIPPED.test(text)) {
-          out.push({ file: skill.skillPath, line: scan.lines.indexOf(row) + 1, msg: 'mutation row must name a REST path and note that KingMinos MCP is not shipped' });
+        if (!namesTool && !HOSTED_MCP_NOTED.test(row) && !HOSTED_MCP_NOTED.test(text)) {
+          out.push({ file: skill.skillPath, line: scan.lines.indexOf(row) + 1, msg: 'mutation row must name a REST path and note hosted MCP (mcp.kingminos.com) when applicable' });
         }
       }
     }

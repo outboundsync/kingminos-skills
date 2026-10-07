@@ -8,10 +8,10 @@ description: >-
   how to set Authorization on an SFDC Named Credential, GET /health,
   GET /openapi.yaml, or GET /v1/capabilities.
 license: MIT
-compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com for live calls. KingMinos MCP is not shipped; use REST.
+compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # KingMinos auth
@@ -37,7 +37,7 @@ export KINGMINOS_API_KEY=...
 - Public, no auth: `GET /health`, `GET /openapi.yaml`, `GET /v1/openapi.yaml` (JSON twins: `/openapi.json`, `/v1/openapi.json`)
 - Spoken name is **King Minos**; write **KingMinos**
 
-Hosted MCP is **not shipped**. Stay on REST. Inventory tools for this skill are `get_capabilities` and `get_providers` — do not invent a `mcp.kingminos.com` host or tools outside the pack map.
+Hosted MCP (`https://mcp.kingminos.com`) exposes the same inventory tools. This skill's checks are `get_capabilities` and `get_providers` — do not invent tools outside the pack map.
 
 ## Workflow
 

@@ -7,10 +7,10 @@ description: >-
   call, OpenAPI discovery, GET /v1/capabilities, or how API work relates to
   auth, company-resolve, and credentials.
 license: MIT
-compatibility: Requires KINGMINOS_API_KEY in the environment and HTTPS access to api.kingminos.com for live calls. KingMinos MCP is not shipped; use REST.
+compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # KingMinos API
@@ -35,7 +35,7 @@ export KINGMINOS_API_KEY=...
 - Live contract (no auth): `GET /openapi.yaml` (also `/v1/openapi.yaml`, `/openapi.json`, `/v1/openapi.json`)
 - Spoken name is **King Minos**; write **KingMinos**
 
-Hosted MCP is **not shipped**. Prefer REST. Tool names in the map are the OpenAPI Bearer resource `operationId` inventory (snake_case). Session/product-app `/v1/auth/*` and `/v1/account/*` ops are out of scope. Do not invent a `mcp.kingminos.com` host or tools outside [references/endpoints.md](references/endpoints.md).
+REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — same Bearer and snake_case tool inventory. Prefer REST for scripts; MCP for agent hosts. Session/product-app `/v1/auth/*` and `/v1/account/*` ops are out of scope. Do not invent tools outside [references/endpoints.md](references/endpoints.md).
 
 ## Workflow
 
@@ -50,7 +50,8 @@ Hosted MCP is **not shipped**. Prefer REST. Tool names in the map are the OpenAP
 | Does my key work? 401? SFDC Named Credential header? | `auth` · `get_capabilities` |
 | Resolve a company / stamp ZoomInfo company id | `company-resolve` · `company_resolve` |
 | List or revoke vendor Your Keys (store in the app UI) | `credentials` · `list_credentials` / `delete_credentials` |
-| Domain stamp, B2B social, hierarchy, employment verify | Live tools `company_domain`, `company_b2b_social`, `company_hierarchy`, `person_verify_employment` — no dedicated skill yet; stay on REST |
+| Company LinkedIn / B2B social page | `company-b2b-social` · `company_b2b_social` |
+| Domain stamp, hierarchy, employment verify | `company_domain`, `company_hierarchy`, `person_verify_employment` — REST or MCP; no dedicated skill yet |
 | Erase a subject | `delete_subject` — **not** these skills (`erase` scope) |
 
 Do not call `put_credentials`, `delete_credentials`, or `delete_subject` from this skill.
