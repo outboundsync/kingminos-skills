@@ -24,7 +24,7 @@ This skill's default path is `GET /v1/credentials`. Store secrets in the product
 
 ## Path `provider`
 
-`zoominfo` | `leadmagic` | `findymail` | `wiza` | `aiark` | `builtwith` | `brandfetch` | `prospeo` | `apollo` | `companyurlfinder` | `peopledatalabs` | `hginsights` | `enrichcrm`
+`zoominfo` | `leadmagic` | `findymail` | `wiza` | `aiark` | `builtwith` | `brandfetch` | `prospeo` | `apollo` | `companyurlfinder` | `peopledatalabs` | `hginsights` | `enrichcrm` | `snovio`
 
 `websearch` is rejected (`byok_not_supported`).
 
@@ -75,7 +75,7 @@ Capability POSTs may return `400` `zi_credentials_required` | `findymail_credent
 ## Policy
 
 - **House-key:** LeadMagic, Wiza, Findymail, AIArk (optional tenant store; house AI Ark on default `company.b2b_social` paths — `company-b2b-social`).
-- **BYOK:** ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM.
+- **BYOK:** ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Snov.io.
 - **House-only:** websearch.
 - Live writes need `CREDENTIALS_KEK` on Worker `kingminos-api-prod` (operator secret — never a skill input).
 - Store secrets at `https://app.kingminos.com`. Never paste a vendor secret into chat.

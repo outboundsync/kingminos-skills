@@ -92,6 +92,13 @@ providers:
     credentials_required: enrichcrm_credentials_required
     path_enum: true
     api_key: true
+  - id: snovio
+    label: Snov.io
+    supply: byok
+    credentials_required: null
+    company_resolve_surface: false
+    path_enum: true
+    api_key: false
   - id: websearch
     label: websearch
     supply: house_only
