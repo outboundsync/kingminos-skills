@@ -29,10 +29,6 @@ jobs:
         with:
           args: >-
             --cache --max-cache-age 1d --no-progress
-            --exclude-path node_modules --exclude-path test
-            --exclude '^https://api\.kingminos\.com/'
-            --exclude 'example\.(com|org)'
-            --exclude '^https://(x|twitter)\.com/'
-            --exclude '^https://github\.com/outboundsync/kingminos-skills/(blob|tree)/main/'
+            --config .lychee.toml
             './**/*.md'
           fail: true

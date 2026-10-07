@@ -1,6 +1,6 @@
 # company.resolve endpoints
 
-Live contract: `GET https://api.kingminos.com/openapi.yaml`. Hosted MCP is not shipped — REST only. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
+Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP (`https://mcp.kingminos.com`) share the Bearer tool inventory. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
 
 ## REST ↔ tools
 
@@ -65,7 +65,7 @@ A LeadMagic-only or websearch-only hit is `resolved_without_primary_id`. A webse
 - `value`: cheap names; no Wiza / Findymail
 - `accuracy` / `coverage`: deeper corroboration / fill
 - AIArk / Prospeo / Apollo / People Data Labs / HG Insights: registered, **not** on default paths
-- House-key vendors: **LeadMagic, Wiza, Findymail, AIArk** (`company.b2b_social` may use house AI Ark via `routing.only: ["aiark"]`)
+- House-key vendors: **LeadMagic, Wiza, Findymail, AIArk** (AI Ark on default `company.b2b_social` `balance` path — see `company-b2b-social`)
 - BYOK: ZoomInfo, BuiltWith, Prospeo, Apollo, People Data Labs, HG Insights, Company URL Finder — resolve uses ZoomInfo/BuiltWith/Prospeo/Apollo/People Data Labs/HG Insights; Company URL Finder is `company.domain` / name→domain only (`routing.only: ["companyurlfinder"]`, not `POST /v1/company/resolve`)
 - `websearch`: house-only
 

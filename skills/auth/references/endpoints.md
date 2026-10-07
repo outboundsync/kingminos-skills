@@ -1,6 +1,6 @@
 # Auth endpoints
 
-Live contract: `GET https://api.kingminos.com/openapi.yaml` (also `/v1/openapi.yaml`, `/openapi.json`, `/v1/openapi.json`). No auth. Hosted MCP is not shipped — REST only. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
+Live contract: `GET https://api.kingminos.com/openapi.yaml` (also `/v1/openapi.yaml`, `/openapi.json`, `/v1/openapi.json`). No auth. REST and hosted MCP (`https://mcp.kingminos.com`) share the Bearer tool inventory. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
 
 Session/product-app `/v1/auth/*` and `/v1/account/*` routes are out of scope — do not call them from this skill.
 
@@ -64,6 +64,7 @@ Write **SFDC** or **Salesforce**, never **SF**.
 | --- | --- |
 | `company-resolve` | `company_resolve` |
 | `credentials` | `list_credentials` / `delete_credentials` (store in the app UI) |
-| Live, no dedicated skill | `company_domain` · `company_b2b_social` · `company_hierarchy` · `person_verify_employment` |
+| `company-b2b-social` | `company_b2b_social` |
+| Live, no dedicated skill | `company_domain` · `company_hierarchy` · `person_verify_employment` |
 | Not these skills (`erase` scope) | `delete_subject` |
 | Session / product app | `/v1/auth/*` · `/v1/account/*` — out of scope |

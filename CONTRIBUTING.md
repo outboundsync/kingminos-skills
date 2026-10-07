@@ -35,13 +35,21 @@ For the full four-repo rollout (application → website → mcp → skills), use
 
 Run `npm run validate -- --list` to see every rule with its severity. Rules and their rationale live in `scripts/validate/rules/`, one file each; severities are in `scripts/validate/config.json`. A rule at `warn` is new and is being rolled out; it becomes an error once every skill complies.
 
+## External links (Lychee)
+
+CI runs [lychee](https://github.com/lycheeverse/lychee) on `**/*.md` (`.github/workflows/links.yml`, config: [`.lychee.toml`](.lychee.toml)).
+
+**Never publish placeholder or template URLs as clickable Markdown** — no `[label](https://www.linkedin.com/company/{slug})`, no autolinks `<https://…>`, and no bare `https://…` outside fenced code blocks. Put contract templates in **inline code** instead, e.g. `` `https://www.linkedin.com/company/{slug}` ``. Illustrative slugs (`acme-example`) and brace placeholders (`{slug}`) must stay inside backticks so link checkers do not HTTP-fetch 404s.
+
+`npm run validate` enforces this for LinkedIn company URLs via `placeholder-linkedin-links`. `.lychee.toml` also excludes a few template URL shapes as a safety net — that does **not** replace backticks in docs.
+
 ## Add a skill
 
 1. Copy [`templates/SKILL.template.md`](templates/SKILL.template.md) to `skills/<name>/SKILL.md`. The folder name and the `name:` field must match (lowercase kebab-case).
 2. Write the description: open with a verb, include "Use when the user asks…" with concrete trigger phrases. Keyed skills need a `compatibility:` line that mentions `KINGMINOS_API_KEY` or `api.kingminos.com`. Account-free skills omit that line and end the description with "No KingMinos API key."
 3. Follow [CONVENTIONS.md](CONVENTIONS.md) for output: an `## Output contract` with a `### Shape`, the marks legend, and the status layout for readiness or health checks.
 4. Keep every link inside the skill folder or absolute. `npx skills add` installs one folder, so `../../` links break.
-5. If the skill writes to KingMinos, add a `## Mutations` section naming each REST call, note that KingMinos MCP is not shipped, and follow the [write-on-confirm protocol](SECURITY.md#write-on-confirm-protocol). Do not ask the user to paste a vendor secret into chat.
+5. If the skill writes to KingMinos, add a `## Mutations` section naming each REST call (and hosted MCP at `https://mcp.kingminos.com` when the same tool exists), and follow the [write-on-confirm protocol](SECURITY.md#write-on-confirm-protocol). Do not ask the user to paste a vendor secret into chat.
 6. Add the skill to every README list: the count, its category table, the install commands, and the "try without installing" commands.
 7. Add a line under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md).
 8. Teach only Bearer resource operations that `GET https://api.kingminos.com/openapi.yaml` exposes today. Those operations belong in `skills/api/references/endpoints.md` (METHOD /path → snake_case tool). Do not invent endpoints or tools outside that map. Do not add session/product-app ops. `npm run check:surfaces` (fixture) and the live surfaces job must stay green.
