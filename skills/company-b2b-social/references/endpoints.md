@@ -60,13 +60,13 @@ Output `result.linkedin_url` is only the accept form `https://www.linkedin.com/c
 - `accuracy`: LeadMagic, house AI Ark, then Wiza (cap 5) — verified-only accept
 - `coverage`: adds Findymail (cap 6) — structurally valid pages with confidence tiers
 - Default stacks: **house keys only** (LeadMagic, Wiza, Findymail, AI Ark, websearch)
-- BYOK: ZoomInfo (`company_linkedin_enrich` — search → scoped company enrich `socialMediaUrls`), BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights — `routing.only` / explicit order only (not default stacks)
+- BYOK: ZoomInfo (`company_linkedin_enrich` — search → scoped company enrich `socialMediaUrls`), BuiltWith, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM — `routing.only` / explicit order only (not default stacks)
 
 ## Errors (run not started)
 
 | Status | `error` | Next |
 | --- | --- | --- |
-| `400` | `validation_failed` / `name_only_unsupported` / `invalid_routing` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `companyurlfinder_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` | Fix input or store BYOK (`credentials`) |
+| `400` | `validation_failed` / `name_only_unsupported` / `invalid_routing` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `companyurlfinder_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` / `enrichcrm_credentials_required` | Fix input or store BYOK (`credentials`) |
 | `401` | `unauthorized` + `detail` | `auth` |
 | `409` | `idempotency_*` | Rotate or reuse `Idempotency-Key` per docs |
 | `429` | rate / tenant / key budget | `Retry-After` |
