@@ -18,7 +18,7 @@ Decision  ████████████████████  ✓ read
 `run_demo789 · path balance · es_decision hit`
 
 - ✓ outcome — hit · exact_one
-- ✓ LinkedIn company page — https://www.linkedin.com/company/acme-example
+- ✓ LinkedIn company page — `https://www.linkedin.com/company/acme-example`
 - · verification — confirmed · serp_title_snippet
 - · unverified candidates — 0
 - · credits spent 1 · providers websearch, aiark

@@ -2,15 +2,15 @@
 name: company-b2b-social
 description: >-
   Find a company's LinkedIn company page via POST /v1/company/b2b-social:
-  domain-required, Serper-verified https://www.linkedin.com/company/{slug}
-  or null. Use when the user asks for company LinkedIn URL, company.b2b_social,
+  domain-required, Serper-verified normalizeLinkedInCompanyUrl company-page
+  form or null. Use when the user asks for company LinkedIn URL, company.b2b_social,
   routing.path speed / balance / accuracy / coverage, company_b2b_social,
   or B2B social page lookup.
 license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # KingMinos company B2B social (LinkedIn company page)
