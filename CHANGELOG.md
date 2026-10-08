@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.08.7] - 2026-10-08
+
 ### Changed
 
 - CONTRIBUTING: say which token `RELEASE_PR_TOKEN` must be (long-lived and limited to this repo; a GitHub App installation token expires too soon to store as this secret) and that the bot merges the CHANGELOG PR with `GITHUB_TOKEN` once its own `validate` run passes.
