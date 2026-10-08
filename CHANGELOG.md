@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.08.5] - 2026-10-08
+
 ### Fixed
 
 - Release CHANGELOG PR: Validate checks started by `workflow_dispatch` do not count toward required checks, so the bot PR now runs CI through an optional `RELEASE_PR_TOKEN` secret, or waits for a maintainer to reopen and merge it. Dropped the dispatch-and-poll step.
