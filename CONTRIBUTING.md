@@ -19,7 +19,7 @@ npm run validate -- --base origin/main    # also require version bumps (what CI 
 npm test                                  # validator + release tooling tests
 ```
 
-The `validate` job is the required check on `main` (`npm run ci` runs the same thing locally); branches must be up to date and protection applies to admins (CI map for all kingminos-* repos: `kingminos-application/docs/ci.md`).
+The `validate` job is the required check on `main` (`npm run ci` runs the same thing locally); branches must be up to date and protection applies to admins.
 
 PR and push **Validate** is hermetic: it compares the api map to `scripts/validate/fixtures/openapi-inventory.yaml` and BYOK provider lists to `scripts/validate/fixtures/providers.yaml` only. A live API outage, deploy, or `curl` blip must not fail a typo-fix PR or block CalVer release.
 
@@ -29,7 +29,7 @@ Live OpenAPI comparison is a scheduled + `workflow_dispatch` job (`.github/workf
 KINGMINOS_OPENAPI_URL=https://api.kingminos.com/openapi.yaml npm run check:surfaces
 ```
 
-The inventory is **Bearer-only**. Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare no bearer security and are out of scope. `GET /v1/credentials` (`list_credentials`) is in scope. kingminos-application `check:surfaces` should use the same Bearer-only rule (do not change that repo from this pack).
+The inventory is **Bearer-only**. Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare no bearer security and are out of scope. `GET /v1/credentials` (`list_credentials`) is in scope. `npm run check:surfaces` in this repo uses the same Bearer-only rule as the live API inventory.
 
 `endpoint-map-*` is route-only. Provider ids (`leadmagic`, `prospeo`, …) live in `providers.yaml`. When KingMinos adds a BYOK vendor, add it there first, then to every credentials / company-resolve / README / CONVENTIONS / SECURITY BYOK list, path-`provider` enum, and `*_credentials_required` list. `provider-enum` fails CI if a list is short.
 

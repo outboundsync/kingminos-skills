@@ -48,7 +48,7 @@ Capabilities   ░░░░░░░░░░░░░░░░░░░░  ✗
 
 **API facts live in each skill.** Keep a trimmed `references/endpoints.md` inside the skill folder (`npx skills add` installs one folder, so links between skill folders break). The pack's canonical REST ↔ tool map is [`skills/api/references/endpoints.md`](skills/api/references/endpoints.md) — one row per OpenAPI **Bearer** resource operation. Session/product-app ops are out of scope. Trimmed copies must match it (`endpoint-map-consistent`); the map must match the KingMinos Bearer OpenAPI inventory (`endpoint-map-openapi`). BYOK / path-`provider` / `*_credentials_required` lists must match [`scripts/validate/fixtures/providers.yaml`](scripts/validate/fixtures/providers.yaml) (`provider-enum`).
 
-**Adding a BYOK vendor (maintainers):** follow [`docs/byok-provider-playbook.md`](docs/byok-provider-playbook.md) (mirrored in application, website, and mcp) or the Cursor skill [`.cursor/skills/byok-provider-rollout/SKILL.md`](.cursor/skills/byok-provider-rollout/SKILL.md).
+**Adding a BYOK vendor (maintainers):** follow [`docs/byok-provider-playbook.md`](docs/byok-provider-playbook.md) (keep aligned across KingMinos product repos) or the Cursor skill [`.cursor/skills/byok-provider-rollout/SKILL.md`](.cursor/skills/byok-provider-rollout/SKILL.md).
 
 ## Score meter — required for any skill that scores or rates
 

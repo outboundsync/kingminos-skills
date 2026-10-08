@@ -1,13 +1,12 @@
 # KingMinos BYOK provider rollout playbook
 
-**Canonical path (this repo):** `docs/byok-provider-playbook.md`. The same playbook is mirrored at `docs/byok-provider-playbook.md` in `kingminos-application`, `kingminos-website`, and `kingminos-mcp` — keep copies aligned when you change rollout steps.
+**Canonical path (this repo):** `docs/byok-provider-playbook.md`. Keep aligned copies in the other KingMinos product repositories when rollout steps change.
 
-**Audience:** cheap DeepSeek (or similar) coding agents + humans reviewing them.  
-**Golden path:** Apollo (2026-10-05) — `kingminos-application#158`, `kingminos-website#34`, `kingminos-skills#6`, `kingminos-mcp#10`.  
-**Prior same-day reference:** Prospeo (app main commits `6e4e41e` → `7fcc6c7`, `kingminos-website#33`, `kingminos-skills#4`, `kingminos-mcp#8`).  
-**Plan artifact (Apollo):** `kingminos-application/docs/future/apollo-byok-four-repos.md`.
+**Audience:** coding agents and human maintainers rolling out a vendor integration.
 
-**Goal:** add **one** paid data vendor as a **BYOK opt-in hop** (off every default routing path), then propagate enums/docs to website / MCP / skills. Do not invent House Keys. Prefer reading `gh pr diff` / `gh api …/contents/…` over full clones.
+**Reference implementations:** Apollo and Prospeo BYOK rollouts (API-key vendors on `company.resolve` via `routing.only`).
+
+**Goal:** add **one** paid data vendor as a **BYOK opt-in hop** (off every default routing path), then propagate enums and docs to the product app, hosted MCP, and this skills pack. Do not invent House Keys without product and legal sign-off. Public API reference: [kingminos.com/docs](https://kingminos.com/docs/).
 
 Always say **SFDC**, never “SF”, if Salesforce is mentioned.
 
@@ -17,14 +16,14 @@ Always say **SFDC**, never “SF”, if Salesforce is mentioned.
 
 | Fact | Rule |
 | --- | --- |
-| **House-key cleared** | **LeadMagic, Wiza, Findymail, AI Ark** (`HOUSE_KEY_RESALE_OS_PROVIDERS` + website `house: true` / skills `supply: house_key`). ZoomInfo and BuiltWith stay BYOK. |
-| **Everything else** | **BYOK** until written reseller terms (`resaleAllowed: false`; do **not** add to `HOUSE_KEY_RESALE_OS_PROVIDERS`). |
+| **House-key cleared** | **LeadMagic, Wiza, Findymail, AI Ark** (website `house: true` / skills `supply: house_key`). ZoomInfo and BuiltWith stay BYOK. |
+| **Everything else** | **BYOK** until written reseller terms (`resaleAllowed: false`; do **not** add to the house-key resale allowlist). |
 | **Dogfood env hooks** | `VENDOR_API_KEY` on Worker for tenant `default` only is OK for internal dogfood (Prospeo/Apollo pattern). That is **not** house resale. |
 | **BuiltWith** | Parked for customer House Keys (ToS). BYOK only; keep tenant cache isolation; never customer house. |
 | **Default routing** | Never put a new BYOK vendor on `field-stacks` / product presets. Opt-in only via `routing.only` / explicit order after `presetProvidersFor` allowlists it. |
-| **House Keys PR #132** | Closed — do **not** merge wholesale. House-key expansions use the narrow #156 pattern (Wiza/Findymail), not the full allowlist gate PR. |
-| **Merge ≠ live** | Website: needs `kingminos-runtime` deploy (auto on `main` when GH Actions secrets set; otherwise manual wrangler). MCP: needs `kingminos-mcp-prod` redeploy. API: needs `kingminos-api-prod` redeploy before live OpenAPI/MCP live checks see the new provider. |
-| **Cloud agents** | Cursor/Grok house models only when Agrippa launches them. This playbook is for DeepSeek agents Harris runs — follow steps mechanically; do not invent product policy. |
+| **House-key expansions** | Narrow, explicit product + legal approval only — never bulk-merge an old allowlist gate PR. |
+| **Merge ≠ live** | API, product app, and hosted MCP each need a production deploy before live OpenAPI / MCP inventory checks see the new provider. |
+| **Agents** | Follow steps mechanically; do not invent product policy. |
 
 ---
 
@@ -51,11 +50,11 @@ If auth scheme is not already in `apiKeyHeaders` (`bearer` \| `x-token` \| `x-ap
 ## 2. Order of operations (strict)
 
 ```
-1) kingminos-application  → PR → merge → redeploy kingminos-api-prod
-2) kingminos-website       → Your Keys catalog + docs (can parallel after app PR is up)
-3) kingminos-mcp           → Zod enums + inventory pin (after app enums known; live refresh after API redeploy)
+1) API service repo        → PR → merge → deploy API (api.kingminos.com)
+2) Product app / docs site → Your Keys catalog + public docs (can parallel after API PR is up)
+3) Hosted MCP repo         → Zod enums + inventory pin (after API enums known; refresh after API deploy)
 4) kingminos-skills        → providers.yaml + skill copy + version bumps
-5) Redeploy                → kingminos-runtime (website) if Actions didn’t; kingminos-mcp-prod
+5) Redeploy                → product app and MCP if CI did not auto-deploy
 6) Smoke                   → routing.only, PUT credentials validate, OpenAPI enum live
 ```
 
@@ -67,13 +66,13 @@ Branch name convention: `{provider_id}-byok` (e.g. `apollo-byok`). Squash-merge;
 
 ## 3. File touch checklists
 
-### 3.1 `outboundsync/kingminos-application` (Apollo #158 as checklist)
+### 3.1 API service (router Worker)
 
 **New files**
 - [ ] `src/providers/{provider}.ts` — adapter (copy `prospeo.ts` / `apollo.ts`)
 - [ ] `tests/{provider}.test.ts`
 - [ ] `tests/fixtures/{provider}-*.json` (hit + no-match minimum)
-- [ ] Optional plan: `docs/future/{provider}-byok-four-repos.md`
+- [ ] Optional rollout plan doc in the API repo
 
 **Must edit (mechanical rename / wire)**
 - [ ] `src/types.ts` — `PROVIDER_NAMES`, `API_KEY_PROVIDER_NAMES`
@@ -82,7 +81,7 @@ Branch name convention: `{provider_id}-byok` (e.g. `apollo-byok`). Squash-merge;
 - [ ] `src/providers/index.ts` — construct provider
 - [ ] `src/providers/api-key-company.ts` — auth scheme and/or `readRateLimit` branch if vendor-specific headers
 - [ ] `src/providers/credential-verify.ts` — real vendor auth/account call + `rejectedOn` if non-401/403
-- [ ] `src/credentials.ts` — refuse hint, `OS_API_KEY_HOUSE_ENV` dogfood hook — **do not** add to `HOUSE_KEY_RESALE_OS_PROVIDERS`
+- [ ] `src/credentials.ts` — refuse hint, dogfood env hook for tenant `default` — **do not** add to house-key resale allowlist
 - [ ] `src/os-credentials.ts` — provider in OS API-key set
 - [ ] `src/credential-store.ts` — storable provider
 - [ ] `src/capabilities/registry.ts` — catalog hop for the capability
@@ -95,19 +94,19 @@ Branch name convention: `{provider_id}-byok` (e.g. `apollo-byok`). Squash-merge;
 - [ ] `cli/const.ts` (+ `cli/help.ts` if house/BYOK prose)
 - [ ] `openapi.yaml` + `openapi.es.yaml` — provider / credential / attribution enums; `*_credentials_required` on the **correct** capability 400 list only
 - [ ] `.dev.vars.example` + `worker-configuration.d.ts` — optional dogfood `VENDOR_API_KEY`
-- [ ] Docs: `docs/byok-zoominfo.md`, `docs/os-router-credentials.md`, `README.md` BYOK / house-key lines
+- [ ] Public API docs on [kingminos.com/docs](https://kingminos.com/docs/) + README BYOK / house-key lines
 - [ ] Tests that pin provider lists: `tests/fitness.test.ts`, `tests/opt-in-providers.test.ts`, `tests/credentials.test.ts`, `tests/app.test.ts`, `tests/compliance.test.ts`, `tests/routing.test.ts`, `tests/live-dev-vars.ts`, peers as needed
 
 **Do not touch for opt-in BYOK**
 - [ ] `src/routing/field-stacks.ts` (default stacks)
-- [ ] `HOUSE_KEY_RESALE_OS_PROVIDERS` (unless counsel signed + Harris explicitly asks for house resale)
+- [ ] house-key resale allowlist (unless counsel signed + explicit product order for house resale)
 
 **App verify**
 ```bash
 npm run check:types && npm run lint && npm test && npm run check:surfaces
 ```
 
-### 3.2 `outboundsync/kingminos-website` (Apollo #34 / Prospeo #33)
+### 3.2 Product app and docs site
 
 - [ ] `src/lib/credentials.ts` — `CREDENTIAL_PROVIDERS` + `CREDENTIAL_VENDORS` (`house: false` for BYOK)
 - [ ] `src/lib/credentials.test.ts` (+ `credentials-ui.test.ts` if counts/copy)
@@ -121,9 +120,9 @@ npm run check:types && npm run lint && npm test && npm run check:surfaces
 npm run check:session && npm run lint && npm run check:types && npm run build && npm run check:agent
 ```
 
-**Deploy:** merge ≠ live until `kingminos-runtime` is deployed.
+**Deploy:** merge ≠ live until the product app Worker is deployed.
 
-### 3.3 `outboundsync/kingminos-mcp` (Apollo #10 / Prospeo #8)
+### 3.3 Hosted MCP server
 
 - [ ] `src/schemas.ts` — `PROVIDER_NAME_VALUES` + `CREDENTIAL_PROVIDER_VALUES` + describe strings + `apiKey` field description (**functional** — without this, `routing.only` and `put_credentials` reject the id)
 - [ ] `inventory/openapi-surfaces.json` — pin `providers[]` and `credentialProviders[]` (or `npm run inventory:refresh` **after** API Worker redeploy)
@@ -136,9 +135,9 @@ npm run check:session && npm run lint && npm run check:types && npm run build &&
 npm run typecheck && npm run check:surfaces && npm run check:providers && npm test
 ```
 
-**Deploy:** redeploy Worker `kingminos-mcp-prod`.
+**Deploy:** redeploy the MCP Worker at `https://mcp.kingminos.com`.
 
-### 3.4 `outboundsync/kingminos-skills` (Apollo #6 / Prospeo #4)
+### 3.4 Agent skills pack (`kingminos-skills`)
 
 - [ ] `scripts/validate/fixtures/providers.yaml` — entry (`supply: byok`, `credentials_required: {id}_credentials_required`, `path_enum: true`, `api_key: true` as appropriate)
 - [ ] `scripts/validate/fixtures/openapi-inventory.yaml` — credential path-param enum if present
@@ -201,14 +200,14 @@ Without (2), `routing.only: ["{id}"]` returns **400 invalid_routing**.
 
 - Hint string in `CREDENTIALS_REQUIRED_HINT` / peer map
 - Dogfood: `OS_API_KEY_HOUSE_ENV.{id} = env.{ID}_API_KEY`
-- **Do not** add to `HOUSE_KEY_RESALE_OS_PROVIDERS`
+- **Do not** add to the house-key resale allowlist
 - Store + verify before persist (`credential-verify.ts`)
 
 ### 4.5 OpenAPI
 
 - Add `{id}` to every ProviderName / AttributionProvider / credentials path enum that lists peers
 - Add `{id}_credentials_required` to the capability’s 400 list that can refuse for missing keys
-- **Do not** paste that error onto unrelated capabilities (Prospeo lesson #157: resolve-only, not `company.domain`)
+- **Do not** paste that error onto unrelated capabilities (e.g. resolve-only `{id}_credentials_required`, not `company.domain`)
 
 ### 4.6 Auth header cheatsheet (existing)
 
@@ -226,17 +225,17 @@ Without (2), `routing.only: ["{id}"]` returns **400 invalid_routing**.
 ## 5. Token traps (burned cycles — avoid)
 
 1. **`presetProvidersFor` missing** — provider exists but `routing.only` 400s (Prospeo + AI Ark).
-2. **House-key copy drift** — satellites still saying “LeadMagic is the only house-key vendor” after #156. Always sync LeadMagic + Wiza + Findymail.
+2. **House-key copy drift** — docs still saying “LeadMagic is the only house-key vendor”. Always sync LeadMagic + Wiza + Findymail + AI Ark.
 3. **OpenAPI / provider-enum CI drift** — mcp `check:providers` + skills `provider-enum` now fail closed. Update pins/`providers.yaml` in the same PR.
-4. **Wrong 400 surface** — `*_credentials_required` on the wrong operation (#157).
+4. **Wrong 400 surface** — `*_credentials_required` on the wrong operation.
 5. **`verifyApiKeyGet` status mapping** — vendors that reject with 400/422 need `rejectedOn` or deliberate handling, else verify becomes `503 credential_verify_unavailable` (Prospeo `INVALID_API_KEY`).
-6. **Dogfood env vs house resale** — setting `{ID}_API_KEY` for tenant `default` ≠ adding to `HOUSE_KEY_RESALE_OS_PROVIDERS`.
+6. **Dogfood env vs house resale** — setting `{ID}_API_KEY` for tenant `default` ≠ adding to the house-key resale allowlist.
 7. **mcp Biome pin** — format with `@biomejs/biome@1.9.4` or CI churns wrap diffs.
 8. **Skills version bump from tip** — bump relative to current `main`, not stale local.
-9. **Live lag** — CI live OpenAPI compare fails until `kingminos-api-prod` redeploy; pin may lead live (allowed for mcp inventory policy).
+9. **Live lag** — scheduled live OpenAPI compare fails until the API is redeployed; MCP inventory pin may lead live (allowed policy).
 10. **Sibling rebase** — budget one rebase per satellite; website may need `npm install` if `package.json` moved.
 11. **BuiltWith** — do not flip to house; ToS / reseller parked; BYOK + tenant isolation only.
-12. **Merging #132** — do not. Brand/allowlist PR was closed; house expansions are explicit narrow PRs (#156 style).
+12. **Bulk house-key PRs** — do not merge closed allowlist gate PRs wholesale; house expansions are explicit narrow changes only.
 
 ---
 
@@ -259,13 +258,13 @@ curl -sS https://api.kingminos.com/openapi.json | jq '.. | objects | .enum? // e
 # POST without routing.only — provider must not appear in default hops
 ```
 
-Per-repo green checks from §3. Redeploy website (`kingminos-runtime`) and MCP (`kingminos-mcp-prod`). Confirm MCP Zod accepts `put_credentials({ provider: "{id}" })` and `routing.only: ["{id}"]`.
+Per-repo green checks from §3. Redeploy the product app and MCP Workers. Confirm MCP Zod accepts `put_credentials({ provider: "{id}" })` and `routing.only: ["{id}"]`.
 
 ---
 
 ## 7. What NOT to do
 
-- Do **not** merge House Keys `kingminos-application#132` wholesale.
+- Do **not** bulk-merge closed house-key allowlist PRs.
 - Do **not** add BYOK vendors to default routing / `field-stacks`.
 - Do **not** mark BuiltWith (or unsigned vendors) as customer house keys.
 - Do **not** treat dogfood `{ID}_API_KEY` as reseller House Keys.
@@ -277,48 +276,36 @@ Per-repo green checks from §3. Redeploy website (`kingminos-runtime`) and MCP (
 
 ---
 
-## 8. Minimal DeepSeek prompt template
+## 8. Minimal agent prompt template
 
 Copy, fill brackets, paste to the agent:
 
 ```
-TASK: Add KingMinos BYOK provider [{provider_id}] / [{Label}] across four repos.
-ORG: outboundsync. Repos: kingminos-application, kingminos-website, kingminos-skills, kingminos-mcp.
-GOLDEN PATH: copy Apollo PR pattern (app #158, website #34, skills #6, mcp #10) and/or Prospeo.
-PLAYBOOK: docs/byok-provider-playbook.md in kingminos-skills (same path in application, website, mcp) — follow mechanically. Prefer gh pr diff / gh api contents over full clones.
+TASK: Add KingMinos BYOK provider [{provider_id}] / [{Label}] across the API, product app, MCP, and skills repos.
+PLAYBOOK: docs/byok-provider-playbook.md in kingminos-skills — follow mechanically.
+PUBLIC DOCS: https://kingminos.com/docs/
 
 INPUTS:
-- provider_id: [{provider_id}]
-- auth: [{header or scheme}]
-- docs_url / base_url: [{url}]
-- endpoints: [{method path + params}]
-- capability: [{company.resolve | …}] — scope cuts: [{e.g. no employment}]
-- credential body: [{apiKey} | {clientId,clientSecret}]
-- verify: [{method path + reject signals}]
-- credits: [{n}] billingMode: [{on_success|always}]
-- compliance: [{soc2, data}]
+- provider_id, auth, docs_url, endpoints, capability, credential body, verify call, credits, compliance, scope cuts
 - dogfood env name: [{ID}_API_KEY] (default tenant only; NOT house resale)
 
 RULES:
-1) API repo first, then website, mcp, skills.
-2) resaleAllowed: false; do NOT add to HOUSE_KEY_RESALE_OS_PROVIDERS.
+1) API repo first, then product app, MCP, skills.
+2) resaleAllowed: false; do NOT add to house-key resale allowlist.
 3) Off every default path; MUST add to presetProvidersFor(capability).
 4) OpenAPI: enums + {id}_credentials_required on the correct capability 400 list only.
-5) House-key copy stays: LeadMagic, Wiza, Findymail house; new vendor BYOK.
+5) House-key copy: LeadMagic, Wiza, Findymail, AI Ark = house; new vendor BYOK.
 6) Say SFDC never SF. No secrets in git.
-7) Do not merge PR #132. Do not default-route. BuiltWith stays BYOK-only.
-8) After app merge note: redeploy kingminos-api-prod gates live OpenAPI; website needs kingminos-runtime; MCP needs kingminos-mcp-prod.
-9) Run the verify commands in the playbook; paste results in the PR body.
-10) One PR per repo, branch [{provider_id}-byok], squash merge when green.
+7) Deploy API / app / MCP after merge before live smoke tests.
+8) Run verify commands in the playbook.
 
-OUTPUT: four PRs + file lists + verify command output. Stop if a policy input is missing — do not invent House Keys or extra capabilities.
+OUTPUT: four PRs + file lists + verify output. Stop if policy input is missing.
 ```
 
 ---
 
 ## 9. Related docs
 
-- House Keys agreements gate (internal ops): `vendor-agreements-house-keys-2026-10-02.md`
-- Deploy lag / stale Workers (internal ops): `stale-cursor-projects-2026-10-06.md`
-- Apollo four-repo plan (in app): `kingminos-application/docs/future/apollo-byok-four-repos.md`
-- Cursor maintainer skill (skills repo only): `.cursor/skills/byok-provider-rollout/SKILL.md`
+- [KingMinos API documentation](https://kingminos.com/docs/)
+- [Credentials / Your Keys](https://kingminos.com/docs/api/credentials/)
+- Cursor maintainer skill (this repo): `.cursor/skills/byok-provider-rollout/SKILL.md`

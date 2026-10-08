@@ -20,7 +20,7 @@ Capabilities   ████████████████████  ✓
 - ✓ Key present in KINGMINOS_API_KEY
 - ✓ Bearer accepted
 - ✓ Catalog readable — company.resolve, person.verify_employment, company.domain, company.hierarchy, company.b2b_social
-- · Health — kingminos-api-prod (unauthenticated)
+- · Health — ok (unauthenticated)
 
 ## Failing — missing key
 
@@ -40,7 +40,7 @@ Capabilities   ░░░░░░░░░░░░░░░░░░░░  ✗
 - ✗ KINGMINOS_API_KEY is unset
 - ✗ 401 missing — No Authorization header. SFDC Custom auth does not emit Auth Parameters as HTTP headers — add a Custom Header
 - ✗ Catalog not called — no Bearer token
-- · Health — kingminos-api-prod (unauthenticated)
+- · Health — ok (unauthenticated)
 
 ### Next
 1. Mint a `km_` token at https://app.kingminos.com (workspace owner → tokens; shown once) and export it
@@ -65,7 +65,7 @@ Capabilities   ░░░░░░░░░░░░░░░░░░░░  ✗
 - ✓ Key present in KINGMINOS_API_KEY
 - ✗ 401 malformed — not Bearer \<token\>
 - ✗ Catalog unread — fix the header first
-- · Health — kingminos-api-prod (unauthenticated)
+- · Health — ok (unauthenticated)
 
 ### Next
 1. Send `Authorization: Bearer $KINGMINOS_API_KEY` (the word Bearer, then a space, then the token)
@@ -88,7 +88,7 @@ Capabilities   ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  · 
 - ✓ Key present in KINGMINOS_API_KEY
 - · UNVERIFIED — 503 store_unavailable
 - · UNVERIFIED — capabilities not confirmed
-- · Health — kingminos-api-prod (unauthenticated)
+- · Health — ok (unauthenticated)
 
 ### Next
 1. Retry `GET /v1/capabilities` after the 503 clears (same Bearer header)

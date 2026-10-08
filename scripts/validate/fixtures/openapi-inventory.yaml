@@ -1,8 +1,8 @@
 # Minimal KingMinos OpenAPI Bearer resource inventory for offline validate/tests.
 # Paths match live GET https://api.kingminos.com/openapi.yaml Bearer ops.
 # Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare no bearer
-# security and are out of scope for this pack (and for kingminos-application
-# `check:surfaces`). Discovery routes are listed so the parser can skip them.
+# security and are out of scope for this pack (same Bearer-only rule as
+# `npm run check:surfaces`). Discovery routes are listed so the parser can skip them.
 # Do not invent ops.
 openapi: 3.1.0
 info:
