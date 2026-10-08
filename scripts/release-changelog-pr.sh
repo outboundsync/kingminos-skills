@@ -12,8 +12,9 @@
 # GitHub does not start `pull_request` workflows for PRs opened with
 # GITHUB_TOKEN, and `validate` checks from workflow_dispatch runs do not count
 # toward required checks. So:
-#   - With RELEASE_PR_TOKEN set (a GitHub App installation token or a
-#     fine-grained token limited to this repo: contents + pull requests write),
+#   - With RELEASE_PR_TOKEN set (a long-lived token limited to this repo with
+#     contents + pull requests write, e.g. a fine-grained PAT; GitHub App
+#     installation tokens expire after an hour, so they can't be stored here),
 #     the push and PR use that token, Validate runs as a normal pull_request
 #     check, and this script squash-merges the PR (pinned with
 #     --match-head-commit) as soon as GitHub reports it mergeable.
