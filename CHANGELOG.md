@@ -6,7 +6,7 @@
 
 ### Changed
 
-- `company.icon` (`company-icon`, `api`): still resolves from site favicon, Brandfetch, and ZoomInfo, then re-hosts the best candidate as a KingMinos-hosted `https://logos.kingminos.com/i/{sha256}.png` (256×256 PNG) in `result.icon_url`, with optional `result.icon_source_url` for the winning source; under-64px sources still hit with `confidence` low and `flags.low_res` true while `safe_to_write.icon_url` stays true; wrong-company/junk/empty reject or fetch/store failure is `no_decision` with `icon_url` null; client request is domain-only (routing/path/preset ignored); CRM tip to allowlist `logos.kingminos.com` once.
+- `company.icon` (`company-icon`, `api`, `credentials`): resolve site manifest icons, apple-touch-icon, and favicon (best first), then Brandfetch and ZoomInfo brand logos; validate, store, and re-host the best as `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**) in `result.icon_url`, with optional `result.icon_source_url`; under-64px sources still hit with `confidence` low and `flags.low_res` true while `safe_to_write.icon_url` stays true; wrong-company/junk/empty reject or fetch/store failure is `no_decision` with `icon_url` null; client request is domain plus optional `name` (routing/path/preset ignored); Brandfetch/ZoomInfo BYOK still applies on the ladder; CRM tip to allowlist `logos.kingminos.com` once.
 
 ## [2026.10.08.7] - 2026-10-08
 

@@ -30,7 +30,7 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
 | `dry_run` | no | Default false |
 
-**Domain-only subject.** One implementation — no client `routing`, `routing.only`, `path`, or `preset` (legacy fields are silently ignored).
+**Domain** plus optional **`name`**. One server-side implementation — client `routing`, `routing.only`, `path`, and `preset` are silently ignored.
 
 Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`.
 
@@ -48,22 +48,22 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 
 | `answer.outcome` | `result.icon_url` | Meaning |
 | --- | --- | --- |
-| `hit` | `https://logos.kingminos.com/i/{sha256}.png` | 256×256 PNG on KingMinos logo CDN — stamp when `safe_to_write.icon_url` |
+| `hit` | `https://logos.kingminos.com/i/{sha256}.png` | **256x256 PNG** on KingMinos logo CDN — stamp when `safe_to_write.icon_url` |
 | `no_decision` | null | Wrong-company / junk / empty reject, or fetch/store failure — do not invent an icon |
 
-On a hit, **`result.icon_url` is always** the hosted KingMinos URL — never a raw third-party or site favicon URL in the stamp field. **`result.icon_source_url`** (optional) is the winning source URL (favicon, Brandfetch, ZoomInfo logo, etc.) for display/debug only.
+On a hit, **`result.icon_url` is always** the hosted KingMinos URL — never a raw third-party or site favicon URL in the stamp field. **`result.icon_source_url`** (optional) is the winning source URL (manifest icon, apple-touch-icon, favicon, Brandfetch, ZoomInfo logo, etc.) for display/debug only.
 
 **`answer.safe_to_write.icon_url`** is `true` when `icon_url` is that hosted URL (including low-resolution hits).
 
 ### Low-resolution hits (under 64px source)
 
-When the best accepted source raster is **under 64px**, the Worker still returns a **hosted hit** (256×256 PNG on `logos.kingminos.com`). **`answer.confidence`** is `low`, **`result.flags.low_res`** is `true`, and **`answer.safe_to_write.icon_url` stays `true`** — integrators choose whether to stamp. Only **wrong-company**, **junk**, or **empty** images are hard-rejected; **fetch/store failure** is `no_decision` with `icon_url` null.
+When the best accepted source raster is **under 64px**, the Worker still returns a **hosted hit** (**256x256 PNG** on `logos.kingminos.com`). **`answer.confidence`** is `low`, **`result.flags.low_res`** is `true`, and **`answer.safe_to_write.icon_url` stays `true`** — integrators choose whether to stamp. Only **wrong-company**, **junk**, or **empty** images are hard-rejected; **fetch/store failure** is `no_decision` with `icon_url` null.
 
-## Sources (live Worker → re-host)
+## Sources (resolve → re-host)
 
-Default ladder: **house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1)**
+Default ladder: **site manifest / apple-touch-icon / favicon (0 credits) → Brandfetch BYOK brand logo (1, soft-fail and continue) → ZoomInfo enrich logo (1)**
 
-- KingMinos still resolves from **site favicon**, **Brandfetch**, and **ZoomInfo**; on success it validates, stores, and serves a **256×256 PNG** on `logos.kingminos.com`.
+- Resolves from **site manifest icons**, **apple-touch-icon**, and **favicon** (best candidate first), then **Brandfetch** and **ZoomInfo** brand logos; validates, stores, and serves a **256x256 PNG** on `logos.kingminos.com`.
 - Brandfetch prefers **icon** over wider brand **logo** when both exist.
 - **Enrich-CRM, AI Ark, LeadMagic, and Prospeo are not icon sources.**
 - **Brandfetch** and **ZoomInfo** require stored Your Keys for their ladder steps (`credentials` skill).

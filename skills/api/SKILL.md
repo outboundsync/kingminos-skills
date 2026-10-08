@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.5.6"
+  version: "1.5.7"
 ---
 
 # KingMinos API
@@ -51,7 +51,7 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 | Resolve a company / stamp ZoomInfo company id | `company-resolve` · `company_resolve` |
 | List or revoke vendor Your Keys (store in the app UI) | `credentials` · `list_credentials` / `delete_credentials` |
 | Company LinkedIn / B2B social page | `company-b2b-social` · `company_b2b_social` |
-| Company icon — hosted `logos.kingminos.com` stamp (`company.icon`) | `company-icon` · `company_icon` |
+| Company icon — resolve then re-host on `logos.kingminos.com` (`company.icon`, 256x256 PNG) | `company-icon` · `company_icon` |
 | Company description paragraph (`company.description`) | `company-description` · `company_description` |
 | Domain stamp, hierarchy, employment verify | `company_domain`, `company_hierarchy`, `person_verify_employment` — REST or MCP; no dedicated skill yet |
 | Erase a subject | `delete_subject` — **not** these skills (`erase` scope) |

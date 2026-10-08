@@ -21,7 +21,7 @@ Decision  ████████████████████  ✓ read
 - ✓ icon_url — `https://logos.kingminos.com/i/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.png`
 - · icon_source_url — `https://www.example.com/favicon.ico`
 - · safe_to_write.icon_url — true
-- · ladder — favicon-fetch
+- · ladder — site manifest / apple-touch-icon / favicon
 - · credits spent 0 · providers favicon-fetch
 
 ## Passing — hit low_res (under 64px source)
@@ -44,7 +44,7 @@ Decision  ████████████████████  ✓ read
 - · icon_source_url — `https://www.example.com/favicon.ico`
 - · confidence — low · flags.low_res — true
 - · safe_to_write.icon_url — true
-- · ladder — favicon-fetch
+- · ladder — site manifest / apple-touch-icon / favicon
 - · credits spent 0 · providers favicon-fetch
 
 ## Passing — no_decision
@@ -66,7 +66,7 @@ Decision  ████████████████████  ✓ read
 - · icon_url — null
 - · icon_source_url — null
 - · safe_to_write.icon_url — false
-- · ladder — favicon-fetch, brandfetch, zoominfo
+- · ladder — site manifest / apple-touch-icon / favicon, brandfetch, zoominfo
 - · credits spent 2 · providers favicon-fetch, brandfetch, zoominfo
 
 ## Failing — name-only input
