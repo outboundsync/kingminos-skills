@@ -48,7 +48,7 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 
 | `answer.outcome` | `result.icon_url` | Meaning |
 | --- | --- | --- |
-| `hit` | `https://logos.kingminos.com/i/<sha256>.png` | 128×128 PNG on KingMinos logo CDN — stamp when `safe_to_write.icon_url` |
+| `hit` | `https://logos.kingminos.com/i/{sha256}.png` | 128×128 PNG on KingMinos logo CDN — stamp when `safe_to_write.icon_url` |
 | `no_decision` | null | Fetch, validate, or store failed — do not invent an icon |
 
 On a hit, **`result.icon_url` is always** the hosted KingMinos URL — never a third-party or site favicon URL. **`result.icon_source_url`** (optional) is the original source for display/debug only.

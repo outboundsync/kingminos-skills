@@ -48,7 +48,7 @@ paths:
       operationId: company_b2b_social
       security:
         - bearer: []
-  # company.icon: domain-only; hit icon_url is https://logos.kingminos.com/i/<sha256>.png
+  # company.icon: domain-only; hit icon_url is https://logos.kingminos.com/i/{sha256}.png
   /v1/company/icon:
     post:
       operationId: company_icon
