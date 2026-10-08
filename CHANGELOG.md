@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.08.4] - 2026-10-08
+
 ### Changed
 
 - Release workflow now promotes `## Unreleased` into the new `## [tag] - date` section on every release and lands it on `main` through a self-merging PR (`main` stays protected). An empty Unreleased is a no-op, and the promotion commit never triggers another release.
