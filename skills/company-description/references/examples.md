@@ -17,14 +17,14 @@ Decision  ████████████████████  ✓ read
 ### Answer
 `run_demo901 · path balance · es_decision hit · confidence high`
 
-- ✓ outcome — hit · description_ok
-- ✓ description — OutboundSync syncs outbound email and sequencer activity into CRMs such as Salesforce and HubSpot for reply routing and attribution.
-- · flags — hype false · first_person false · tagline false · same_as_speed false
-- · safe_to_write.description — true
-- · stack — house site fetch → AI Ark compose (default); ZoomInfo firmographic BYOK via routing.only only
-- · credits spent 1 · providers site_probe, aiark
+- ✓ outcome — hit · exact_one
+- ✓ description — OutboundSync syncs outbound email and sequencer activity into CRMs such as Salesforce and HubSpot.
+- · flags — hype false · first_person false · tagline false · same_as_speed false · truncated false · cta false
+- · identity — jev 0.96
+- ✓ safe_to_write.description — true
+- · credits spent 0 · providers aiark
 
-## Passing — hit but hold for CRM (speed / hype)
+## Passing — hit, not safe to write (cta)
 
 ## Company description — hit
 
@@ -37,17 +37,17 @@ Decision  ████████████████████  ✓ read
 ```
 
 ### Answer
-`run_demo902 · path speed · es_decision hit · confidence medium`
+`run_demo902 · path speed · es_decision hit · confidence low`
 
-- ✓ outcome — hit · homepage_text_ok
-- ✓ description — We help revenue teams crush pipeline with the best outbound platform on the planet.
-- · flags — hype true · first_person true · tagline false · same_as_speed false
-- · safe_to_write.description — true
-- · stack — house site fetch → AI Ark compose (default); ZoomInfo firmographic BYOK via routing.only only
-- · credits spent 0 · providers site_probe
+- ✓ outcome — hit · exact_one
+- ✓ description — Example makes outbound easy for revenue teams. Start your free trial today!
+- · flags — hype false · first_person false · tagline false · same_as_speed false · truncated false · cta true
+- · identity — jev 0.95
+- · safe_to_write.description — false (cta forces low confidence)
+- · credits spent 0 · providers aiark
 
 ### Next
-1. Re-run with `routing.path` `balance` or `accuracy`, or human-edit before stamping the CRM Description field
+1. Re-run with `path` `balance` or `accuracy`; do not stamp the CRM Description field from this text
 
 ## Passing — no_decision
 
@@ -64,12 +64,12 @@ Decision  ████████████████████  ✓ read
 ### Answer
 `run_demo903 · path balance · es_decision miss · confidence null`
 
-- · outcome — no_decision · no_usable_description
+- · outcome — no_decision · no_match
 - · description — null
-- · flags — hype false · first_person false · tagline false · same_as_speed false
+- · flags — null
+- · identity — null
 - · safe_to_write.description — false
-- · stack — house site fetch → AI Ark compose (default); ZoomInfo firmographic BYOK via routing.only only
-- · credits spent 0 · providers site_probe, aiark
+- · credits spent 0 · providers aiark
 
 ## Failing — name-only input
 

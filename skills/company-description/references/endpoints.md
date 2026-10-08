@@ -18,22 +18,24 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. Integrator walk-thr
 
 ## Request
 
-`CompanyDescriptionInput` keys are always present on the echo (`name`, `domain`, `website`, `email`) and may be null.
+`CompanyDescriptionInput` keys are always present on the echo (`name`, `domain`, `website`, `email`, `max_chars`) and may be null.
 
 | Field | Required | Notes |
 | --- | --- | --- |
 | `domain` | subject required | Or `website` / `email` → same registrable domain after hygiene |
-| `name` | no | Optional corroboration |
+| `name` | no | Optional hint for composed text; not returned |
 | `website` | no | |
 | `email` | no | |
+| `max_chars` | no | Integer 80–500, default 300. Trims at a sentence boundary |
+| `skip_cache` | no | Skip the 30-day result-cache read and re-run (still writes). Same as `X-Router-Cache: bypass` |
 | `external_ref` | no | Client correlation key; echoed |
-| `routing.path` | no | `speed` \| `balance` \| `accuracy` \| `coverage` (omit = `balance`). Legacy aliases (`auto`, `value`, `fast`, `name_only`) normalize — echoed paths are the four live names. |
+| `path` / `routing.path` | no | `speed` \| `balance` \| `accuracy` \| `coverage` (omit = `balance`). Legacy `fast` / `value` / `name_only` → `speed`, `auto` → `balance` |
 | `routing.preset` | no | Back-compat; nested `routing.path` wins when both are sent |
-| `routing.only` | no | BYOK / escape providers (e.g. `["zoominfo"]` for ZoomInfo firmographic) |
+| `routing.only` | no | e.g. `["zoominfo"]` with a stored ZoomInfo key |
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
 | `dry_run` | no | Default false |
 
-Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`.
+Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `X-Router-Cache: bypass`, `Idempotency-Key`.
 
 ### Example request (`balance`)
 
@@ -41,7 +43,7 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 {
   "domain": "outboundsync.com",
   "name": "OutboundSync",
-  "routing": { "path": "balance" },
+  "path": "balance",
   "external_ref": "crm-account-42",
   "schema_version": "2"
 }
@@ -51,7 +53,8 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 
 | Layer | Fields | Use |
 | --- | --- | --- |
-| Control | `answer.outcome`, `es_decision`, `answer.confidence`, `answer.safe_to_write.description`, `answer.reason_code`, `result.description`, `result.flags` | Branch here |
+| Control | `es_decision`, `answer.outcome`, `answer.safe_to_write.description`, `result.description` | Branch here |
+| Quality | `answer.confidence`, `answer.identity`, `result.flags` | Why it is (or is not) safe |
 | Explain | `answer.summary`, `sources` | Humans only |
 | Audit | `trace.*` when `explain=full` | Debug |
 
@@ -59,38 +62,45 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 
 | `answer.outcome` | `result.description` | Meaning |
 | --- | --- | --- |
-| `hit` | 40–2000 char paragraph | Decision returned — stamp when your CRM bar is met |
+| `hit` | English text (≤ `max_chars`) | Decision returned — stamp only when `answer.safe_to_write.description` is true |
 | `no_decision` | null | Honest abstain — do not invent copy |
 
-### `result.flags` (quality hints)
+### `answer.safe_to_write.description`
+
+True only when **all** hold: `es_decision=hit`, non-blank text, `answer.confidence` is `medium` or `high`, and `answer.identity` is non-null (`jev` score ≥ 0.85, `name_domain` match, or `own_homepage`). Low confidence is never safe. `safe_to_write.company_domain` is true only on a hit; `safe_to_write.company_name` is always false here.
+
+### `result.flags` (on a hit; null on a miss)
 
 | Flag | Meaning |
 | --- | --- |
-| `hype` | Marketing/hype tone detected — cautious CRM use |
-| `first_person` | First-person voice ("we", "our") — cautious CRM use |
-| `tagline` | Short tagline-like text rather than a description paragraph |
-| `same_as_speed` | Composed path still matches raw `speed` text — review before trusting `balance` / `accuracy` |
+| `hype` | Marketing superlatives |
+| `first_person` | A `We` / `Our` / `I` sentence |
+| `tagline` | Slogan, all-caps headline, blog headline, or article summary |
+| `same_as_speed` | Ranked fallback that matches the `speed` winner |
+| `truncated` | Trimmed to the last whole word (no complete sentence left) — forces confidence `low` |
+| `cta` | Marketing / imperative line (`Join N+ …`, `trusted by`, `Get started`, exclamation) — forces confidence `low` |
 
-Prefer CRM writes when `answer.confidence` is `high` and `hype` / `first_person` are false. `safe_to_write.description` does not clear hype/first_person — agents must read flags.
+Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`filtered` \| `translated` \| `interpreted` \| null), `company_domain`, `compose_echo`, `homepage_meta_only`. No `company_name` in the result.
 
 ## Routing (live Worker)
 
-| Path | Intent | Default stack (summary) |
+| Path | Stack | Cap |
 | --- | --- | --- |
-| `speed` | Cheapest; raw homepage text | House site fetch (minimal compose) |
-| `balance` | Neutral third-person blurb | House site fetch → house **AI Ark** compose |
-| `accuracy` | Tight factual compose | Stricter accept on the same house stack |
-| `coverage` | Thin/blocked sites | Higher spend / recovery on the house stack |
+| `speed` | Homepage meta / og (deterministic gates) → house **AI Ark** | 1 |
+| `balance` | Jev-ranked homepage extracts + meta/og + AI Ark; optional rewrite | 2 |
+| `accuracy` | xAI neutral third-person compose from homepage evidence + one Jev; falls back to the cheaper hit | 3 |
+| `coverage` | Accuracy compose + off-homepage house websearch + **ZoomInfo BYOK**; falls back to the accuracy winner | 6 |
 
-- **AI Ark** is the **only default firmographic vendor** on this route.
-- **ZoomInfo** firmographic is **BYOK only** — `routing.only: ["zoominfo"]` (needs Your Keys; `400` `zi_credentials_required` when forced without creds).
-- LeadMagic, Wiza, Findymail, websearch, Brandfetch, and other hop vendors are **not** on the default ladder — explicit `routing.only` only.
+- **AI Ark** is the **only firmographic vendor** on this route.
+- **ZoomInfo** is **BYOK only** (coverage evidence when a key is stored; `400` `zi_credentials_required` when forced via `routing.only` without one).
+- **LeadMagic, Wiza, Findymail, Brandfetch, Lemlist, and Snov.io are not `company.description` vendors.**
+- Hard 10 s cap from request start on every path.
 
 ## Billing
 
-- **Winner-only:** `usage.credits.spent` reflects charged attempts only; **`no_decision` → spent 0**.
-- `usage.credits.cap` is the resolved path budget; `usage.credits.by_provider` breaks down the winner (and any charged skips per Worker policy).
-- `GET /v1/providers` exposes per-vendor `billing_mode` for advisory context.
+- **Winner-only:** `usage.credits.spent` is the winning hop only (AI Ark 1, rewrite 0.5, compose 2, websearch 0.1, ZoomInfo BYOK 1 on full match). Rejected / lost hops and `no_decision` → **0**.
+- `usage.credits.cap` is the resolved path budget; `usage.credits.by_provider` breaks down the winner; `usage.hops` lists every attempt.
+- Results are cached 30 days; `skip_cache: true` re-runs.
 
 ### Example response (`hit`, illustrative)
 
@@ -104,34 +114,37 @@ Prefer CRM writes when `answer.confidence` is `high` and `hype` / `first_person`
   "es_decision": "hit",
   "answer": {
     "outcome": "hit",
-    "reason_code": "description_ok",
+    "reason_code": "exact_one",
     "es_decision": "hit",
     "confidence": "high",
     "safe_to_write": {
+      "company_name": false,
+      "zoominfo_company_id": false,
+      "company_domain": true,
       "description": true
     },
-    "summary": "balance · site_fetch + aiark · hit"
+    "summary": "Site probe search hit via homepage_extract",
+    "identity": { "method": "jev", "score": 0.96 }
   },
   "result": {
-    "company_name": "OutboundSync",
+    "description": "OutboundSync syncs outbound email and sequencer activity into CRMs such as Salesforce and HubSpot.",
+    "source_kind": "quoted",
+    "language_note": null,
     "company_domain": "outboundsync.com",
-    "website": "https://outboundsync.com",
-    "description": "OutboundSync syncs outbound email and sequencer activity into CRMs such as Salesforce and HubSpot for reply routing and attribution.",
+    "compose_echo": false,
+    "homepage_meta_only": false,
     "flags": {
       "hype": false,
       "first_person": false,
       "tagline": false,
-      "same_as_speed": false
-    },
-    "identifiers": []
+      "same_as_speed": false,
+      "truncated": false,
+      "cta": false
+    }
   },
   "usage": {
-    "credits": {
-      "cap": 6,
-      "spent": 1,
-      "by_provider": { "aiark": 1 }
-    },
-    "providers_ran": ["site_probe", "aiark"]
+    "credits": { "cap": 2, "spent": 0, "by_provider": { "aiark": 0 } },
+    "providers_ran": ["aiark"]
   }
 }
 ```
@@ -140,8 +153,9 @@ Prefer CRM writes when `answer.confidence` is `high` and `hype` / `first_person`
 
 | Status | `error` | Next |
 | --- | --- | --- |
-| `400` | `validation_failed` / `name_only_unsupported` / `invalid_routing` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `brandfetch_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `companyurlfinder_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` / `enrichcrm_credentials_required` / `lemlist_credentials_required` | Fix input or store BYOK (`credentials`) |
+| `400` | `validation_failed` / `domain_website_mismatch` / `invalid_routing` / `invalid_compliance` / `invalid_explain` / `invalid_schema` / `unsupported_schema` / `invalid_cache` / `name_only_unsupported` / `zi_credentials_required` | Fix input or store the ZoomInfo key (`credentials`) |
 | `401` | `unauthorized` + `detail` | `auth` |
+| `403` | `scope_denied` | Key lacks `company.description` scope |
 | `409` | `idempotency_*` | Rotate or reuse `Idempotency-Key` per docs |
 | `429` | rate / tenant / key budget | `Retry-After` |
 | `503` | `store_unavailable` | Retryable. UNVERIFIED |
