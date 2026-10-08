@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.08.2] - 2026-10-08
+
 ### Changed
 
 - Public copy scrub: remove internal repository, PR, agent, and production Worker names from skills, CONTRIBUTING, README, and BYOK playbook; link integrators to [kingminos.com/docs](https://kingminos.com/docs/) instead.
