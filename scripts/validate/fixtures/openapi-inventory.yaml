@@ -48,9 +48,11 @@ paths:
       operationId: company_b2b_social
       security:
         - bearer: []
+  # company.icon: domain + optional name; resolve then re-host 256x256 PNG on logos.kingminos.com/i/{sha256}.png
   /v1/company/icon:
     post:
       operationId: company_icon
+      summary: Resolve site/brand icon sources; re-host 256x256 PNG on logos.kingminos.com; optional icon_source_url
       security:
         - bearer: []
   /v1/company/description:

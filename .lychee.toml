@@ -4,6 +4,7 @@ exclude_path = ["node_modules", "test"]
 
 exclude = [
   "^https://api\\.kingminos\\.com",
+  "^https://logos\\.kingminos\\.com",
   "example\\.(com|org)",
   "^https://(x|twitter)\\.com/",
   "^https://github\\.com/outboundsync/kingminos-skills/(blob|tree)/main/",

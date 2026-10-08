@@ -18,7 +18,7 @@ The pack ships **7** skills.
 | `auth` | [`skills/auth/`](skills/auth/) | Yes (`KINGMINOS_API_KEY`) | Bearer auth against `https://api.kingminos.com`, 401 `missing` / `malformed` / `mismatch`, SFDC Named Credential Custom Headers, `GET /v1/capabilities` |
 | `company-resolve` | [`skills/company-resolve/`](skills/company-resolve/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/resolve` — email/domain/website in, one `answer` back; honor `answer.safe_to_write` for stamp/fill |
 | `company-b2b-social` | [`skills/company-b2b-social/`](skills/company-b2b-social/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/b2b-social` — Serper-verified LinkedIn `https://www.linkedin.com/company/{slug}` or null; paths `speed` / `balance` / `accuracy` / `coverage` |
-| `company-icon` | [`skills/company-icon/`](skills/company-icon/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/icon` (`company.icon`) — live HTTPS `icon_url`; ladder house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1) |
+| `company-icon` | [`skills/company-icon/`](skills/company-icon/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/icon` (`company.icon`) — resolve manifest icons / apple-touch-icon / favicon and Brandfetch / ZoomInfo logos, re-host `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**); optional `icon_source_url`; domain + optional `name`; low-res hits keep `safe_to_write.icon_url` true |
 | `company-description` | [`skills/company-description/`](skills/company-description/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/description` (`company.description`) — paths `speed` / `balance` / `accuracy` / `coverage`; AI Ark is the only firmographic vendor; ZoomInfo BYOK only; flags incl. `truncated` / `cta` / `grammar` (informational); send `path` explicitly (recommended — omit runs balance at cap 6 not 2); stamp only when `answer.safe_to_write.description` (identity-gated, low never safe); winner-only billing |
 | `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic, Wiza, Findymail, and AIArk are house-key; ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, and Snov.io are BYOK |
 
@@ -76,7 +76,7 @@ Or put the same variable in a gitignored `.env` (see [`.env.example`](.env.examp
 | LeadMagic | House-key by default (OutboundSync-provided). Tenant store is optional, not required. |
 | Findymail | House-key (approved; OutboundSync-provided). Tenant store is optional. |
 | ZoomInfo | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
-| Brandfetch | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys); default `company.icon` ladder step after house favicon-fetch (0 credits) |
+| Brandfetch | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys); `company.icon` source (stamp re-hosted on logos.kingminos.com) |
 | Wiza | House-key (approved; OutboundSync-provided). Tenant store is optional. |
 | AIArk | House-key (approved; OutboundSync-provided). Tenant store is optional. Default on `company.b2b_social` `balance` / `accuracy`; `routing.only: ["aiark"]` for AI-Ark-only. |
 | BuiltWith | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |

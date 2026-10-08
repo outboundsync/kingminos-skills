@@ -17,10 +17,34 @@ Decision  ████████████████████  ✓ read
 ### Answer
 `run_demo801 · es_decision hit`
 
-- ✓ outcome — hit · favicon_ok
-- ✓ icon_url — `https://www.example.com/favicon.ico`
+- ✓ outcome — hit · icon_stored
+- ✓ icon_url — `https://logos.kingminos.com/i/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.png`
+- · icon_source_url — `https://www.example.com/favicon.ico`
 - · safe_to_write.icon_url — true
-- · ladder — favicon-fetch
+- · ladder — site manifest / apple-touch-icon / favicon
+- · credits spent 0 · providers favicon-fetch
+
+## Passing — hit low_res (under 64px source)
+
+## Company icon — hit
+
+```text
+Overall   ████████████████████  3/3 · ready
+
+Auth      ████████████████████  ✓ ready
+Input     ████████████████████  ✓ ready
+Decision  ████████████████████  ✓ ready
+```
+
+### Answer
+`run_demo801b · es_decision hit`
+
+- ✓ outcome — hit · icon_stored
+- ✓ icon_url — `https://logos.kingminos.com/i/a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3.png`
+- · icon_source_url — `https://www.example.com/favicon.ico`
+- · confidence — low · flags.low_res — true
+- · safe_to_write.icon_url — true
+- · ladder — site manifest / apple-touch-icon / favicon
 - · credits spent 0 · providers favicon-fetch
 
 ## Passing — no_decision
@@ -40,8 +64,9 @@ Decision  ████████████████████  ✓ read
 
 - · outcome — no_decision · no_icon_candidate
 - · icon_url — null
+- · icon_source_url — null
 - · safe_to_write.icon_url — false
-- · ladder — favicon-fetch, brandfetch, zoominfo
+- · ladder — site manifest / apple-touch-icon / favicon, brandfetch, zoominfo
 - · credits spent 2 · providers favicon-fetch, brandfetch, zoominfo
 
 ## Failing — name-only input
