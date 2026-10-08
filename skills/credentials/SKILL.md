@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP). Mutations only after explicit confirmation.
 metadata:
   author: outboundsync
-  version: "1.1.13"
+  version: "1.1.14"
 ---
 
 # KingMinos credentials

@@ -1,7 +1,7 @@
 // The api skill map is the pack inventory of KingMinos **Bearer** resource
 // operations. Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare
-// no bearer security and are out of scope — the same rule kingminos-application
-// `check:surfaces` should use. CI on PR/push compares the map to the offline
+// no bearer security and are out of scope — the same Bearer-only rule as
+// `npm run check:surfaces`. CI on PR/push compares the map to the offline
 // fixture; a scheduled workflow curls the live spec.
 //
 // Prefer structured YAML (`yaml.parseDocument`). Fall back to a line scan only

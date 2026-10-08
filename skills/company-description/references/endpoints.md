@@ -39,7 +39,7 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 
 ### Cache bypass (`company.description` and `company.domain`)
 
-Skips the 30-day result-cache **read**; the fresh answer is still written. Use any of: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or body `skip_cache: true`. **`company.resolve` does not honor bypass** — it silently ignores `X-Router-Cache: bypass` and `skip_cache`, so a cached answer may still be returned. The same `Idempotency-Key` always returns the stored response even when bypass headers are set on description/domain calls.
+Skips the result-cache **read** only; the fresh answer is still written. TTL differs by capability: **`company.description`** caches about **30 days**; **`company.domain`** uses a **short TTL (about five minutes max)**. Use any of: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or body `skip_cache: true`. **`company.resolve` does not honor bypass** — it silently ignores `X-Router-Cache: bypass` and `skip_cache`, so a cached answer may still be returned. The same `Idempotency-Key` always returns the stored response even when bypass headers are set on description/domain calls.
 
 ### Example request (`balance`)
 
@@ -107,7 +107,7 @@ Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`f
 
 - **Winner-only:** `usage.credits.spent` is the winning hop only (AI Ark 1, rewrite 0.5, compose 2, websearch 0.1, ZoomInfo BYOK 1 on full match). Rejected / lost hops and `no_decision` → **0**.
 - `usage.credits.cap` is the resolved path budget; `usage.credits.by_provider` breaks down the winner; `usage.hops` lists every attempt.
-- Results are cached 30 days. Bypass: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or `skip_cache: true` (read skip only; still writes). Idempotency replay is independent of bypass.
+- Results are cached about 30 days. Bypass: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or `skip_cache: true` (read skip only; still writes). Idempotency replay is independent of bypass. (`company.domain` uses a shorter cache; same bypass headers apply there.)
 
 ### Example response (`hit`, illustrative)
 

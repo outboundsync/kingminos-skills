@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.5.2"
+  version: "1.5.4"
 ---
 
 # KingMinos API
@@ -23,7 +23,7 @@ Render **only** the output shape below — no prose outside it. Every REST path,
 
 ## Credentials
 
-Base URL: `https://api.kingminos.com`. Worker: `kingminos-api-prod`.
+Base URL: `https://api.kingminos.com`.
 
 Mint a personal access token at `https://app.kingminos.com` (workspace owner → tokens). It is shown once, starts with `km_`, is scoped to explicit capabilities (not `*`), and has a daily credit cap (default 100).
 
@@ -40,7 +40,7 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 ## Workflow
 
 1. If `$KINGMINOS_API_KEY` is unset, render the missing-key shape and stop. Do not call the catalog.
-2. Optional liveness: `GET /health` (no auth). Expect `{"ok":true,"service":"kingminos-api-prod"}`.
+2. Optional liveness: `GET /health` (no auth). HTTP 200 JSON with `"ok": true` plus `service`, `version`, and `git_sha` labels; check `ok` only.
 3. `GET /v1/capabilities` with `Authorization: Bearer $KINGMINOS_API_KEY`. `200` + JSON catalog → key valid. `401` → map `detail` (`missing` \| `malformed` \| `mismatch`). Any other non-200, timeout, or non-JSON → `· UNVERIFIED — <status>`.
 4. Name the REST path **and** the inventory tool from [references/endpoints.md](references/endpoints.md). One Bearer resource operation ↔ one tool. Do not invent endpoints.
 5. Hand off writes and specialized decisions:

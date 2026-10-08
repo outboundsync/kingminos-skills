@@ -7,8 +7,6 @@ exclude = [
   "example\\.(com|org)",
   "^https://(x|twitter)\\.com/",
   "^https://github\\.com/outboundsync/kingminos-skills/(blob|tree)/main/",
-  # Sibling repos are private; anonymous lychee always 404s on them from this public repo.
-  "^https://github\\.com/outboundsync/kingminos-(application|mcp|website)(/|$)",
   # Placeholder LinkedIn company pages (use backticks in Markdown instead)
   "^https://(?:www\\.)?linkedin\\.com/company/%7B",
   "^https://(?:www\\.)?linkedin\\.com/company/acme-example",

@@ -13,7 +13,7 @@ Session/product-app `/v1/auth/*` and `/v1/account/*` routes are out of scope —
 
 | Method | Path | Auth | Purpose |
 | --- | --- | --- | --- |
-| `GET` | `/health` | No | Liveness. `{"ok":true,"service":"kingminos-api-prod"}`. Unversioned. |
+| `GET` | `/health` | No | Liveness. HTTP 200 JSON with `"ok": true` plus `service`, `version`, and `git_sha`; check `ok` only. Unversioned. |
 | `GET` | `/openapi.yaml` | No | OpenAPI 3.1. Same document as `/v1/openapi.yaml`. JSON twin: `/openapi.json`. |
 | `GET` | `/v1/openapi.yaml` | No | Same OpenAPI document. JSON twin: `/v1/openapi.json`. |
 | `GET` | `/v1/capabilities` | Bearer | Capability catalog + default routing. Use this to prove the key. |

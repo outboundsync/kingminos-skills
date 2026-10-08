@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.4"
+  version: "1.1.6"
 ---
 
 # KingMinos auth
@@ -24,7 +24,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 ## Credentials
 
-Base URL: `https://api.kingminos.com`. Worker: `kingminos-api-prod`.
+Base URL: `https://api.kingminos.com`.
 
 Mint a personal access token at `https://app.kingminos.com` (workspace owner → tokens). It is shown once, starts with `km_`, is scoped to explicit capabilities (not `*`), and has a daily credit cap (default 100). Do not call session/cookie `/v1/auth/*` or `/v1/account/*` routes from this skill.
 
@@ -42,7 +42,7 @@ Hosted MCP (`https://mcp.kingminos.com`) exposes the same inventory tools. This 
 ## Workflow
 
 1. If `$KINGMINOS_API_KEY` is unset, do not guess. Render the missing-key shape and stop.
-2. `GET /health` (no auth). Expect `{"ok":true,"service":"kingminos-api-prod"}`. Failure → `· UNVERIFIED — <status>` on Health, not a pass.
+2. `GET /health` (no auth). HTTP 200 JSON with `"ok": true` plus `service`, `version`, and `git_sha` labels; check `ok` only. Failure → `· UNVERIFIED — <status>` on Health, not a pass.
 3. `GET /v1/capabilities` with `Authorization: Bearer $KINGMINOS_API_KEY` and `Accept: application/json`.
    - `200` + JSON catalog → key valid. Treat the body as a catalog; do not require a specific schema field.
    - `401` → map `detail`: `missing` | `malformed` | `mismatch`. Relay `hint`. Never echo the key.
@@ -81,7 +81,7 @@ Capabilities   <bar>  <✓|✗|·> <ready | p/1 | unverified>
 - <✓ Key present in KINGMINOS_API_KEY | ✗ KINGMINOS_API_KEY is unset | · UNVERIFIED — <reason>>
 - <✓ Bearer accepted | ✗ 401 <missing|malformed|mismatch> — <hint, no secret> | · UNVERIFIED — <status>>
 - <✓ Catalog readable | ✗ Catalog not called — no Bearer token | · UNVERIFIED — <status>>
-- · Health — <kingminos-api-prod | UNVERIFIED — <status>> (unauthenticated)
+- · Health — <ok | UNVERIFIED — <status>> (unauthenticated)
 
 ### Next
 1. <shortest action tied to a ✗ or UNVERIFIED above>
