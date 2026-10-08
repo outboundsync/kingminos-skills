@@ -30,7 +30,7 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
 | `dry_run` | no | Default false |
 
-**Domain-only subject.** One implementation — no `routing`, `routing.only`, `path`, or `preset` (legacy fields are silently ignored).
+**Domain-only subject.** One implementation — no client `routing`, `routing.only`, `path`, or `preset` (legacy fields are silently ignored).
 
 Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`.
 
@@ -48,21 +48,30 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 
 | `answer.outcome` | `result.icon_url` | Meaning |
 | --- | --- | --- |
-| `hit` | `https://logos.kingminos.com/i/{sha256}.png` | 128×128 PNG on KingMinos logo CDN — stamp when `safe_to_write.icon_url` |
-| `no_decision` | null | Fetch, validate, or store failed — do not invent an icon |
+| `hit` | `https://logos.kingminos.com/i/{sha256}.png` | 256×256 PNG on KingMinos logo CDN — stamp when `safe_to_write.icon_url` |
+| `no_decision` | null | Source fetch, validate, or re-host failed — do not invent an icon |
 
-On a hit, **`result.icon_url` is always** the hosted KingMinos URL — never a third-party or site favicon URL. **`result.icon_source_url`** (optional) is the original source for display/debug only.
+On a hit, **`result.icon_url` is always** the hosted KingMinos URL — never a raw third-party or site favicon URL in the stamp field. **`result.icon_source_url`** (optional) is the winning source URL (favicon, Brandfetch, ZoomInfo logo, etc.) for display/debug only.
 
 **`answer.safe_to_write.icon_url`** is `true` only when `icon_url` is that hosted URL.
+
+## Sources (live Worker → re-host)
+
+Default ladder: **house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1)**
+
+- KingMinos still resolves from **site favicon**, **Brandfetch**, and **ZoomInfo**; on success it validates, stores, and serves a **256×256 PNG** on `logos.kingminos.com`.
+- Brandfetch prefers **icon** over wider brand **logo** when both exist.
+- **Enrich-CRM, AI Ark, LeadMagic, and Prospeo are not icon sources.**
+- **Brandfetch** and **ZoomInfo** require stored Your Keys for their ladder steps (`credentials` skill).
 
 ## Errors (run not started)
 
 | Status | `error` | Next |
 | --- | --- | --- |
-| `400` | `validation_failed` / `name_only_unsupported` / `invalid_compliance` / `invalid_explain` / `invalid_schema` / `unsupported_schema` | Fix input |
+| `400` | `validation_failed` / `name_only_unsupported` / `invalid_routing` / `invalid_compliance` / `invalid_explain` / `invalid_schema` / `unsupported_schema` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `brandfetch_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `companyurlfinder_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` / `enrichcrm_credentials_required` / `lemlist_credentials_required` | Fix input or store BYOK (`credentials`) |
 | `401` | `unauthorized` + `detail` | `auth` |
 | `409` | `idempotency_*` | Rotate or reuse `Idempotency-Key` per docs |
 | `429` | rate / tenant / key budget | `Retry-After` |
 | `503` | `store_unavailable` | Retryable. UNVERIFIED |
 
-Provider or storage errors **inside** a started run that fail to produce a hosted asset stay HTTP 200 (`no_decision`, `icon_url` null).
+Provider skips or re-host failures **inside** a started run stay HTTP 200 (`no_decision`, `icon_url` null).
