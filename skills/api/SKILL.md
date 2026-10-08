@@ -5,12 +5,12 @@ description: >-
   tool inventory, OpenAPI discovery, and which specialized skill to run. Use
   when the user asks how to use the KingMinos API, which endpoint or tool to
   call, OpenAPI discovery, GET /v1/capabilities, or how API work relates to
-  auth, company-resolve, company-icon, and credentials.
+  auth, company-resolve, company-icon, company-description, and credentials.
 license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # KingMinos API
@@ -52,7 +52,8 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 | List or revoke vendor Your Keys (store in the app UI) | `credentials` · `list_credentials` / `delete_credentials` |
 | Company LinkedIn / B2B social page | `company-b2b-social` · `company_b2b_social` |
 | Company icon / favicon `icon_url` stamp (`company.icon`) | `company-icon` · `company_icon` |
-| Domain stamp, hierarchy, description, employment verify | `company_domain`, `company_hierarchy`, `company_description`, `person_verify_employment` — REST or MCP; no dedicated skill yet |
+| Company description paragraph (`company.description`) | `company-description` · `company_description` |
+| Domain stamp, hierarchy, employment verify | `company_domain`, `company_hierarchy`, `person_verify_employment` — REST or MCP; no dedicated skill yet |
 | Erase a subject | `delete_subject` — **not** these skills (`erase` scope) |
 
 Do not call `put_credentials`, `delete_credentials`, or `delete_subject` from this skill.
