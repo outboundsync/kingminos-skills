@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.08.8] - 2026-10-08
+
 ### Changed
 
 - `company.icon` (`company-icon`, `api`, `credentials`): resolve site manifest icons, apple-touch-icon, and favicon (best first), then Brandfetch and ZoomInfo brand logos; validate, store, and re-host the best as `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**) in `result.icon_url`, with optional `result.icon_source_url`; under-64px sources still hit with `confidence` low and `flags.low_res` true while `safe_to_write.icon_url` stays true; wrong-company/junk/empty reject or fetch/store failure is `no_decision` with `icon_url` null; client request is domain plus optional `name` (routing/path/preset ignored); Brandfetch/ZoomInfo BYOK still applies on the ladder; CRM tip to allowlist `logos.kingminos.com` once.
