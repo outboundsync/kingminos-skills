@@ -281,12 +281,19 @@ Per-repo green checks from §3. Redeploy the product app and MCP Workers. Confir
 Copy, fill brackets, paste to the agent:
 
 ```
-TASK: Add KingMinos BYOK provider [{provider_id}] / [{Label}] across the API, product app, MCP, and skills repos.
-PLAYBOOK: docs/byok-provider-playbook.md in kingminos-skills — follow mechanically.
-PUBLIC DOCS: https://kingminos.com/docs/
+TASK: Add KingMinos BYOK provider [{provider_id}] / [{Label}] across four repos.
+PLAYBOOK: docs/byok-provider-playbook.md in kingminos-skills — follow mechanically. Prefer gh pr diff / gh api contents over full clones. Public docs: https://kingminos.com/docs/
 
 INPUTS:
-- provider_id, auth, docs_url, endpoints, capability, credential body, verify call, credits, compliance, scope cuts
+- provider_id: [{provider_id}]
+- auth: [{header or scheme}]
+- docs_url / base_url: [{url}]
+- endpoints: [{method path + params}]
+- capability: [{company.resolve | …}] — scope cuts: [{e.g. no employment}]
+- credential body: [{apiKey} | {clientId,clientSecret}]
+- verify: [{method path + reject signals}]
+- credits: [{n}] billingMode: [{on_success|always}]
+- compliance: [{soc2, data}]
 - dogfood env name: [{ID}_API_KEY] (default tenant only; NOT house resale)
 
 RULES:
@@ -294,12 +301,14 @@ RULES:
 2) resaleAllowed: false; do NOT add to house-key resale allowlist.
 3) Off every default path; MUST add to presetProvidersFor(capability).
 4) OpenAPI: enums + {id}_credentials_required on the correct capability 400 list only.
-5) House-key copy: LeadMagic, Wiza, Findymail, AI Ark = house; new vendor BYOK.
+5) House-key copy stays: LeadMagic, Wiza, Findymail, AI Ark = house; new vendor BYOK.
 6) Say SFDC never SF. No secrets in git.
-7) Deploy API / app / MCP after merge before live smoke tests.
-8) Run verify commands in the playbook.
+7) Do not bulk-merge closed house-key allowlist PRs. Do not default-route. BuiltWith stays BYOK-only.
+8) Deploy API, product app, and MCP after merge before live smoke tests.
+9) Run the verify commands in the playbook; paste results in the PR body.
+10) One PR per repo, branch [{provider_id}-byok], squash merge when green.
 
-OUTPUT: four PRs + file lists + verify output. Stop if policy input is missing.
+OUTPUT: four PRs + file lists + verify command output. Stop if a policy input is missing — do not invent House Keys or extra capabilities.
 ```
 
 ---

@@ -2,7 +2,7 @@
 
 Public [Agent Skills](https://agentskills.io) for **KingMinos by OutboundSync** — installable with [`npx skills`](https://github.com/vercel-labs/skills) in **Cursor**, **Claude Code**, and **Codex**.
 
-Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enrichment API at [`https://api.kingminos.com`](https://api.kingminos.com) (`GET /health` returns `{"ok":true}`; contract: `GET /openapi.yaml`, also `/openapi.json`).
+Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enrichment API at [`https://api.kingminos.com`](https://api.kingminos.com) (`GET /health` returns HTTP 200 JSON with `"ok": true` plus `service` / `version` / `git_sha`; contract: `GET /openapi.yaml`, also `/openapi.json`).
 
 **This is not the OutboundSync CRM / sequencer skills pack.** That sister repository is [`outboundsync/skills`](https://github.com/outboundsync/skills). Do not install this pack expecting launch preflight, sync monitoring, or cold-email copy. KingMinos decides company identity and vendor credentials; OutboundSync syncs sequencer events into the CRM.
 
@@ -64,7 +64,7 @@ export KINGMINOS_API_KEY=...
 Or put the same variable in a gitignored `.env` (see [`.env.example`](.env.example)).
 
 - Header: `Authorization: Bearer $KINGMINOS_API_KEY` only. A bare key is `401` `detail: malformed`.
-- Public, no auth: `GET /health` (`{"ok":true}` plus an optional `service` label) and `GET /openapi.yaml` (also `/v1/openapi.yaml`, `/openapi.json`, `/v1/openapi.json`).
+- Public, no auth: `GET /health` (HTTP 200 JSON with `"ok": true` plus `service`, `version`, and `git_sha`; check `ok` only) and `GET /openapi.yaml` (also `/v1/openapi.yaml`, `/openapi.json`, `/v1/openapi.json`).
 - Authenticated catalog: `GET /v1/capabilities`, `GET /v1/providers`, `GET /v1/credentials`.
 - `403` `scope_denied` = the token lacks this capability scope. `429` `key_budget_exhausted` = the token's daily credit cap was hit.
 - SFDC Named Credential / Custom auth: Auth Parameters do **not** leave SFDC. Add a Custom Header named `Authorization` (Allow Formulas ON if the value is a formula).

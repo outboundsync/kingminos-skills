@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.5"
+  version: "1.1.6"
 ---
 
 # KingMinos auth
@@ -42,7 +42,7 @@ Hosted MCP (`https://mcp.kingminos.com`) exposes the same inventory tools. This 
 ## Workflow
 
 1. If `$KINGMINOS_API_KEY` is unset, do not guess. Render the missing-key shape and stop.
-2. `GET /health` (no auth). Expect `{"ok":true}`. Failure → `· UNVERIFIED — <status>` on Health, not a pass.
+2. `GET /health` (no auth). HTTP 200 JSON with `"ok": true` plus `service`, `version`, and `git_sha` labels; check `ok` only. Failure → `· UNVERIFIED — <status>` on Health, not a pass.
 3. `GET /v1/capabilities` with `Authorization: Bearer $KINGMINOS_API_KEY` and `Accept: application/json`.
    - `200` + JSON catalog → key valid. Treat the body as a catalog; do not require a specific schema field.
    - `401` → map `detail`: `missing` | `malformed` | `mismatch`. Relay `hint`. Never echo the key.

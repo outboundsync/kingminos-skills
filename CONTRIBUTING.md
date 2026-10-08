@@ -33,7 +33,7 @@ The inventory is **Bearer-only**. Session/product-app ops (`/v1/auth/*`, `/v1/ac
 
 `endpoint-map-*` is route-only. Provider ids (`leadmagic`, `prospeo`, …) live in `providers.yaml`. When KingMinos adds a BYOK vendor, add it there first, then to every credentials / company-resolve / README / CONVENTIONS / SECURITY BYOK list, path-`provider` enum, and `*_credentials_required` list. `provider-enum` fails CI if a list is short.
 
-For the full four-repo rollout (application → website → mcp → skills), use [docs/byok-provider-playbook.md](docs/byok-provider-playbook.md) and [.cursor/skills/byok-provider-rollout/SKILL.md](.cursor/skills/byok-provider-rollout/SKILL.md).
+For the full four-repo rollout (API → product app → MCP → skills), use [docs/byok-provider-playbook.md](docs/byok-provider-playbook.md) and [.cursor/skills/byok-provider-rollout/SKILL.md](.cursor/skills/byok-provider-rollout/SKILL.md).
 
 Run `npm run validate -- --list` to see every rule with its severity. Rules and their rationale live in `scripts/validate/rules/`, one file each; severities are in `scripts/validate/config.json`. A rule at `warn` is new and is being rolled out; it becomes an error once every skill complies.
 
