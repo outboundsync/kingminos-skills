@@ -32,6 +32,7 @@
 - `credentials` lists Your Keys via `GET /v1/credentials` and sends store/rotate to https://app.kingminos.com. The skill stays read-only plus revoke. Never paste a vendor secret into chat.
 - Auth docs say where to mint a `km_` key (app.kingminos.com, shown once, scoped, daily cap) and map `403` `scope_denied` / `429` `key_budget_exhausted`.
 - Company resolve honors `answer.safe_to_write` instead of restating the Account Name fill rule.
+- `company-description` skill: `result.flags` adds `grammar` (informational — does not affect confidence or `safe_to_write`); cache bypass on `company.description` and `company.domain` (`X-Router-Cache: bypass`, `Cache-Control: no-cache|no-store`, `skip_cache: true`; idempotency replay unchanged; `company.resolve` silently ignores bypass and may return a cached answer); recommend sending `path` explicitly (omit still runs `balance` but raises credit cap from 2 to 6).
 
 ### Fixed
 
