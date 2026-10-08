@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+### Changed
+
+- `company.icon` (`company-icon`, `api`): hits always return a KingMinos-hosted `https://logos.kingminos.com/i/<sha256>.png` (128×128 PNG) in `result.icon_url`, with optional `result.icon_source_url` for the origin; fetch/validate/store failure is `no_decision` with `icon_url` null; `safe_to_write.icon_url` is true only for the hosted URL; request is domain-only (routing/path/preset ignored); CRM tip to allowlist `logos.kingminos.com` once. `credentials` no longer maps BYOK errors from `company.icon`.
+
 ## [2026.10.08.7] - 2026-10-08
 
 ### Changed

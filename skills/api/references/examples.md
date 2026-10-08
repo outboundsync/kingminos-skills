@@ -19,6 +19,7 @@ Catalog     ████████████████████  ✓ re
 - ✓ Key present in KINGMINOS_API_KEY
 - ✓ Catalog readable — get_capabilities
 - · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · company_icon — hosted stamp at `https://logos.kingminos.com/i/<sha256>.png` (allowlist once for CRM image CSP)
 - · Hand off: company-resolve
 
 ## Failing — missing key

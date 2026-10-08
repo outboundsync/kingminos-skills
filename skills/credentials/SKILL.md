@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP). Mutations only after explicit confirmation.
 metadata:
   author: outboundsync
-  version: "1.1.14"
+  version: "1.1.15"
 ---
 
 # KingMinos credentials
@@ -61,7 +61,7 @@ List: REST `GET /v1/credentials` or MCP `list_credentials`. Revoke after confirm
    - Wait for explicit confirmation of **that** plan. “Revoke my ZoomInfo key” is not confirmation.
    - `DELETE https://api.kingminos.com/v1/credentials/{provider}`.
    - Report `ok`, `provider`, and `revoked: true`. Never re-echo a secret.
-6. Map live `400` `*_credentials_required` from `company.resolve` or `company.icon` to the matching BYOK `unset` row. Map `400` `credential_rejected` (vendor rejected the key; nothing was stored) to the report path — re-check the key with the vendor in the app UI.
+6. Map live `400` `*_credentials_required` from `company.resolve` (and other routed slices that still use BYOK) to the matching BYOK `unset` row. `company.icon` is domain-only with a hosted stamp — it does not surface BYOK `*_credentials_required`. Map `400` `credential_rejected` (vendor rejected the key; nothing was stored) to the report path — re-check the key with the vendor in the app UI.
 7. `GET /v1/providers` may show configured flags — use it as advisory, not as a dump of secrets.
 
 ## Mutations

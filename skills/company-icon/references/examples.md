@@ -17,11 +17,11 @@ Decision  ████████████████████  ✓ read
 ### Answer
 `run_demo801 · es_decision hit`
 
-- ✓ outcome — hit · favicon_ok
-- ✓ icon_url — `https://www.example.com/favicon.ico`
+- ✓ outcome — hit · icon_stored
+- ✓ icon_url — `https://logos.kingminos.com/i/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.png`
+- · icon_source_url — `https://www.example.com/favicon.ico`
 - · safe_to_write.icon_url — true
-- · ladder — favicon-fetch
-- · credits spent 0 · providers favicon-fetch
+- · credits spent 1 · providers icon-pipeline
 
 ## Passing — no_decision
 
@@ -40,9 +40,9 @@ Decision  ████████████████████  ✓ read
 
 - · outcome — no_decision · no_icon_candidate
 - · icon_url — null
+- · icon_source_url — null
 - · safe_to_write.icon_url — false
-- · ladder — favicon-fetch, brandfetch, zoominfo
-- · credits spent 2 · providers favicon-fetch, brandfetch, zoominfo
+- · credits spent 1 · providers icon-pipeline
 
 ## Failing — name-only input
 

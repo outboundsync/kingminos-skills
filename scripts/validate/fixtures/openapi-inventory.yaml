@@ -48,9 +48,11 @@ paths:
       operationId: company_b2b_social
       security:
         - bearer: []
+  # company.icon: domain-only; hit icon_url is https://logos.kingminos.com/i/<sha256>.png
   /v1/company/icon:
     post:
       operationId: company_icon
+      summary: Hosted 128x128 PNG stamp (logos.kingminos.com); optional icon_source_url
       security:
         - bearer: []
   /v1/company/description:

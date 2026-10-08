@@ -1,22 +1,23 @@
 ---
 name: company-icon
 description: >-
-  Stamp a company square icon URL via POST /v1/company/icon: domain-required,
-  live HTTPS icon_url only (favicon-style), default ladder house favicon-fetch
-  (0 credits) then Brandfetch BYOK (1, soft-fail and continue) then ZoomInfo
-  enrich logo (1). Use when the user asks for company.icon, company_icon,
-  icon_url, account icon stamp, favicon for a company domain, or Brandfetch
-  icon lookup — not company logo wording.
+  Stamp a company square icon via POST /v1/company/icon: domain-required,
+  KingMinos-hosted icon_url (https://logos.kingminos.com/i/<sha256>.png, 128×128
+  PNG) with optional icon_source_url for the origin. Use when the user asks for
+  company.icon, company_icon, icon_url, account icon stamp, or favicon for a
+  company domain — not company logo wording.
 license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.0.3"
+  version: "1.1.0"
 ---
 
 # KingMinos company icon (`company.icon`)
 
-Call **KingMinos by OutboundSync** `POST /v1/company/icon` (`company_icon`). One decision: a **square, favicon-style** company **`icon_url`** (live `https://` only) for stamping, or null. This is **`company.icon`**, not a marketing logo field. There is **no R2/D1 cache URL** in the answer — stamp the returned HTTPS URL or abstain. This is not an SFDC write. Never print, log, or commit `KINGMINOS_API_KEY`.
+Call **KingMinos by OutboundSync** `POST /v1/company/icon` (`company_icon`). One decision: a **square** company **`icon_url`** on a hit — always a **KingMinos-hosted** `https://logos.kingminos.com/i/<sha256>.png` (128×128 PNG) — or null on miss. Optional **`result.icon_source_url`** holds the original source URL (favicon or vendor); stamp **`icon_url` only**, never the source. This is **`company.icon`**, not a marketing logo field. This is not an SFDC write. Never print, log, or commit `KINGMINOS_API_KEY`.
+
+**CRM tip:** allowlist **`https://logos.kingminos.com`** once (e.g. Salesforce CSP Trusted Site for images) so hosted stamps render in the UI.
 
 **Note:** These instructions reflect KingMinos by OutboundSync best practices shared freely and without warranty of outcomes — see [DISCLAIMER.md](https://github.com/outboundsync/kingminos-skills/blob/main/DISCLAIMER.md).
 
@@ -36,19 +37,11 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    }
    ```
 
-   Optional: `website`, `email`, `routing.only` (BYOK escapes — e.g. `["brandfetch"]`, `["zoominfo"]`), `schema_version`: `"2"`.
+   Optional: `website`, `email`, `schema_version`: `"2"`. **Domain is the subject** — one best implementation; no path/preset/routing variants (`routing`, `routing.only`, `path`, `preset` are ignored if sent).
 4. Prefer `X-Router-Explain: minimal` on CRM callouts. Use `full` only when the user asks for `trace`.
-5. Branch on control fields: `answer.outcome` (`hit` | `no_decision`), `es_decision`, `answer.reason_code`. Read **`result.icon_url`** — live **`https://`** square icon/favicon URL or null. Honor **`answer.safe_to_write.icon_url`** for SFDC stamp/fill (never stamp when false or null).
-6. Reject non-HTTPS URLs, cached object-store hosts, or rectangular brand marks presented as the icon answer — only the Worker-validated `icon_url` counts.
-7. HTTP 200 with `no_decision` is a decision, not UNVERIFIED. `400` `*_credentials_required` → hand off to `credentials` (BYOK Brandfetch / ZoomInfo on the default ladder).
-
-### Default ladder (live Worker)
-
-**house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1)**
-
-- Brandfetch prefers **icon** over wider brand **logo** when both exist.
-- **Enrich-CRM, AI Ark, LeadMagic, and Prospeo are not icon sources** — never use them for `company.icon` stamps.
-- Other BYOK vendors are **`routing.only` / explicit order**, not default.
+5. Branch on control fields: `answer.outcome` (`hit` | `no_decision`), `es_decision`, `answer.reason_code`. Read **`result.icon_url`** — hosted `https://logos.kingminos.com/i/<sha256>.png` or null. Read **`result.icon_source_url`** when present (advisory origin only). Honor **`answer.safe_to_write.icon_url`** for SFDC stamp/fill (true only when `icon_url` is the hosted URL; never stamp when false or null).
+6. Treat any non-hosted `icon_url` (third-party favicon, site URL, or non-`logos.kingminos.com` host) as invalid — only the Worker-validated hosted URL counts for stamping.
+7. HTTP 200 with `no_decision` is a decision, not UNVERIFIED (fetch/validate/store failure → miss with `icon_url` null).
 
 Hosted MCP: `https://mcp.kingminos.com` — same Bearer and `company_icon` tool. Prefer REST for scripts.
 
@@ -75,9 +68,9 @@ Decision  <bar>  <✓|✗|·> <ready | <outcome> | unverified>
 `<run_id> · es_decision <hit|miss|ambiguous|error|noop|reject>`
 
 - <✓|·|✗> outcome — <hit | no_decision> · <reason_code>
-- <✓ icon_url — <https url> | · icon_url — null>
-- · safe_to_write.icon_url — <true|false> (stamp only when true and URL is https)
-- · ladder — house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1)
+- <✓ icon_url — <https://logos.kingminos.com/i/…> | · icon_url — null>
+- · icon_source_url — <https url | null> (origin only — do not stamp)
+- · safe_to_write.icon_url — <true|false> (stamp only when true and URL is hosted logos.kingminos.com)
 - · credits spent <n> · providers <list from usage.providers_ran>
 - · UNVERIFIED — <status> (only when the POST failed to return a v2 envelope)
 
