@@ -64,7 +64,7 @@ CI runs [lychee](https://github.com/lycheeverse/lychee) on `**/*.md` (`.github/w
 
 ## Changelog promotion
 
-CI `release-calver.yml` only `--dry-run`s. It does **not** write `CHANGELOG.md`. After a CalVer tag is cut (or in a release-prep PR that lands with that tag's notes), run `npm run release:apply` to move curated `## Unreleased` lines under `## [YYYY.MM.DD.N]`. Do this on each release so the file does not lag the published tag.
+Automatic. On each release, `release-calver.yml` runs `release-calver.mjs --apply`, which moves the curated `## Unreleased` lines under `## [YYYY.MM.DD.N] - YYYY-MM-DD`, then publishes the tag and GitHub release. Because `main` is protected (required `validate`, no bot pushes), the workflow lands the CHANGELOG change through a short-lived PR (`chore(release): CHANGELOG for <tag>`) that it validates and squash-merges itself (`scripts/release-changelog-pr.sh`). An empty `## Unreleased` changes nothing, and the promotion commit never cuts another release. Contributors only add lines under `## Unreleased`; do not hand-edit release sections. If the bot PR fails (for example, it conflicts with a newer commit on `main`), move that tag's lines by hand in a normal PR.
 
 ## After merging
 
