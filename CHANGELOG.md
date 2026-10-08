@@ -2,6 +2,12 @@
 
 <!-- release entries -->
 
+## [2026.10.08.1] - 2026-10-08
+
+### Changed
+
+- `company-description` skill aligned with kingminos-application PR #181 / live OpenAPI: `result.flags` adds `grammar` (informational — does not affect confidence or `safe_to_write`); document cache bypass (`X-Router-Cache: bypass`, `Cache-Control: no-cache|no-store`, `skip_cache: true`; idempotency replay unchanged; no bypass on `company.resolve`); require explicit `path` (omit still defaults to `balance` but raises credit cap from 2 to 6).
+
 ## Unreleased
 
 ### Added

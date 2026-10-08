@@ -1,6 +1,6 @@
 # company.description endpoints
 
-Live contract: `GET https://api.kingminos.com/openapi.yaml`. Integrator walk-through: `docs/company-description.md` in kingminos-application (PR #177+). REST and hosted MCP (`https://mcp.kingminos.com`) share the same Bearer inventory. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
+Live contract: `GET https://api.kingminos.com/openapi.yaml`. Integrator walk-through: `docs/company-description.md` in kingminos-application (PR #181+). REST and hosted MCP (`https://mcp.kingminos.com`) share the same Bearer inventory. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
 
 ## REST ↔ tools
 
@@ -27,15 +27,19 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. Integrator walk-thr
 | `website` | no | |
 | `email` | no | |
 | `max_chars` | no | Integer 80–500, default 300. Trims at a sentence boundary |
-| `skip_cache` | no | Skip the 30-day result-cache read and re-run (still writes). Same as `X-Router-Cache: bypass` |
+| `skip_cache` | no | When `true`, skip the 30-day result-cache read and re-run (still writes). Same as `X-Router-Cache: bypass` or `Cache-Control: no-cache` / `no-store`. Non-boolean → `400 invalid_cache` |
 | `external_ref` | no | Client correlation key; echoed |
-| `path` / `routing.path` | no | `speed` \| `balance` \| `accuracy` \| `coverage` (omit = `balance`). Legacy `fast` / `value` / `name_only` → `speed`, `auto` → `balance` |
+| `path` / `routing.path` | **send explicitly** | `speed` \| `balance` \| `accuracy` \| `coverage`. Omit still resolves to `balance` but raises the credit cap from **2** to **6** — always set `path`. Nested `routing.path` wins. Legacy `fast` / `value` / `name_only` → `speed`, `auto` → `balance` |
 | `routing.preset` | no | Back-compat; nested `routing.path` wins when both are sent |
 | `routing.only` | no | e.g. `["zoominfo"]` with a stored ZoomInfo key |
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
 | `dry_run` | no | Default false |
 
-Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `X-Router-Cache: bypass`, `Idempotency-Key`.
+Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `X-Router-Cache: bypass` (only `bypass` is valid — other values → `400 invalid_cache`), `Cache-Control: no-cache` or `no-store` (same bypass effect), `Idempotency-Key` (replay wins over cache bypass — omit or rotate for a fresh run).
+
+### Cache bypass (`company.description` only)
+
+Skips the 30-day D1 result-cache **read**; the fresh answer is still written. Use any of: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or body `skip_cache: true`. **`company.resolve` has no cache bypass.** The same `Idempotency-Key` always returns the stored response even when bypass headers are set.
 
 ### Example request (`balance`)
 
@@ -79,6 +83,7 @@ True only when **all** hold: `es_decision=hit`, non-blank text, `answer.confiden
 | `same_as_speed` | Ranked fallback that matches the `speed` winner |
 | `truncated` | Trimmed to the last whole word (no complete sentence left) — forces confidence `low` |
 | `cta` | Marketing / imperative line (`Join N+ …`, `trusted by`, `Get started`, exclamation) — forces confidence `low` |
+| `grammar` | Informational quality signal only — does **not** change `answer.confidence` or `answer.safe_to_write.description`; stamp from `safe_to_write`, not `grammar` |
 
 Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`filtered` \| `translated` \| `interpreted` \| null), `company_domain`, `compose_echo`, `homepage_meta_only`. No `company_name` in the result.
 
@@ -100,7 +105,7 @@ Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`f
 
 - **Winner-only:** `usage.credits.spent` is the winning hop only (AI Ark 1, rewrite 0.5, compose 2, websearch 0.1, ZoomInfo BYOK 1 on full match). Rejected / lost hops and `no_decision` → **0**.
 - `usage.credits.cap` is the resolved path budget; `usage.credits.by_provider` breaks down the winner; `usage.hops` lists every attempt.
-- Results are cached 30 days; `skip_cache: true` re-runs.
+- Results are cached 30 days. Bypass: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or `skip_cache: true` (read skip only; still writes). Idempotency replay is independent of bypass.
 
 ### Example response (`hit`, illustrative)
 
@@ -139,7 +144,8 @@ Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`f
       "tagline": false,
       "same_as_speed": false,
       "truncated": false,
-      "cta": false
+      "cta": false,
+      "grammar": false
     }
   },
   "usage": {

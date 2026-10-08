@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # KingMinos company description (`company.description`)
@@ -26,12 +26,12 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 1. Confirm auth (`auth` skill or `GET /v1/capabilities` with `Authorization: Bearer $KINGMINOS_API_KEY`). On `401` / transport failure, render UNVERIFIED and stop.
 2. Require **domain** (or `website` / `email` that hygiene-normalize to the same registrable domain). **Name-only without domain/website/email is `400`** — do not call.
-3. Pick **`path`** (or `routing.path`; nested wins). The four paths are distinct, nested ladders — a more expensive path never misses where a cheaper one hit:
+3. **Always send `path` explicitly** (or `routing.path`; nested wins). Omitting it still resolves to `balance`, but the credit cap becomes **6** instead of **2** — do not rely on the default. The four paths are distinct, nested ladders — a more expensive path never misses where a cheaper one hit:
 
    | Path | Stack | Cap |
    | --- | --- | --- |
    | `speed` | Homepage meta / og description (deterministic gates), then house **AI Ark** | 1 |
-   | `balance` (default) | Jev-ranked homepage extracts + meta/og + AI Ark; optional neutral rewrite (0.5) | 2 |
+   | `balance` | Jev-ranked homepage extracts + meta/og + AI Ark; optional neutral rewrite (0.5) | 2 |
    | `accuracy` | Neutral third-person **xAI** compose from homepage evidence (2) + one Jev identity check; falls back to the cheaper hit | 3 |
    | `coverage` | Accuracy compose plus off-homepage house websearch (0.1) and **ZoomInfo BYOK** evidence; falls back to the accuracy winner | 6 |
 
@@ -47,10 +47,11 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    }
    ```
 
-   Optional: `website`, `email`, `max_chars` (80–500), `skip_cache` (skip the 30-day cache read), `routing.only` (e.g. `["zoominfo"]` with a stored ZoomInfo key), `dry_run`, `compliance`.
+   Optional: `website`, `email`, `max_chars` (80–500), `routing.only` (e.g. `["zoominfo"]` with a stored ZoomInfo key), `dry_run`, `compliance`.
+   **Cache bypass** (30-day result cache; skips read only, still writes): header `X-Router-Cache: bypass` (any other value → `400 invalid_cache`), or `Cache-Control: no-cache` / `no-store`, or body `skip_cache: true`. Reusing the same `Idempotency-Key` still returns the stored response — omit or rotate that header when you need a fresh run despite bypass. **`company.resolve` has no cache bypass.**
 5. Prefer `X-Router-Explain: minimal` on CRM callouts. Use `full` only when the user asks for `trace`.
-6. Read control fields: `es_decision`, `answer.outcome` (`hit` | `no_decision`), `answer.confidence` (`high` | `medium` | `low` | null), `answer.identity` (`{method: jev | name_domain | own_homepage, score}` or null), `result.description`, and `result.flags` (`hype`, `first_person`, `tagline`, `same_as_speed`, `truncated`, `cta`).
-7. **CRM stamp rule:** stamp `result.description` **only when `answer.safe_to_write.description` is true**. It is true only on a hit with non-blank text, confidence `medium`/`high`, **and** a non-null `answer.identity` (Jev ≥ 0.85, name/domain match, or the input domain's own homepage). `truncated` and `cta` force confidence `low`, and **low is never safe to write**. `hype` / `first_person` / `tagline` / `same_as_speed` are advisory flags — the text may still be safe; apply your own CRM style bar on top. Never invent description text on `no_decision`.
+6. Read control fields: `es_decision`, `answer.outcome` (`hit` | `no_decision`), `answer.confidence` (`high` | `medium` | `low` | null), `answer.identity` (`{method: jev | name_domain | own_homepage, score}` or null), `result.description`, and `result.flags` (`hype`, `first_person`, `tagline`, `same_as_speed`, `truncated`, `cta`, `grammar`).
+7. **CRM stamp rule:** stamp `result.description` **only when `answer.safe_to_write.description` is true** — decide from `safe_to_write`, not from `grammar`. It is true only on a hit with non-blank text, confidence `medium`/`high`, **and** a non-null `answer.identity` (Jev ≥ 0.85, name/domain match, or the input domain's own homepage). `truncated` and `cta` force confidence `low`, and **low is never safe to write**. `hype` / `first_person` / `tagline` / `same_as_speed` / `grammar` are advisory flags — `grammar` is informational only and does not change confidence or `safe_to_write`; the text may still be safe; apply your own CRM style bar on top. Never invent description text on `no_decision`.
 8. HTTP 200 with `no_decision` is a decision, not UNVERIFIED. `400` `zi_credentials_required` → hand off to `credentials` (ZoomInfo forced via `routing.only` without a stored key).
 9. Write **SFDC** or **Salesforce**, never **SF**.
 
@@ -88,7 +89,7 @@ Decision  <bar>  <✓|✗|·> <ready | <outcome> | unverified>
 
 - <✓|·|✗> outcome — <hit | no_decision> · <reason_code>
 - <✓ description — <excerpt or full per user> | · description — null>
-- · flags — hype <b> · first_person <b> · tagline <b> · same_as_speed <b> · truncated <b> · cta <b>
+- · flags — hype <b> · first_person <b> · tagline <b> · same_as_speed <b> · truncated <b> · cta <b> · grammar <b>
 - · identity — <jev <score> | name_domain | own_homepage | null>
 - <✓|·> safe_to_write.description — <true|false> (stamp only when true; low confidence or null identity is never safe)
 - · credits spent <n> · providers <list from usage.providers_ran> (winner-only; miss = 0)
