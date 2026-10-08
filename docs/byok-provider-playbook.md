@@ -6,7 +6,7 @@
 
 **Reference implementations:** Apollo and Prospeo BYOK rollouts (API-key vendors on `company.resolve` via `routing.only`).
 
-**Goal:** add **one** paid data vendor as a **BYOK opt-in hop** (off every default routing path), then propagate enums and docs to the product app, hosted MCP, and this skills pack. Do not invent House Keys without product and legal sign-off. Public API reference: [kingminos.com/docs](https://kingminos.com/docs/).
+**Goal:** add **one** paid data vendor as a **BYOK opt-in hop** (off every default routing path), then propagate enums and docs to the product app, hosted MCP, and this skills pack. Do not invent House Keys. Public API reference: [kingminos.com/docs](https://kingminos.com/docs/).
 
 Always say **SFDC**, never “SF”, if Salesforce is mentioned.
 
@@ -282,6 +282,7 @@ Copy, fill brackets, paste to the agent:
 
 ```
 TASK: Add KingMinos BYOK provider [{provider_id}] / [{Label}] across four repos.
+GOLDEN PATH: copy Apollo PR pattern and/or Prospeo.
 PLAYBOOK: docs/byok-provider-playbook.md in kingminos-skills — follow mechanically. Prefer gh pr diff / gh api contents over full clones. Public docs: https://kingminos.com/docs/
 
 INPUTS:

@@ -106,7 +106,7 @@ Details: [docs/byok-provider-playbook.md §6](../../../docs/byok-provider-playbo
 ```
 Add BYOK provider [{provider_id}] using skill byok-provider-rollout and
 docs/byok-provider-playbook.md. Public docs: https://kingminos.com/docs/
-Auth [{…}]; endpoints [{…}]; capability [{…}]; verify [{…}]; credits [{…}].
+Auth [{…}]; docs [{…}]; endpoints [{…}]; capability [{…}]; verify [{…}]; credits [{…}].
 API first → product app → MCP → skills. resaleAllowed false; presetProvidersFor;
 no default routing; no house-key resale allowlist; SFDC not SF; no secrets.
 Branch [{provider_id}-byok]. Return four PRs + verify output.
