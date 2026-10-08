@@ -2,23 +2,32 @@
 # Lands the CHANGELOG.md promotion (written by `release-calver.mjs --apply`) on
 # main after the CalVer Release workflow has published the tag.
 #
-# Why a PR instead of a push: main is protected (required `validate` check,
-# strict, enforced for admins), so a direct bot push is rejected, and we do not
-# relax protection for automation. The workflow therefore:
-#   1. commits CHANGELOG.md on release/changelog-<tag> (rebased onto main if
-#      main moved; a conflict fails loudly instead of mis-filing notes),
-#   2. opens a PR with GITHUB_TOKEN,
-#   3. dispatches Validate on the branch (PRs opened by GITHUB_TOKEN do not
-#      trigger pull_request workflows; workflow_dispatch is allowed),
-#   4. squash-merges once `validate` passes, pinned with --match-head-commit.
+# main is protected (required `validate` check from GitHub Actions, strict,
+# enforced for admins), so a direct bot push is rejected, and we do not relax
+# protection for automation. The promotion goes through a short-lived PR:
+#   1. commit CHANGELOG.md on release/changelog-<tag> (rebased onto main if
+#      main moved; a conflict fails loudly instead of mis-filing notes);
+#   2. push the branch and open the PR.
 #
-# No loop: the merge is pushed by GITHUB_TOKEN, which does not trigger the
-# Validate push run that starts a release, and the subject
-# `chore(release): CHANGELOG for <tag> (#N)` matches RELEASE_COMMIT_PATTERN, so
-# a manual re-run would not cut a tag for it either.
+# GitHub does not start `pull_request` workflows for PRs opened with
+# GITHUB_TOKEN, and `validate` checks from workflow_dispatch runs do not count
+# toward required checks. So:
+#   - With RELEASE_PR_TOKEN set (a GitHub App installation token or a
+#     fine-grained token limited to this repo: contents + pull requests write),
+#     the push and PR use that token, Validate runs as a normal pull_request
+#     check, and this script squash-merges the PR (pinned with
+#     --match-head-commit) as soon as GitHub reports it mergeable.
+#   - Without it, the PR is opened with GITHUB_TOKEN and left open with a
+#     warning: a maintainer closes and reopens it (which runs Validate) and
+#     merges it.
 #
-# Env: TAG, RELEASE_SHA, REPO, GH_TOKEN. Run from the release checkout with
-# CHANGELOG.md already modified and git user.name / user.email set.
+# No loop: the merge subject `chore(release): CHANGELOG for <tag> (#N)` matches
+# RELEASE_COMMIT_PATTERN, so the release run that follows a human merge finds
+# no releasable commits; a merge by GITHUB_TOKEN starts no workflow at all.
+#
+# Env: TAG, RELEASE_SHA, REPO, GH_TOKEN (GITHUB_TOKEN), optional
+# RELEASE_PR_TOKEN. Run from the release checkout with CHANGELOG.md modified
+# and git user.name / user.email set.
 set -euo pipefail
 
 : "${TAG:?TAG is required}"
@@ -29,6 +38,7 @@ set -euo pipefail
 branch="release/changelog-${TAG}"
 subject="chore(release): CHANGELOG for ${TAG}"
 wait_seconds="${VALIDATE_WAIT_SECONDS:-900}"
+pr_token="${RELEASE_PR_TOKEN:-}"
 
 git switch --quiet -c "$branch"
 git add CHANGELOG.md
@@ -43,32 +53,54 @@ if [ "$(git rev-parse origin/main)" != "$RELEASE_SHA" ]; then
     exit 1
   fi
 fi
-
 head_sha="$(git rev-parse HEAD)"
-git push --quiet origin "HEAD:refs/heads/${branch}"
 
-pr_url="$(gh pr create --repo "$REPO" --base main --head "$branch" --title "$subject" \
-  --body "Automated by the CalVer Release workflow: move the \`## Unreleased\` notes into \`## [${TAG}]\`. It merges itself once \`validate\` passes.")"
+body="Automated by the CalVer Release workflow: move the \`## Unreleased\` notes into \`## [${TAG}]\`."
+if [ -n "$pr_token" ]; then
+  # Push and open the PR as the release token so the pull_request Validate run starts.
+  auth="$(printf 'x-access-token:%s' "$pr_token" | base64 | tr -d '\n')"
+  echo "::add-mask::${auth}"
+  # An empty value resets the checkout's GITHUB_TOKEN header before adding ours.
+  git -c "http.https://github.com/.extraheader=" -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth}" \
+    push --quiet origin "HEAD:refs/heads/${branch}"
+  pr_url="$(GH_TOKEN="$pr_token" gh pr create --repo "$REPO" --base main --head "$branch" \
+    --title "$subject" --body "${body} It merges itself once \`validate\` passes.")"
+else
+  git push --quiet origin "HEAD:refs/heads/${branch}"
+  pr_url="$(gh pr create --repo "$REPO" --base main --head "$branch" --title "$subject" \
+    --body "${body} Close and reopen this PR to run \`validate\`, then squash-merge it with the default title.")"
+fi
 pr_number="${pr_url##*/}"
 echo "Opened ${pr_url}"
 
-gh workflow run validate.yml --repo "$REPO" --ref "$branch"
+if [ -z "$pr_token" ]; then
+  msg="RELEASE_PR_TOKEN is not set, so CI cannot start on ${pr_url}. Close and reopen it to run validate, then squash-merge it."
+  echo "::warning::${msg}"
+  if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+    echo "${msg}" >> "$GITHUB_STEP_SUMMARY"
+  fi
+  exit 0
+fi
 
 deadline=$((SECONDS + wait_seconds))
-conclusion=""
+state=""
 while [ "$SECONDS" -lt "$deadline" ]; do
   sleep 15
-  conclusion="$(gh api "repos/${REPO}/commits/${head_sha}/check-runs?check_name=validate" \
-    --jq '[.check_runs[] | select(.status == "completed")] | sort_by(.completed_at) | last | .conclusion // ""')"
-  if [ -n "$conclusion" ]; then
-    break
-  fi
+  state="$(gh pr view "$pr_number" --repo "$REPO" --json mergeStateStatus,headRefOid \
+    --jq 'if .headRefOid == "'"$head_sha"'" then .mergeStateStatus else "HEAD_MOVED" end')"
+  case "$state" in
+    CLEAN|HAS_HOOKS|UNSTABLE) break ;;
+    BEHIND|DIRTY|HEAD_MOVED) break ;;
+  esac
 done
 
-if [ "$conclusion" != "success" ]; then
-  echo "::error::validate on ${head_sha} finished with '${conclusion:-timeout}'. PR #${pr_number} is left open for a maintainer."
-  exit 1
-fi
+case "$state" in
+  CLEAN|HAS_HOOKS|UNSTABLE) ;;
+  *)
+    echo "::error::PR #${pr_number} is not mergeable (state '${state:-timeout}'). Left open for a maintainer."
+    exit 1
+    ;;
+esac
 
 gh pr merge "$pr_number" --repo "$REPO" --squash --match-head-commit "$head_sha" \
   --subject "${subject} (#${pr_number})" \
