@@ -1,6 +1,6 @@
 # company.description endpoints
 
-Live contract: `GET https://api.kingminos.com/openapi.yaml`. Integrator walk-through: `docs/company-description.md` in kingminos-application (PR #181+). REST and hosted MCP (`https://mcp.kingminos.com`) share the same Bearer inventory. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
+Live contract: `GET https://api.kingminos.com/openapi.yaml`. Integrator walk-through: [kingminos.com/docs/api/company-description/](https://kingminos.com/docs/api/company-description/). REST and hosted MCP (`https://mcp.kingminos.com`) share the same Bearer inventory. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
 
 ## REST ↔ tools
 
@@ -29,7 +29,7 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. Integrator walk-thr
 | `max_chars` | no | Integer 80–500, default 300. Trims at a sentence boundary |
 | `skip_cache` | no | When `true`, skip the 30-day result-cache read and re-run (still writes). Same as `X-Router-Cache: bypass` or `Cache-Control: no-cache` / `no-store`. Non-boolean → `400 invalid_cache` |
 | `external_ref` | no | Client correlation key; echoed |
-| `path` / `routing.path` | **send explicitly** | `speed` \| `balance` \| `accuracy` \| `coverage`. Omit still resolves to `balance` but raises the credit cap from **2** to **6** — always set `path`. Nested `routing.path` wins. Legacy `fast` / `value` / `name_only` → `speed`, `auto` → `balance` |
+| `path` / `routing.path` | recommended | `speed` \| `balance` \| `accuracy` \| `coverage`. Omit is valid and resolves to `balance`, but the credit cap becomes **6** instead of **2** — send `path` explicitly. Nested `routing.path` wins. Legacy `fast` / `value` / `name_only` → `speed`, `auto` → `balance` |
 | `routing.preset` | no | Back-compat; nested `routing.path` wins when both are sent |
 | `routing.only` | no | e.g. `["zoominfo"]` with a stored ZoomInfo key |
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
@@ -37,9 +37,9 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. Integrator walk-thr
 
 Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `X-Router-Cache: bypass` (only `bypass` is valid — other values → `400 invalid_cache`), `Cache-Control: no-cache` or `no-store` (same bypass effect), `Idempotency-Key` (replay wins over cache bypass — omit or rotate for a fresh run).
 
-### Cache bypass (`company.description` only)
+### Cache bypass (`company.description` and `company.domain`)
 
-Skips the 30-day D1 result-cache **read**; the fresh answer is still written. Use any of: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or body `skip_cache: true`. **`company.resolve` has no cache bypass.** The same `Idempotency-Key` always returns the stored response even when bypass headers are set.
+Skips the 30-day result-cache **read**; the fresh answer is still written. Use any of: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or body `skip_cache: true`. **`company.resolve` does not honor bypass** — it silently ignores `X-Router-Cache: bypass` and `skip_cache`, so a cached answer may still be returned. The same `Idempotency-Key` always returns the stored response even when bypass headers are set on description/domain calls.
 
 ### Example request (`balance`)
 
@@ -74,6 +74,8 @@ Skips the 30-day D1 result-cache **read**; the fresh answer is still written. Us
 True only when **all** hold: `es_decision=hit`, non-blank text, `answer.confidence` is `medium` or `high`, and `answer.identity` is non-null (`jev` score ≥ 0.85, `name_domain` match, or `own_homepage`). Low confidence is never safe. `safe_to_write.company_domain` is true only on a hit; `safe_to_write.company_name` is always false here.
 
 ### `result.flags` (on a hit; null on a miss)
+
+The API may add new boolean keys over time — ignore unknown flag names.
 
 | Flag | Meaning |
 | --- | --- |
