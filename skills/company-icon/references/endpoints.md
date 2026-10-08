@@ -40,7 +40,7 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 
 | Layer | Fields | Use |
 | --- | --- | --- |
-| Control | `answer.outcome`, `es_decision`, `answer.safe_to_write.icon_url`, `answer.reason_code`, `result.icon_url`, `result.icon_source_url` | Branch here |
+| Control | `answer.outcome`, `es_decision`, `answer.confidence`, `answer.safe_to_write.icon_url`, `answer.reason_code`, `result.icon_url`, `result.icon_source_url`, `result.flags.low_res` (hit-only) | Branch here |
 | Explain | `answer.summary`, `sources` | Humans only |
 | Audit | `trace.*` when `explain=full` | Debug |
 
@@ -49,11 +49,15 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 | `answer.outcome` | `result.icon_url` | Meaning |
 | --- | --- | --- |
 | `hit` | `https://logos.kingminos.com/i/{sha256}.png` | 256×256 PNG on KingMinos logo CDN — stamp when `safe_to_write.icon_url` |
-| `no_decision` | null | Source fetch, validate, or re-host failed — do not invent an icon |
+| `no_decision` | null | Wrong-company / junk / empty reject, or fetch/store failure — do not invent an icon |
 
 On a hit, **`result.icon_url` is always** the hosted KingMinos URL — never a raw third-party or site favicon URL in the stamp field. **`result.icon_source_url`** (optional) is the winning source URL (favicon, Brandfetch, ZoomInfo logo, etc.) for display/debug only.
 
-**`answer.safe_to_write.icon_url`** is `true` only when `icon_url` is that hosted URL.
+**`answer.safe_to_write.icon_url`** is `true` when `icon_url` is that hosted URL (including low-resolution hits).
+
+### Low-resolution hits (under 64px source)
+
+When the best accepted source raster is **under 64px**, the Worker still returns a **hosted hit** (256×256 PNG on `logos.kingminos.com`). **`answer.confidence`** is `low`, **`result.flags.low_res`** is `true`, and **`answer.safe_to_write.icon_url` stays `true`** — integrators choose whether to stamp. Only **wrong-company**, **junk**, or **empty** images are hard-rejected; **fetch/store failure** is `no_decision` with `icon_url` null.
 
 ## Sources (live Worker → re-host)
 
