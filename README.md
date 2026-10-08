@@ -107,7 +107,7 @@ These skills reflect KingMinos by OutboundSync practices, shared freely and with
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for adding or changing a skill. New skills follow [CONVENTIONS.md](CONVENTIONS.md).
 
-**BYOK provider rollout** (maintainer checklist across the KingMinos product repos): [docs/byok-provider-playbook.md](docs/byok-provider-playbook.md). Cursor-only maintainer skill: [.cursor/skills/byok-provider-rollout/SKILL.md](.cursor/skills/byok-provider-rollout/SKILL.md).
+**BYOK provider rollout:** when KingMinos adds a BYOK vendor, this pack takes the `providers.yaml` and skill-copy update described in [CONTRIBUTING.md](CONTRIBUTING.md). The cross-service rollout checklist is maintained with the KingMinos service code.
 
 Validate before pushing (Node 22+):
 

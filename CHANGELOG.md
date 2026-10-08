@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+### Removed
+
+- Maintainer-only BYOK rollout playbook and Cursor maintainer skill; the rollout checklist now lives with the KingMinos service code. README, CONTRIBUTING, and CONVENTIONS point to the in-repo `providers.yaml` checklist instead.
+
 ## [2026.10.08.5] - 2026-10-08
 
 ### Fixed
@@ -100,7 +104,7 @@
 
 ### Added
 
-- Maintainer docs: [docs/byok-provider-playbook.md](docs/byok-provider-playbook.md) (BYOK rollout across KingMinos product repos) and Cursor skill `.cursor/skills/byok-provider-rollout/SKILL.md`.
+- Maintainer docs: BYOK provider rollout playbook and Cursor maintainer skill (since moved out of this repo).
 
 ## [2026.10.05.2] - 2026-10-05
 
