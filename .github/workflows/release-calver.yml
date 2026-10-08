@@ -8,12 +8,10 @@ on:
   workflow_dispatch:
 
 # contents: tag + release + changelog branch; pull-requests: open/merge the
-# changelog PR; actions: dispatch Validate on that branch; checks: read its result.
+# changelog PR.
 permissions:
   contents: write
   pull-requests: write
-  actions: write
-  checks: read
 
 concurrency:
   group: calver-release
@@ -78,8 +76,10 @@ jobs:
           body_path: release-notes.md
 
       # main is protected (required `validate`, strict, admins enforced): land the
-      # CHANGELOG promotion through a self-merging PR, never a direct push. Only
-      # after a new tag, and only when Unreleased had entries.
+      # CHANGELOG promotion through a PR, never a direct push. Only after a new
+      # tag, and only when Unreleased had entries. Optional RELEASE_PR_TOKEN (GitHub
+      # App or fine-grained token, this repo only) lets the PR run CI and merge
+      # itself; without it the PR is left open for a maintainer.
       - name: Land CHANGELOG promotion on main
         if: >-
           steps.calver.outputs.has_changes == 'true'
@@ -87,6 +87,7 @@ jobs:
           && steps.calver.outputs.changelog_updated == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_PR_TOKEN: ${{ secrets.RELEASE_PR_TOKEN }}
           REPO: ${{ github.repository }}
           TAG: ${{ steps.calver.outputs.next_tag }}
         run: bash scripts/release-changelog-pr.sh
