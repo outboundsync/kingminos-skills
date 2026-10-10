@@ -75,6 +75,11 @@ paths:
       operationId: person_verify_employment
       security:
         - bearer: []
+  /v1/person/language:
+    post:
+      operationId: person_language
+      security:
+        - bearer: []
   /v1/runs/{id}:
     get:
       operationId: get_run

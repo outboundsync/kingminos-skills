@@ -14,11 +14,11 @@ Catalog     ████████████████████  ✓ re
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 14 resource operations`
+`https://api.kingminos.com · Bearer · 15 resource operations`
 
 - ✓ Key present in KINGMINOS_API_KEY
 - ✓ Catalog readable — get_capabilities
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · person_language · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · company_icon — resolve site/brand sources, re-host 256x256 PNG at `https://logos.kingminos.com/i/{sha256}.png` (allowlist once for CRM image CSP)
 - · Hand off: company-resolve
 
@@ -34,11 +34,11 @@ Catalog     ░░░░░░░░░░░░░░░░░░░░  ✗ mi
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 14 resource operations`
+`https://api.kingminos.com · Bearer · 15 resource operations`
 
 - ✗ KINGMINOS_API_KEY is unset
 - ✗ Catalog not called — no Bearer token
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · person_language · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: auth
 
 ### Next
@@ -57,11 +57,11 @@ Catalog     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  · unv
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 14 resource operations`
+`https://api.kingminos.com · Bearer · 15 resource operations`
 
 - ✓ Key present in KINGMINOS_API_KEY
 - · UNVERIFIED — timeout
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · person_language · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: none — REST for a live tool with no dedicated skill
 
 ### Next
