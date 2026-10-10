@@ -57,8 +57,8 @@ Output `result.linkedin_url` is only the accept form `https://www.linkedin.com/c
 
 - `speed`: websearch company-page query (cap 1)
 - `balance` (default): websearch then house **AI Ark** even after a search candidate (cap 2)
-- `accuracy`: LeadMagic, house AI Ark, then Wiza (cap 5) — verified-only accept
-- `coverage`: adds Findymail (cap 6) — structurally valid pages with confidence tiers
+- `accuracy`: LeadMagic, house AI Ark, then Wiza (cap 18) — verified-only accept
+- `coverage`: adds Findymail (cap 19) — structurally valid pages with confidence tiers
 - Default stacks: **house keys only** (LeadMagic, Wiza, Findymail, AI Ark, websearch)
 - BYOK: ZoomInfo (`company_linkedin_enrich` — search → scoped company enrich `socialMediaUrls`), BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io — `routing.only` / explicit order only for hop vendors above **except Lemlist and Snov.io** (Your Keys catalog only on this route; Lemlist is a `company.resolve` hop only — `company-resolve`; Snov.io is a credential vendor with no enrichment hop)
 
