@@ -80,11 +80,11 @@ Catalog     <bar>  <✓|✗|·> <ready | 401 <detail> | missing | unverified>
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 15 resource operations`
+`https://api.kingminos.com · Bearer · 25 resource operations`
 
 - <✓ Key present in KINGMINOS_API_KEY | ✗ KINGMINOS_API_KEY is unset | · UNVERIFIED — <reason>>
 - <✓ Catalog readable — get_capabilities | ✗ 401 <missing|malformed|mismatch> | ✗ Catalog not called — no Bearer token | · UNVERIFIED — <status>>
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · person_language · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · person_language · get_run · list_webhooks · create_webhook · get_webhook · patch_webhook · delete_webhook · rotate_webhook_secret · test_webhook · list_webhook_deliveries · replay_webhook_delivery · list_events · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: <auth | company-resolve | credentials | none — REST for a live tool with no dedicated skill>
 
 ### Next
