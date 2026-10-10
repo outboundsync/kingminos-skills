@@ -34,7 +34,7 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP
 
 Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`.
 
-Default `max_provider_credits` is `6` on `auto`, `2` on `value`.
+Default `max_provider_credits` is `19` on `auto` (`accuracy` 21, `coverage` 23), `2` on `value`. Wiza name recovery bills 15 credits; any step on your own key (BYOK) bills 0.1.
 
 ## Control vs explain
 

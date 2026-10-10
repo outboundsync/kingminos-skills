@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.0.6"
+  version: "1.0.7"
 ---
 
 # KingMinos company B2B social (LinkedIn company page)
@@ -47,8 +47,8 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | --- | --- | --- |
 | `speed` | Websearch company-page query (cap 1) | Fast / tight |
 | `balance` (default) | Websearch, then house **AI Ark** even after a search candidate (cap 2) | Verified + broader corroboration |
-| `accuracy` | LeadMagic, house AI Ark, then Wiza (cap 5) | Verified-only accept |
-| `coverage` | Adds Findymail (cap 6) | All structurally valid LinkedIn hits with confidence (high/low); tighter accept bar than `balance` on verified tier |
+| `accuracy` | LeadMagic, house AI Ark, then Wiza (cap 18) | Verified-only accept |
+| `coverage` | Adds Findymail (cap 19) | All structurally valid LinkedIn hits with confidence (high/low); tighter accept bar than `balance` on verified tier |
 
 BYOK (ZoomInfo `company_linkedin_enrich`, Apollo, Prospeo, Company URL Finder, etc.) is **`routing.only` / explicit order**, not default. `routing.only: ["aiark"]` is allowlisted for km_/session keys when the user wants AI Ark alone.
 
