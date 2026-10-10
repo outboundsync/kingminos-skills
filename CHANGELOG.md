@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.10.1] - 2026-10-10
+
 ### Added
 
 - Credential-only BYOK vendors: `cognism`, `lusha`, `starbridge`, `clay`, `databar` are storable **API-key** Your Keys vendors (`PUT /v1/credentials/{provider}`, body `{ "apiKey": "…" }`) — **credential vendor only, no routing hop yet**. All five: `supply: byok`, `api_key: true`, `credentials_required: null`, `path_enum: true`, `company_resolve_surface: false`. Store/rotate at `https://app.kingminos.com`; `credentials` covers list/revoke. Not cleared for house-key resale.
