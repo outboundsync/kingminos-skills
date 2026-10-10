@@ -66,7 +66,7 @@ A LeadMagic-only or websearch-only hit is `resolved_without_primary_id`. A webse
 - `accuracy` / `coverage`: deeper corroboration / fill
 - AIArk / Prospeo / Apollo / People Data Labs / HG Insights / Enrich-CRM / Lemlist: registered, **not** on default paths
 - House-key vendors: **LeadMagic, Wiza, Findymail, AIArk** (AI Ark on default `company.b2b_social` `balance` path — see `company-b2b-social`)
-- BYOK: ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Company URL Finder — resolve uses ZoomInfo/BuiltWith/Prospeo/Apollo/People Data Labs/HG Insights/Enrich-CRM/Lemlist; Brandfetch is `company.icon` (`company-icon`); Snov.io is a credential vendor only (no hop); Company URL Finder is `company.domain` / name→domain only (`routing.only: ["companyurlfinder"]`, not `POST /v1/company/resolve`)
+- BYOK: ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, Company URL Finder — resolve uses ZoomInfo/BuiltWith/Prospeo/Apollo/People Data Labs/HG Insights/Enrich-CRM/Lemlist; Brandfetch is `company.icon` (`company-icon`); Snov.io, Cognism, Lusha, Starbridge, Clay, and Databar are credential vendors only (no hop); Company URL Finder is `company.domain` / name→domain only (`routing.only: ["companyurlfinder"]`, not `POST /v1/company/resolve`)
 - `websearch`: house-only
 
 ## Errors (run not started)

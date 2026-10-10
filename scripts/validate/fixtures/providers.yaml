@@ -105,6 +105,41 @@ providers:
     company_resolve_surface: false
     path_enum: true
     api_key: false
+  - id: cognism
+    label: Cognism
+    supply: byok
+    credentials_required: null
+    company_resolve_surface: false
+    path_enum: true
+    api_key: true
+  - id: lusha
+    label: Lusha
+    supply: byok
+    credentials_required: null
+    company_resolve_surface: false
+    path_enum: true
+    api_key: true
+  - id: starbridge
+    label: Starbridge
+    supply: byok
+    credentials_required: null
+    company_resolve_surface: false
+    path_enum: true
+    api_key: true
+  - id: clay
+    label: Clay
+    supply: byok
+    credentials_required: null
+    company_resolve_surface: false
+    path_enum: true
+    api_key: true
+  - id: databar
+    label: Databar
+    supply: byok
+    credentials_required: null
+    company_resolve_surface: false
+    path_enum: true
+    api_key: true
   - id: websearch
     label: websearch
     supply: house_only

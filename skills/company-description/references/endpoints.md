@@ -100,7 +100,7 @@ Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`f
 
 - **AI Ark** is the **only firmographic vendor** on this route.
 - **ZoomInfo** is **BYOK only** (coverage evidence when a key is stored; `400` `zi_credentials_required` when forced via `routing.only` without one).
-- **LeadMagic, Wiza, Findymail, Brandfetch, Lemlist, and Snov.io are not `company.description` vendors.**
+- **LeadMagic, Wiza, Findymail, Brandfetch, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, and Databar are not `company.description` vendors.**
 - Hard 10 s cap from request start on every path.
 
 ## Billing

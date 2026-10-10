@@ -24,7 +24,7 @@ This skill's default path is `GET /v1/credentials`. Store secrets in the product
 
 ## Path `provider`
 
-`zoominfo` | `leadmagic` | `findymail` | `wiza` | `aiark` | `builtwith` | `brandfetch` | `prospeo` | `apollo` | `companyurlfinder` | `peopledatalabs` | `hginsights` | `enrichcrm` | `lemlist` | `snovio`
+`zoominfo` | `leadmagic` | `findymail` | `wiza` | `aiark` | `builtwith` | `brandfetch` | `prospeo` | `apollo` | `companyurlfinder` | `peopledatalabs` | `hginsights` | `enrichcrm` | `lemlist` | `snovio` | `cognism` | `lusha` | `starbridge` | `clay` | `databar`
 
 `websearch` is rejected (`byok_not_supported`).
 
@@ -40,7 +40,7 @@ ZoomInfo and Snov.io (required OAuth pair):
 { "clientId": "...", "clientSecret": "..." }
 ```
 
-API-key vendors (`leadmagic`, `findymail`, `wiza`, `aiark`, `builtwith`, `brandfetch`, `prospeo`, `apollo`, `companyurlfinder`, `peopledatalabs`, `hginsights`, `enrichcrm`, `lemlist`):
+API-key vendors (`leadmagic`, `findymail`, `wiza`, `aiark`, `builtwith`, `brandfetch`, `prospeo`, `apollo`, `companyurlfinder`, `peopledatalabs`, `hginsights`, `enrichcrm`, `lemlist`, `cognism`, `lusha`, `starbridge`, `clay`, `databar`):
 
 ```json
 { "apiKey": "..." }
@@ -75,7 +75,7 @@ Capability POSTs may return `400` `zi_credentials_required` | `findymail_credent
 ## Policy
 
 - **House-key:** LeadMagic, Wiza, Findymail, AIArk (optional tenant store; house AI Ark on default `company.b2b_social` paths — `company-b2b-social`).
-- **BYOK:** ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io.
+- **BYOK:** ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, and Databar.
 - **House-only:** websearch.
 - Live credential writes require server-side encryption configured on the API deployment (operator concern — never a skill input).
 - Store secrets at `https://app.kingminos.com`. Never paste a vendor secret into chat.
