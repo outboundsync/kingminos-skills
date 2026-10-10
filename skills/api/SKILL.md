@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.5.7"
+  version: "1.5.8"
 ---
 
 # KingMinos API
@@ -53,7 +53,7 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 | Company LinkedIn / B2B social page | `company-b2b-social` · `company_b2b_social` |
 | Company icon — resolve then re-host on `logos.kingminos.com` (`company.icon`, 256x256 PNG) | `company-icon` · `company_icon` |
 | Company description paragraph (`company.description`) | `company-description` · `company_description` |
-| Domain stamp, hierarchy, employment verify | `company_domain`, `company_hierarchy`, `person_verify_employment` — REST or MCP; no dedicated skill yet |
+| Domain stamp, hierarchy, employment verify, person language | `company_domain`, `company_hierarchy`, `person_verify_employment`, `person_language` (`routing.path` speed \| balance \| accuracy, caps 1/3/4; `coverage` is `400`) — REST or MCP; no dedicated skill yet |
 | Erase a subject | `delete_subject` — **not** these skills (`erase` scope) |
 
 Do not call `put_credentials`, `delete_credentials`, or `delete_subject` from this skill.
@@ -80,11 +80,11 @@ Catalog     <bar>  <✓|✗|·> <ready | 401 <detail> | missing | unverified>
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 14 resource operations`
+`https://api.kingminos.com · Bearer · 15 resource operations`
 
 - <✓ Key present in KINGMINOS_API_KEY | ✗ KINGMINOS_API_KEY is unset | · UNVERIFIED — <reason>>
 - <✓ Catalog readable — get_capabilities | ✗ 401 <missing|malformed|mismatch> | ✗ Catalog not called — no Bearer token | · UNVERIFIED — <status>>
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · person_language · get_run · list_credentials · put_credentials · delete_credentials · delete_subject
 - · Hand off: <auth | company-resolve | credentials | none — REST for a live tool with no dedicated skill>
 
 ### Next
