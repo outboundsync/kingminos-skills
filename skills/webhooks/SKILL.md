@@ -33,10 +33,10 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | `billing.frozen` · `billing.unfrozen` · `credits.exhausted` · `credits.low` · `vendor.uptime.changed` · `run.completed` | **Reserved** | Names are held; subscribing returns `400 invalid_webhook_events` with the available list. Do not invent shipping timelines. |
 
 - Every `run.failed` payload pairs a readable `reason` (≤240 chars, emails redacted) with a `remediation` ending in a docs link. Relay both.
-- Delivery is at-least-once: 10 s timeout, 1 attempt + 7 retries over ≈2 h (first retry 1 m + jitter, then 2/4/8/16/30/60 min), 404/413 terminal, DEAD after that. **20 consecutive DEAD deliveries auto-disable the endpoint**; a success resets the streak; re-enable with `PATCH { "is_active": true }`.
+- Delivery is at-least-once: 10 s timeout, 1 attempt + 7 retries, 404/413 terminal, DEAD after that. Retry delays are minimums (first retry at least 1 m + jitter, then at least 2/4/8/16/30/60 min): the retry sweep runs every 2 minutes, so a retry can land up to ~2 min late and ≈2 h is a floor, not a deadline. Redirects are never followed — a 3xx is a failed attempt; register the final URL. **20 consecutive DEAD deliveries auto-disable the endpoint**; a success resets the streak; re-enable with `PATCH { "is_active": true }`.
 - Envelope: `{ id (kmevt_…), type, created, summary, data }`; headers `KingMinos-Signature: t=<unix>,v1=<hex>` (HMAC-SHA256 over `<t>.<rawBody>`), `KingMinos-Event-Id`, `KingMinos-Delivery-Id`. Verify against the raw body with a constant-time compare and a tolerance window (e.g. 300 s).
 - Dedupe on event `id`; order by `created`. URLs are HTTPS-only; private/loopback/link-local targets (including DNS-resolved) are rejected at create and re-checked per attempt.
-- Workspace gate: every `/v1/webhooks*` and `/v1/events` route is `403 webhooks_not_enabled` until an OutboundSync admin enables webhooks for the workspace. Mutations need the workspace **owner** (`403 webhook_owner_required` otherwise). Max 20 endpoints per workspace.
+- Workspace gate: every `/v1/webhooks*` and `/v1/events` route is `403 webhooks_not_enabled` until an OutboundSync admin enables webhooks for the workspace. Mutations need the workspace **owner** (`403 webhook_owner_required` otherwise). Max 20 endpoints per workspace. Turning the gate off also stops delivery: pending deliveries to that workspace's endpoints go DEAD (`last_error: webhooks_not_enabled`).
 - `GET /v1/events` is the reconciliation log — events stay queryable even when no webhook was active. Use it to recover anything missed while an endpoint was down, then replay.
 
 ## Workflow
@@ -45,8 +45,8 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 2. `GET /v1/webhooks` (`list_webhooks`). `403 webhooks_not_enabled` → blocker; the fix is an admin toggle, not a retry.
 3. Registering: confirm the exact plan (`Will POST /v1/webhooks {"url": …}`), then send. Return the endpoint `id` and tell the user to store the `kmwhsec_…` secret now — it is never shown again.
 4. Prove the endpoint: `POST /v1/webhooks/{id}/test` (`test_webhook`) → `202 { event_id }`; then `GET /v1/webhooks/{id}/deliveries` and require `succeeded`. `pending` with `last_error` is a receiver problem, not a KingMinos one.
-5. Diagnosing missing alerts: `GET /v1/events?type=run.failed` — an event with `delivered: false` means emission happened but delivery failed; no event at all means no healthy→failing transition occurred for that workspace×capability.
-6. After fixing a receiver: replay the specific delivery (`replay_webhook_delivery`), or re-enable after auto-disable (`patch_webhook` with `{ "is_active": true }`), then replay.
+5. Diagnosing missing alerts: `GET /v1/events?type=run.failed` — an event with `delivered: false` means emission happened but there is no successful delivery yet (still retrying, dead, or no endpoint subscribed); `delivered: true` means at least one delivery succeeded. No event at all means no healthy→failing transition occurred for that workspace×capability.
+6. After fixing a receiver: replay the specific delivery (`replay_webhook_delivery`), or re-enable after auto-disable (`patch_webhook` with `{ "is_active": true }`), then replay. A paused endpoint refuses `test_webhook` (`409 webhook_endpoint_inactive`) and a replay to it goes DEAD — re-enable first.
 7. Rotate only after explicit confirmation: the previous secret stops working immediately.
 
 ## Mutations
