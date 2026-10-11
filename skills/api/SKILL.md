@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.5.10"
+  version: "1.5.11"
 ---
 
 # KingMinos API
@@ -55,7 +55,10 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 | Company LinkedIn / B2B social page | `company-b2b-social` · `company_b2b_social` |
 | Company icon — resolve then re-host on `logos.kingminos.com` (`company.icon`, 256x256 PNG) | `company-icon` · `company_icon` |
 | Company description paragraph (`company.description`) | `company-description` · `company_description` |
-| Domain stamp, hierarchy, employment verify, person language | `company_domain`, `company_hierarchy`, `person_verify_employment`, `person_language` (`routing.path` speed \| balance \| accuracy, caps 1/3/4; `coverage` is `400`) — REST or MCP; no dedicated skill yet |
+| Domain stamp | `company-domain` · `company_domain` |
+| Corporate family tree | `company-hierarchy` · `company_hierarchy` |
+| Employment verify before sending | `person-verify-employment` · `person_verify_employment` |
+| Which language to engage in | `person-language` · `person_language` |
 | Erase a subject | `delete_subject` — **not** these skills (`erase` scope) |
 | File feedback when blocked or missing data | `submit_feedback` · `POST /v1/feedback` (free; not a support channel) |
 
