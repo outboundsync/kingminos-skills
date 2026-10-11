@@ -68,6 +68,7 @@ Discovery (`GET /health`, `GET /openapi.yaml`, `GET /openapi.json`, `GET /v1/ope
 | `PUT /v1/credentials/{provider}` | `put_credentials` | W | Upsert tenant Your Keys (ciphertext). Store in the app UI — not from chat. → `credentials`. |
 | `DELETE /v1/credentials/{provider}` | `delete_credentials` | W | Revoke tenant Your Keys. → `credentials`. |
 | `DELETE /v1/subjects/{subject_key}` | `delete_subject` | W · E | Tenant-scoped erasure. Requires `erase`. Not these skills. |
+| `POST /v1/feedback` | `submit_feedback` | W | File product feedback when a call misses or comes back low-confidence, you had to work around KingMinos, or you wanted a field or provider we don't have. Free, never costs credits; not a support channel. `summary` is a plain-English headline (15–150 chars, no IDs); `requested` required for provider/endpoint requests; `capability` required for `data_quality`; no secrets in the text. |
 
 Also: `GET /health` (unversioned liveness), `GET /openapi.yaml` / `GET /v1/openapi.yaml` / `GET /openapi.json` / `GET /v1/openapi.json` (auth-free spec). Not resource operations — do not add them as tools.
 

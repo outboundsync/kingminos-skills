@@ -10,12 +10,14 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # KingMinos company B2B social (LinkedIn company page)
 
 Call **KingMinos by OutboundSync** `POST /v1/company/b2b-social` (`company_b2b_social`). One decision: the company's own LinkedIn **company** page URL, or null. Never treat person `/in/` profiles as the answer. This is not an SFDC write. Never print, log, or commit `KINGMINOS_API_KEY`.
+
+**Blocked or missing data?** File feedback — MCP submit_feedback or POST /v1/feedback (free, never costs credits). Not a support channel.
 
 **Note:** These instructions reflect KingMinos by OutboundSync best practices shared freely and without warranty of outcomes — see [DISCLAIMER.md](https://github.com/outboundsync/kingminos-skills/blob/main/DISCLAIMER.md).
 

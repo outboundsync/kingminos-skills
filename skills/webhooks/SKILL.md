@@ -12,12 +12,14 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY carrying the explicit `webhooks` scope (owner key for mutations) and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP).
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # KingMinos webhooks
 
 KingMinos emits its own platform events and delivers them signed to customer-registered HTTPS endpoints — the push counterpart to the `GET /v1/events` log. Register endpoints, verify `KingMinos-Signature`, watch deliveries, and replay after fixes. Signing secrets (`kmwhsec_…`) are shown **once** at create/rotate — never ask the user to paste one into chat, and never print, log, or commit it.
+
+**Blocked or missing data?** File feedback — MCP submit_feedback or POST /v1/feedback (free, never costs credits). Not a support channel.
 
 **Note:** These instructions reflect KingMinos by OutboundSync best practices shared freely and without warranty of outcomes — see [DISCLAIMER.md](https://github.com/outboundsync/kingminos-skills/blob/main/DISCLAIMER.md).
 

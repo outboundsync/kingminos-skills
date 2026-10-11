@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.4"
+  version: "1.1.5"
 ---
 
 # KingMinos company icon (`company.icon`)
@@ -20,6 +20,8 @@ metadata:
 Call **KingMinos by OutboundSync** `POST /v1/company/icon` (`company_icon`). One decision: a **square** company **`icon_url`** on a hit — always a **KingMinos-hosted** `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**) — or null on miss. The Worker **resolves** from the **site** (manifest icons, **apple-touch-icon**, and **favicon** — best candidate first), then **brand logo** hops (**Brandfetch**, **ZoomInfo**), then **validates, stores, and re-hosts** the best raster on `logos.kingminos.com` (see ladder below). Optional **`result.icon_source_url`** holds that winning source URL; stamp **`icon_url` only**, never the source. This is **`company.icon`**, not a marketing logo field. This is not an SFDC write. Never print, log, or commit `KINGMINOS_API_KEY`.
 
 **CRM tip:** allowlist **`https://logos.kingminos.com`** once (e.g. Salesforce CSP Trusted Site for images) so hosted stamps render in the UI.
+
+**Blocked or missing data?** File feedback — MCP submit_feedback or POST /v1/feedback (free, never costs credits). Not a support channel.
 
 **Note:** These instructions reflect KingMinos by OutboundSync best practices shared freely and without warranty of outcomes — see [DISCLAIMER.md](https://github.com/outboundsync/kingminos-skills/blob/main/DISCLAIMER.md).
 

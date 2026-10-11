@@ -158,6 +158,11 @@ paths:
       operationId: delete_subject
       security:
         - bearer: []
+  /v1/feedback:
+    post:
+      operationId: submit_feedback
+      security:
+        - bearer: []
 components:
   securitySchemes:
     bearer:
