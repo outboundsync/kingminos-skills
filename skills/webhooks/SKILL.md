@@ -9,7 +9,7 @@ description: >-
   a KingMinos-Signature, replay a delivery, list webhook deliveries, or why a
   webhook endpoint was auto-disabled. Mutations only after explicit confirmation.
 license: MIT
-compatibility: Requires KINGMINOS_API_KEY (workspace owner key or session) and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP).
+compatibility: Requires KINGMINOS_API_KEY carrying the explicit `webhooks` scope (owner key for mutations) and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP).
 metadata:
   author: outboundsync
   version: "1.0.0"
@@ -36,13 +36,13 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - Delivery is at-least-once: 10 s timeout, 1 attempt + 7 retries, 404/413 terminal, DEAD after that. Retry delays are minimums (first retry at least 1 m + jitter, then at least 2/4/8/16/30/60 min): the retry sweep runs every 2 minutes, so a retry can land up to ~2 min late and ≈2 h is a floor, not a deadline. Redirects are never followed — a 3xx is a failed attempt; register the final URL. **20 consecutive DEAD deliveries auto-disable the endpoint**; a success resets the streak; re-enable with `PATCH { "is_active": true }`.
 - Envelope: `{ id (kmevt_…), type, created, summary, data }`; headers `KingMinos-Signature: t=<unix>,v1=<hex>` (HMAC-SHA256 over `<t>.<rawBody>`), `KingMinos-Event-Id`, `KingMinos-Delivery-Id`. Verify against the raw body with a constant-time compare and a tolerance window (e.g. 300 s).
 - Dedupe on event `id`; order by `created`. URLs are HTTPS-only; private/loopback/link-local targets (including DNS-resolved) are rejected at create and re-checked per attempt.
-- Workspace gate: every `/v1/webhooks*` and `/v1/events` route is `403 webhooks_not_enabled` until an OutboundSync admin enables webhooks for the workspace. Mutations need the workspace **owner** (`403 webhook_owner_required` otherwise). Max 20 endpoints per workspace. Turning the gate off also stops delivery: pending deliveries to that workspace's endpoints go DEAD (`last_error: webhooks_not_enabled`).
+- Workspace gate: every `/v1/webhooks*` and `/v1/events` route is `403 webhooks_not_enabled` until an OutboundSync admin enables webhooks for the workspace. Every webhook route needs a key with the explicit `webhooks` scope (`403 webhook_scope_required` otherwise — the default all-capabilities key does **not** include it; the owner creates one with "Can manage webhooks" checked, i.e. `scopes: ["capability:*", "webhooks"]`). Mutations also need the workspace **owner** (`403 webhook_owner_required` otherwise). Max 20 endpoints per workspace. Turning the gate off also stops delivery: pending deliveries to that workspace's endpoints go DEAD (`last_error: webhooks_not_enabled`).
 - `GET /v1/events` is the reconciliation log — events stay queryable even when no webhook was active. Use it to recover anything missed while an endpoint was down, then replay.
 
 ## Workflow
 
 1. Confirm auth (`GET /v1/capabilities` or the `auth` skill). On `401`, stop.
-2. `GET /v1/webhooks` (`list_webhooks`). `403 webhooks_not_enabled` → blocker; the fix is an admin toggle, not a retry.
+2. `GET /v1/webhooks` (`list_webhooks`). `403 webhooks_not_enabled` → blocker; the fix is an admin toggle, not a retry. `403 webhook_scope_required` → blocker; the user needs a key with the `webhooks` scope, not a retry.
 3. Registering: confirm the exact plan (`Will POST /v1/webhooks {"url": …}`), then send. Return the endpoint `id` and tell the user to store the `kmwhsec_…` secret now — it is never shown again.
 4. Prove the endpoint: `POST /v1/webhooks/{id}/test` (`test_webhook`) → `202 { event_id }`; then `GET /v1/webhooks/{id}/deliveries` and require `succeeded`. `pending` with `last_error` is a receiver problem, not a KingMinos one.
 5. Diagnosing missing alerts: `GET /v1/events?type=run.failed` — an event with `delivered: false` means emission happened but there is no successful delivery yet (still retrying, dead, or no endpoint subscribed); `delivered: true` means at least one delivery succeeded. No event at all means no healthy→failing transition occurred for that workspace×capability.
