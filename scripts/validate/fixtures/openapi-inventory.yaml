@@ -85,6 +85,53 @@ paths:
       operationId: get_run
       security:
         - bearer: []
+  /v1/webhooks:
+    get:
+      operationId: list_webhooks
+      security:
+        - bearer: []
+    post:
+      operationId: create_webhook
+      security:
+        - bearer: []
+  /v1/webhooks/{id}:
+    get:
+      operationId: get_webhook
+      security:
+        - bearer: []
+    patch:
+      operationId: patch_webhook
+      security:
+        - bearer: []
+    delete:
+      operationId: delete_webhook
+      security:
+        - bearer: []
+  /v1/webhooks/{id}/rotate-secret:
+    post:
+      operationId: rotate_webhook_secret
+      security:
+        - bearer: []
+  /v1/webhooks/{id}/test:
+    post:
+      operationId: test_webhook
+      security:
+        - bearer: []
+  /v1/webhooks/{id}/deliveries:
+    get:
+      operationId: list_webhook_deliveries
+      security:
+        - bearer: []
+  /v1/webhooks/{id}/deliveries/{delivery_id}/replay:
+    post:
+      operationId: replay_webhook_delivery
+      security:
+        - bearer: []
+  /v1/events:
+    get:
+      operationId: list_events
+      security:
+        - bearer: []
   /v1/credentials:
     get:
       operationId: list_credentials

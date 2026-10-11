@@ -1,11 +1,18 @@
 // OutboundSync product keys do not belong in this pack. KingMinos live keys
-// (`km_…`) are never committed. Documented placeholders (`osapi_...`,
-// `Bearer <token>`, `KINGMINOS_API_KEY=...`) stay allowed.
+// (`km_…`) and webhook signing secrets (`kmwhsec_…`) are never committed.
+// Documented placeholders (`osapi_...`, `kmwhsec_…`, `Bearer <token>`,
+// `KINGMINOS_API_KEY=...`) stay allowed.
 import { execFileSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
 
-const SECRET = /\b(?:(osapi|oswhsec)_[A-Za-z0-9]{12,}|km_[A-Za-z0-9_-]{16,})/;
+const SECRET = /\b(?:(osapi|oswhsec|kmwhsec)_[A-Za-z0-9]{12,}|(km)_[A-Za-z0-9_-]{16,})/;
+const SECRET_KIND = {
+  osapi: 'OutboundSync API key',
+  oswhsec: 'OutboundSync webhook signing secret',
+  kmwhsec: 'KingMinos webhook signing secret',
+  km: 'KingMinos token',
+};
 const PASTED_BEARER = /Authorization:\s*Bearer\s+[A-Za-z0-9._-]{16,}/i;
 const PASTED_ENV = /KINGMINOS_API_KEY\s*=\s*['"]?[A-Za-z0-9._-]{12,}/;
 const SKIP_DIR = new Set(['node_modules', '.git', '.lycheecache']);
@@ -52,7 +59,7 @@ export function listSecretScanFiles(model) {
 export default {
   id: 'secrets',
   docRef: 'SECURITY.md#api-keys-and-secrets',
-  description: 'No KingMinos or OutboundSync API keys are committed.',
+  description: 'No KingMinos or OutboundSync API keys or webhook signing secrets are committed.',
   check(model) {
     const out = [];
     for (const file of listSecretScanFiles(model)) {
@@ -62,7 +69,7 @@ export default {
         const match = line.match(SECRET);
         if (match) {
           const token = match[0];
-          const kind = token.startsWith('km_') ? 'KingMinos token' : match[1] === 'osapi' ? 'API key' : 'webhook signing secret';
+          const kind = SECRET_KIND[match[1] ?? match[2]];
           out.push({ file, line: index + 1, msg: `possible committed ${kind} (${token.slice(0, 10)}…); remove and rotate it` });
         }
         if (PASTED_BEARER.test(line) && !/Bearer <|\.\.\.|…|your[_-]?key|KINGMINOS_API_KEY/i.test(line)) {

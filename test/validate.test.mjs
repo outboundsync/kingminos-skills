@@ -75,6 +75,8 @@ const cases = [
   ['secrets: committed OutboundSync key', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nexport KEY=osapi_abcdefghijklmnop\n' }, ['secrets']],
   ['secrets: placeholder allowed', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nexport KEY=osapi_...\n' }, []],
   ['secrets: km_ token', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nkm_abcdefghijklmnopqrstuv\n' }, ['secrets']],
+  ['secrets: kmwhsec_ webhook signing secret', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nkmwhsec_0123456789abcdef0123456789abcdef\n' }, ['secrets']],
+  ['secrets: kmwhsec_… placeholder allowed', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nStore the `kmwhsec_…` secret.\n' }, []],
   ['secrets: km_ token in templates/', { 'templates/leak.md': 'km_abcdefghijklmnopqrstuv\n' }, ['secrets']],
   ['secrets: pasted Bearer token', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nAuthorization: Bearer abcdefghijklmnopqr\n' }, ['secrets']],
   ['secrets: Bearer placeholder allowed', { 'skills/demo/references/rubric.md': '# Rubric\n\n## Levels\n\nAuthorization: Bearer <token>\n' }, []],

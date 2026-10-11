@@ -6,7 +6,7 @@ Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enr
 
 **This is not the OutboundSync CRM / sequencer skills pack.** That sister repository is [`outboundsync/skills`](https://github.com/outboundsync/skills). Do not install this pack expecting launch preflight, sync monitoring, or cold-email copy. KingMinos decides company identity and vendor credentials; OutboundSync syncs sequencer events into the CRM.
 
-The pack ships **7** skills.
+The pack ships **8** skills.
 
 **Output style.** Every skill renders a fixed, terminal-friendly Markdown shape. Readiness checks (`auth`, `credentials`) and `company-resolve` lead with a verdict and a `█░▒` status gauge, then one card per system and a `Next` list. A failed lookup always shows as `UNVERIFIED`, never as a pass or an empty result. Business misses on `company.resolve` stay HTTP 200 and use `answer.outcome` / `es_decision`. See [CONVENTIONS.md](CONVENTIONS.md) and each skill's `references/examples.md`.
 
@@ -20,6 +20,7 @@ The pack ships **7** skills.
 | `company-b2b-social` | [`skills/company-b2b-social/`](skills/company-b2b-social/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/b2b-social` — Serper-verified LinkedIn `https://www.linkedin.com/company/{slug}` or null; paths `speed` / `balance` / `accuracy` / `coverage` |
 | `company-icon` | [`skills/company-icon/`](skills/company-icon/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/icon` (`company.icon`) — resolve manifest icons / apple-touch-icon / favicon and Brandfetch / ZoomInfo logos, re-host `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**); optional `icon_source_url`; domain + optional `name`; low-res hits keep `safe_to_write.icon_url` true |
 | `company-description` | [`skills/company-description/`](skills/company-description/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/description` (`company.description`) — paths `speed` / `balance` / `accuracy` / `coverage`; AI Ark is the only firmographic vendor; ZoomInfo BYOK only; flags incl. `truncated` / `cta` / `grammar` (informational); send `path` explicitly (recommended — omit runs balance at cap 6 not 2); stamp only when `answer.safe_to_write.description` (identity-gated, low never safe); winner-only billing |
+| `webhooks` | [`skills/webhooks/`](skills/webhooks/) | Yes (`KINGMINOS_API_KEY`) | Register webhook endpoints, verify `KingMinos-Signature`, inspect deliveries, replay after fixes, read the `GET /v1/events` log; active events `run.failed` / `run.recovered` / `test.ping` |
 | `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic, Wiza, Findymail, and AIArk are house-key; ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, and Databar are BYOK |
 
 REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — same Bearer token and snake_case tool inventory as the `api` map. Session/product-app ops are out of scope. Do not invent tools outside that map.
@@ -37,6 +38,7 @@ npx skills add outboundsync/kingminos-skills --skill company-b2b-social -g
 npx skills add outboundsync/kingminos-skills --skill company-icon -g
 npx skills add outboundsync/kingminos-skills --skill company-description -g
 npx skills add outboundsync/kingminos-skills --skill credentials -g
+npx skills add outboundsync/kingminos-skills --skill webhooks -g
 ```
 
 The Skills CLI detects the harness (Cursor, Claude Code, Codex, and others). Add `-a claude-code`, `-a codex`, or `-a cursor` only when you want to force a target. OpenClaw global install is the same CLI with `-a openclaw -g`.
@@ -51,6 +53,7 @@ npx skills use outboundsync/kingminos-skills --skill company-b2b-social
 npx skills use outboundsync/kingminos-skills --skill company-icon
 npx skills use outboundsync/kingminos-skills --skill company-description
 npx skills use outboundsync/kingminos-skills --skill credentials
+npx skills use outboundsync/kingminos-skills --skill webhooks
 ```
 
 ## Credentials
