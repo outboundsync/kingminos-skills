@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY carrying the explicit `webhooks` scope (owner key for mutations) and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP).
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # KingMinos webhooks
