@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.2.1"
+  version: "1.3.0"
 ---
 
 # KingMinos company resolve
@@ -43,6 +43,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    - `safe_to_write.zoominfo_company_id` → stamp-safe ZoomInfo company id from `result.zoominfo_company_id`.
    - `safe_to_write.company_name` → fill-if-blank Account Name from `result.company_name`.
    - `safe_to_write.company_domain` → optional domain hygiene; never clobber an existing Website/domain.
+   - `answer.operator` / `result.operator` (0 credits, may be null) → who operates a product brand's site (fizzy.do → `company_name` Fizzy, `operator_name` 37signals, `operator_domain` 37signals.com, `operator_zoominfo_company_id`). Informational: it never replaces `company_name` and has no `safe_to_write` flag; use it for parent-account matching only when the user asks.
    - Label the outcome from `answer.outcome`: `resolved` · `resolved_without_primary_id` · `no_decision` (honest abstain: `no_domain`, `zero_hits`, `not_configured`, credits, compliance).
    - HTTP 200 with a business miss is a decision, not UNVERIFIED.
    - `400` `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` / `enrichcrm_credentials_required` / `lemlist_credentials_required` → hand off to `credentials` (ZoomInfo, BuiltWith, Prospeo, Apollo, People Data Labs, HG Insights, Enrich-CRM, and Lemlist are BYOK on resolve; store in the app UI). LeadMagic, Wiza, Findymail, and AIArk are house-key and should not produce a credentials_required error for a default tenant. `companyurlfinder_credentials_required` is **`company.domain` / name→domain only** — not a normal `company.resolve` 400.
@@ -78,6 +79,7 @@ Decision  <bar>  <✓|✗|·> <ready | <outcome> | unverified>
 - <✓|·> company_name — <name or null> (fill-if-blank when `answer.safe_to_write.company_name`)
 - <✓ stamp-safe ZoomInfo company id <id> | · do not stamp — `safe_to_write.zoominfo_company_id` is false>
 - · company_domain — <domain or null> (hygiene — write only when `answer.safe_to_write.company_domain`; never clobber)
+- · operator — <operator_name (operator_domain) · operator_confidence, or none> (informational; never the Account Name)
 - · credits spent <n> · providers <list from usage.providers_ran>
 - · UNVERIFIED — <status> (only when the POST failed to return a v2 envelope)
 
