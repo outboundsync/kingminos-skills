@@ -11,12 +11,14 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # KingMinos company description (`company.description`)
 
 Call **KingMinos by OutboundSync** `POST /v1/company/description` (`company_description`). One decision: a **usable English company description** (`result.description`, `max_chars` 80–500, default 300) for stamping, or null. Engine **`first_acceptable`**, hits-first: quality issues are **flags**, not misses. This is **`company.description`**, not LinkedIn social copy. This is not an SFDC write. Never print, log, or commit `KINGMINOS_API_KEY`.
+
+**Blocked or missing data?** File feedback — MCP submit_feedback or POST /v1/feedback (free, never costs credits). Not a support channel.
 
 **Note:** These instructions reflect KingMinos by OutboundSync best practices shared freely and without warranty of outcomes — see [DISCLAIMER.md](https://github.com/outboundsync/kingminos-skills/blob/main/DISCLAIMER.md).
 

@@ -12,12 +12,14 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP). Mutations only after explicit confirmation.
 metadata:
   author: outboundsync
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # KingMinos credentials
 
 Teach house-key vs BYOK. **Default path is read-only:** `GET /v1/credentials`. Store or rotate secrets at `https://app.kingminos.com` (Vendor keys / Your Keys). **Never ask the user to paste a vendor secret into chat.** Revoke a stored key only after explicit confirmation. Never print, log, or commit `KINGMINOS_API_KEY` or a vendor secret. Responses never echo the raw key.
+
+**Blocked or missing data?** File feedback — MCP submit_feedback or POST /v1/feedback (free, never costs credits). Not a support channel.
 
 **Note:** These instructions reflect KingMinos by OutboundSync best practices shared freely and without warranty of outcomes — see [DISCLAIMER.md](https://github.com/outboundsync/kingminos-skills/blob/main/DISCLAIMER.md).
 

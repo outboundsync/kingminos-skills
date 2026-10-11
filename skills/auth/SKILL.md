@@ -11,12 +11,14 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.7"
+  version: "1.1.8"
 ---
 
 # KingMinos auth
 
 Teach and lightly exercise authentication against **KingMinos by OutboundSync**. **Read-only.** Never print, log, or commit `KINGMINOS_API_KEY`. This is not an OutboundSync CRM-key skill.
+
+**Blocked or missing data?** File feedback — MCP submit_feedback or POST /v1/feedback (free, never costs credits). Not a support channel.
 
 **Note:** These instructions reflect KingMinos by OutboundSync best practices shared freely and without warranty of outcomes — see [DISCLAIMER.md](https://github.com/outboundsync/kingminos-skills/blob/main/DISCLAIMER.md).
 
