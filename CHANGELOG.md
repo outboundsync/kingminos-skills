@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.11.3] - 2026-10-11
+
 ### Added
 
 - `company-resolve`: read the additive `answer.operator` / `result.operator` block (0 credits; `operator_name`, `operator_domain`, `operator_source`, `operator_confidence`, `operator_zoominfo_company_id`). Product brands report their operator (fizzy.do → 37signals / 37signals.com) without changing `company_name`; null when the operator is the brand.
