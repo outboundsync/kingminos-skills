@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.12.0] - 2026-10-12
+
 ### Added
 
 - Credential-only BYOK vendors: `quickenrich`, `getleads`, `blitzapi` join `cognism`, `lusha`, `starbridge`, `clay`, `databar` as storable **API-key** Your Keys vendors (`PUT /v1/credentials/{provider}`, body `{ "apiKey": "…" }`) — **credential vendor only, no routing hop yet**. All three: `supply: byok`, `api_key: true`, `credentials_required: null`, `path_enum: true`, `company_resolve_surface: false`. Store/rotate at `https://app.kingminos.com`; `credentials` covers list/revoke. Not cleared for house-key resale. `company-description` (1.1.2) names all three in its not-a-description-vendor list.
