@@ -140,6 +140,27 @@ providers:
     company_resolve_surface: false
     path_enum: true
     api_key: true
+  - id: quickenrich
+    label: QuickEnrich
+    supply: byok
+    credentials_required: null
+    company_resolve_surface: false
+    path_enum: true
+    api_key: true
+  - id: getleads
+    label: GetLeads
+    supply: byok
+    credentials_required: null
+    company_resolve_surface: false
+    path_enum: true
+    api_key: true
+  - id: blitzapi
+    label: BlitzAPI
+    supply: byok
+    credentials_required: null
+    company_resolve_surface: false
+    path_enum: true
+    api_key: true
   - id: websearch
     label: websearch
     supply: house_only
