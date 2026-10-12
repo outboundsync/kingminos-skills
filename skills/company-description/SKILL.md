@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # KingMinos company description (`company.description`)
@@ -59,7 +59,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 ### Vendors
 
-**AI Ark is the only firmographic vendor** on this capability (house key). House site fetch, Jev, xAI compose/rewrite, and websearch (coverage) are house steps. **ZoomInfo is BYOK only** (never the house key). **LeadMagic, Wiza, Findymail, Brandfetch, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, and Databar are not `company.description` vendors.**
+**AI Ark is the only firmographic vendor** on this capability (house key). House site fetch, Jev, xAI compose/rewrite, and websearch (coverage) are house steps. **ZoomInfo is BYOK only** (never the house key). **LeadMagic, Wiza, Findymail, Brandfetch, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are not `company.description` vendors.**
 
 ### Billing
 
