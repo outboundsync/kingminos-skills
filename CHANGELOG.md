@@ -7,6 +7,12 @@
 ### Added
 
 - `person-phone` skill (1.0.0) and `POST /v1/person/phone` (`person_phone`, scope `person.phone`) in the API map: `email` or `linkedin_url` in (name is match-only → `person_mismatch`), `result.best_phone` (E.164, `type`, `source`) plus ranked mobile-first `phones[]` out; `phone_types` (`mobile` | `landline` | `other` | `unknown`) and `max_results` (1–10, default 3); locked Wiza ladder — 38 credits on a hit, 0 on a miss, 30-day cache replays at 0; write only when `answer.safe_to_write.best_phone`. API tenants only (not in `openapi.es.yaml`). `api` 1.6.0 and `auth` 1.1.9 list the new tool (27 resource operations).
+- `person-phone`: output `format` (`e164` default | `international` | `national` | `digits` | `digits_national`) and per-phone `formats`, `country_code`, `calling_code`, `line_type`, `sources`, `confidence`, `flags`, `safe_to_write` — the free verification layer (libphonenumber validity, junk / not-direct-dial / switchboard drop, country consistency, cross-source agreement).
+
+### Fixed
+
+- `auth` trimmed map: `company_domain`, `company_hierarchy`, `person_verify_employment`, `person_language`, `person_phone` were listed as "Live, no dedicated skill" though each has one; now each routes to its skill.
+- `person-phone`: dropped the never-emitted `unconfirmed_identity` flag; LinkedIn recall wording matches the API (runs only when the email hop matched no accepted profile).
 
 ## [2026.10.12.0] - 2026-10-12
 

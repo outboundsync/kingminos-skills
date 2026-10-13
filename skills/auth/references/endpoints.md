@@ -67,6 +67,10 @@ Write **SFDC** or **Salesforce**, never **SF**.
 | `company-b2b-social` | `company_b2b_social` |
 | `company-icon` | `company_icon` |
 | `company-description` | `company_description` |
-| Live, no dedicated skill | `company_domain` · `company_hierarchy` · `person_verify_employment` · `person_language` · `person_phone` |
+| `company-domain` | `company_domain` |
+| `company-hierarchy` | `company_hierarchy` |
+| `person-verify-employment` | `person_verify_employment` |
+| `person-language` | `person_language` |
+| `person-phone` | `person_phone` |
 | Not these skills (`erase` scope) | `delete_subject` |
 | Session / product app | `/v1/auth/*` · `/v1/account/*` — out of scope |

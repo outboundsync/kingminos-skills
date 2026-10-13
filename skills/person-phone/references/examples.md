@@ -8,7 +8,7 @@ Illustrative only (`example.com`). Never a real key or a real person's number.
 curl -sS https://api.kingminos.com/v1/person/phone \
   -H "Authorization: Bearer $KINGMINOS_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"email": "anna@example.com", "phone_types": ["mobile"], "max_results": 3}'
+  -d '{"email": "anna@example.com", "phone_types": ["mobile"], "max_results": 3, "format": "national"}'
 ```
 
 Trimmed response (HTTP 200):
@@ -33,9 +33,47 @@ Trimmed response (HTTP 200):
       "last_name": "Schmidt",
       "linkedin_url": "https://www.linkedin.com/in/example"
     },
-    "best_phone": { "number": "+15555550123", "type": "mobile", "source": "wiza" },
+    "best_phone": {
+      "number": "(415) 555-2672",
+      "e164": "+14155552672",
+      "formats": {
+        "e164": "+14155552672",
+        "international": "+1 415 555 2672",
+        "national": "(415) 555-2672",
+        "digits": "14155552672",
+        "digits_national": "4155552672"
+      },
+      "country_code": "US",
+      "calling_code": "1",
+      "type": "mobile",
+      "line_type": "fixed_line_or_mobile",
+      "source": "wiza",
+      "sources": ["wiza"],
+      "confidence": "high",
+      "flags": [],
+      "safe_to_write": true
+    },
     "phones": [
-      { "number": "+15555550123", "type": "mobile", "source": "wiza" }
+      {
+        "number": "(415) 555-2672",
+        "e164": "+14155552672",
+        "formats": {
+          "e164": "+14155552672",
+          "international": "+1 415 555 2672",
+          "national": "(415) 555-2672",
+          "digits": "14155552672",
+          "digits_national": "4155552672"
+        },
+        "country_code": "US",
+        "calling_code": "1",
+        "type": "mobile",
+        "line_type": "fixed_line_or_mobile",
+        "source": "wiza",
+        "sources": ["wiza"],
+        "confidence": "high",
+        "flags": [],
+        "safe_to_write": true
+      }
     ],
     "flags": null
   },
@@ -46,7 +84,7 @@ Trimmed response (HTTP 200):
 }
 ```
 
-Clay HTTP column: map `result.best_phone.number` (and `result.best_phone.type`); write only when `answer.safe_to_write.best_phone` is true.
+Clay HTTP column: map `result.best_phone.number` (in the requested `format`; `result.best_phone.e164` is always E.164) and `result.best_phone.type` / `confidence`; write only when `answer.safe_to_write.best_phone` is true.
 
 ## Found (hit)
 
@@ -63,8 +101,8 @@ Decision  ████████████████████  ✓ es_d
 ### Person
 `anna@example.com`
 
-- ✓ best_phone `+15555550123` — mobile via wiza · safe_to_write
-- · phones: `+15555550123 mobile`
+- ✓ best_phone `+14155552672` — mobile via wiza · high · safe_to_write
+- · phones: `+14155552672 mobile`
 - · credits: 38
 
 ### Next
