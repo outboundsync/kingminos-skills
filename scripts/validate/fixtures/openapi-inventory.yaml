@@ -80,6 +80,12 @@ paths:
       operationId: person_language
       security:
         - bearer: []
+  # person.phone: email or linkedin_url in; best_phone (E.164) + ranked phones out; API tenants only
+  /v1/person/phone:
+    post:
+      operationId: person_phone
+      security:
+        - bearer: []
   /v1/runs/{id}:
     get:
       operationId: get_run

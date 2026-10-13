@@ -6,7 +6,7 @@ Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enr
 
 **This is not the OutboundSync CRM / sequencer skills pack.** That sister repository is [`outboundsync/skills`](https://github.com/outboundsync/skills). Do not install this pack expecting launch preflight, sync monitoring, or cold-email copy. KingMinos decides company identity and vendor credentials; OutboundSync syncs sequencer events into the CRM.
 
-The pack ships **12** skills.
+The pack ships **13** skills.
 
 **Output style.** Every skill renders a fixed, terminal-friendly Markdown shape. Readiness checks (`auth`, `credentials`) and `company-resolve` lead with a verdict and a `█░▒` status gauge, then one card per system and a `Next` list. A failed lookup always shows as `UNVERIFIED`, never as a pass or an empty result. Business misses on `company.resolve` stay HTTP 200 and use `answer.outcome` / `es_decision`. See [CONVENTIONS.md](CONVENTIONS.md) and each skill's `references/examples.md`.
 
@@ -26,6 +26,7 @@ The pack ships **12** skills.
 | `company-hierarchy` | [`skills/company-hierarchy/`](skills/company-hierarchy/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/hierarchy` — immediate / ultimate parent + capped subsidiaries; `speed` = free Wikidata `exact_one`; ZoomInfo enrich bills 1 on first `FULL_MATCH` only; `coverage` is `400` |
 | `person-verify-employment` | [`skills/person-verify-employment/`](skills/person-verify-employment/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/verify-employment` — four-way send/block pre-flight (`high_confidence_send` … `high_confidence_block`); email validation + job-change; paths `speed`/`balance`/`accuracy` only |
 | `person-language` | [`skills/person-language/`](skills/person-language/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/language` (`person.language`) — can we engage this person in English, and if not in what; API tenants only; `email` or `linkedin_url` required; name is match-only |
+| `person-phone` | [`skills/person-phone/`](skills/person-phone/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/phone` (`person.phone`) — one dialable `best_phone` (E.164) plus ranked typed `phones[]`; API tenants only; `email` or `linkedin_url` required; name is match-only; `phone_types` / `max_results`; 38 credits on a hit, 0 on a miss; write only when `answer.safe_to_write.best_phone` |
 
 REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — same Bearer token and snake_case tool inventory as the `api` map. Session/product-app ops are out of scope. Do not invent tools outside that map.
 
@@ -47,6 +48,7 @@ npx skills add outboundsync/kingminos-skills --skill company-domain -g
 npx skills add outboundsync/kingminos-skills --skill company-hierarchy -g
 npx skills add outboundsync/kingminos-skills --skill person-verify-employment -g
 npx skills add outboundsync/kingminos-skills --skill person-language -g
+npx skills add outboundsync/kingminos-skills --skill person-phone -g
 ```
 
 The Skills CLI detects the harness (Cursor, Claude Code, Codex, and others). Add `-a claude-code`, `-a codex`, or `-a cursor` only when you want to force a target. OpenClaw global install is the same CLI with `-a openclaw -g`.
@@ -66,6 +68,7 @@ npx skills use outboundsync/kingminos-skills --skill company-domain
 npx skills use outboundsync/kingminos-skills --skill company-hierarchy
 npx skills use outboundsync/kingminos-skills --skill person-verify-employment
 npx skills use outboundsync/kingminos-skills --skill person-language
+npx skills use outboundsync/kingminos-skills --skill person-phone
 ```
 
 ## Credentials
