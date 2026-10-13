@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.13.0] - 2026-10-13
+
 ### Added
 
 - `person-phone` skill (1.0.0) and `POST /v1/person/phone` (`person_phone`, scope `person.phone`) in the API map: `email` or `linkedin_url` in (name is match-only → `person_mismatch`), `result.best_phone` (E.164, `type`, `source`) plus ranked mobile-first `phones[]` out; `phone_types` (`mobile` | `landline` | `other` | `unknown`) and `max_results` (1–10, default 3); locked Wiza ladder — 38 credits on a hit, 0 on a miss, 30-day cache replays at 0; write only when `answer.safe_to_write.best_phone`. API tenants only (not in `openapi.es.yaml`). `api` 1.6.0 and `auth` 1.1.9 list the new tool (27 resource operations).
