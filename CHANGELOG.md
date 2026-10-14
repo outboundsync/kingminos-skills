@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+### Changed
+
+- `person-phone` (1.1.0) and `api` (1.6.1): person.phone is now an agent-managed multi-vendor router (ZoomInfo BYOK, LeadMagic, AI Ark, Findymail, Wiza escalation) with `consensus` / `do_not_call` per phone, `routing.path` modes (speed / balance / accuracy / coverage) and optional `domain`; only vendors behind `best_phone` bill (cap 38, miss 0).
+
 ## [2026.10.13.0] - 2026-10-13
 
 ### Added
