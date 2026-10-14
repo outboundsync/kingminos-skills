@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.14.2] - 2026-10-14
+
 ### Changed
 
 - `person-phone` (1.2.1) and `api` (1.6.3): speed gives LeadMagic a 3 s head start before the cheapest fallbacks race it; accuracy returns exactly one number.
