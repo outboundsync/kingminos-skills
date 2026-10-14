@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # KingMinos person.phone
@@ -31,7 +31,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - **The answer** (`result`): `best_phone` or null, and `phones[]` — each `{ number, e164, formats, country_code, calling_code, type, line_type, source, sources, confidence, flags, safe_to_write }`, ranked safe-to-write first, then mobile, deduped, filter-honoring, capped by `max_results`; `flags` (`conflicting_numbers`, `numbers_dropped`) or null; `person` (null on every miss, including `person_mismatch`).
 - **Verification (free, no extra vendor):** libphonenumber validity (invalid numbers dropped); junk (repeated / sequential digits, NANP 555-01xx) dropped; numbering-plan `line_type` — toll-free, premium, shared-cost, pager and the company switchboard are not a direct dial and are dropped (a hit left with nothing is a 0-credit miss); `country_mismatch` (number vs the person's or company's location) lowers confidence; `email_country_mismatch` is informational; `multi_source` (two vendors agree) raises it; `secondary_number` = not the vendor's primary. US/Canada `line_type` is `fixed_line_or_mobile` — no carrier lookup is made.
 - **Hit gate:** `answer.outcome: hit` (`reason_code` `exact_one`) iff a matching number was found; otherwise `no_decision` with `answer.reason_code` `zero_hits` | `person_mismatch` | `provider_error` | a skip reason. A `mobile`-only request that only found a landline is `zero_hits`. `es_decision`: `hit` | `miss` | `noop` | `error` (no vendor answered → `provider_error`). Write the number only when `answer.safe_to_write.best_phone` — a hit without `conflicting_numbers` whose `best_phone.safe_to_write` is true. A wrong number is worse than none.
-- **Billing:** v1 ladder is Wiza only (email first; LinkedIn recall only when the email hop matched no accepted profile — nobody, a failed hop, or someone else's profile; a matched profile without a phone ends the run). **38 credits** on a hit (5 Wiza credits), **0** on a miss; ceiling 38. 30-day cache keyed on the request filter replays at 0 credits (`usage.cached: true`); `skip_cache` / `X-Router-Cache: bypass` skips the read. Scope `person.phone` (`403 scope_denied` without it).
+- **Routing & billing:** Agent-managed router (default): plans per request from the input (email / LinkedIn / name+domain) and region, fans out a parallel wave of free-on-miss vendors (ZoomInfo BYOK, LeadMagic, AI Ark, Findymail US-only), scores vendor agreement (`consensus`: unanimous / majority / single / conflict; `do_not_call` when the vendor says), and escalates to Wiza only on a miss, a conflict, or early for non-US. `routing.path` = speed (cap 10) / balance (default) / accuracy / coverage; `routing.only` / `ignore` filter the pool. Only the vendors behind best_phone bill, capped at 38 credits; 0 on a miss; BYOK 0.1. Ceiling 38 (5 Wiza credits = 38). Prefer `best_phone.consensus` majority/unanimous for cold dialing; never dial `do_not_call: true`. 30-day cache keyed on the request filter replays at 0 credits (`usage.cached: true`); `skip_cache` / `X-Router-Cache: bypass` skips the read. Scope `person.phone` (`403 scope_denied` without it).
 
 ## Workflow
 
