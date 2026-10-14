@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+### Changed
+
+- `person-phone` (1.2.0) and `api` (1.6.2): person.phone answers in < 10 s; four modes (speed / balance / accuracy / coverage) are the product — consensus gates safety only in accuracy; coverage returns up to 5 numbers; QuickEnrich and Blitz join as BYOK phone vendors.
+
 ## [2026.10.14.0] - 2026-10-14
 
 ### Changed
