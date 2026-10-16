@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+### Added
+
+- `person-title` skill (1.0.0) and `POST /v1/person/title` (`person_title`, scope `person.title`) in the API map: `email` or `linkedin_url` in (name and `company_domain` are match-only → `person_mismatch` / `employer_mismatch`), cleaned `result.title` plus derived `seniority` / `function` out; `fields` picks which answers you want and drives the ladder; four paths outcome-priced 1 / 2 / 3 / 5 credits on a hit, 0 on a miss or a partial (`fields_incomplete`); `safe_to_write.title` / `seniority` / `function`. `api` 1.7.0, `auth` 1.1.10 (28 resource operations).
+
 ## [2026.10.14.2] - 2026-10-14
 
 ### Changed

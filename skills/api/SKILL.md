@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.6.3"
+  version: "1.7.0"
 ---
 
 # KingMinos API
@@ -60,6 +60,7 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 | Employment verify before sending | `person-verify-employment` · `person_verify_employment` |
 | Which language to engage in | `person-language` · `person_language` |
 | Phone number to dial (`person.phone`) | `person-phone` · `person_phone` |
+| Job title, seniority and function (`person.title`) | `person-title` · `person_title` |
 | Erase a subject | `delete_subject` — **not** these skills (`erase` scope) |
 | File feedback when blocked or missing data | `submit_feedback` · `POST /v1/feedback` (free; not a support channel) |
 
@@ -87,11 +88,11 @@ Catalog     <bar>  <✓|✗|·> <ready | 401 <detail> | missing | unverified>
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 27 resource operations`
+`https://api.kingminos.com · Bearer · 28 resource operations`
 
 - <✓ Key present in KINGMINOS_API_KEY | ✗ KINGMINOS_API_KEY is unset | · UNVERIFIED — <reason>>
 - <✓ Catalog readable — get_capabilities | ✗ 401 <missing|malformed|mismatch> | ✗ Catalog not called — no Bearer token | · UNVERIFIED — <status>>
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · person_language · person_phone · get_run · list_webhooks · create_webhook · get_webhook · patch_webhook · delete_webhook · rotate_webhook_secret · test_webhook · list_webhook_deliveries · replay_webhook_delivery · list_events · list_credentials · put_credentials · delete_credentials · delete_subject · submit_feedback
+- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · person_language · person_phone · person_title · get_run · list_webhooks · create_webhook · get_webhook · patch_webhook · delete_webhook · rotate_webhook_secret · test_webhook · list_webhook_deliveries · replay_webhook_delivery · list_events · list_credentials · put_credentials · delete_credentials · delete_subject · submit_feedback
 - · Hand off: <auth | company-resolve | credentials | none — REST for a live tool with no dedicated skill>
 
 ### Next

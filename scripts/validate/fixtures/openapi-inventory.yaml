@@ -86,6 +86,12 @@ paths:
       operationId: person_phone
       security:
         - bearer: []
+  # person.title: email or linkedin_url in; title + seniority + function out; API tenants only
+  /v1/person/title:
+    post:
+      operationId: person_title
+      security:
+        - bearer: []
   /v1/runs/{id}:
     get:
       operationId: get_run
