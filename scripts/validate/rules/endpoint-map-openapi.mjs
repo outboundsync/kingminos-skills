@@ -22,6 +22,7 @@ const DISCOVERY = /(?:^|\/)(?:health|openapi\.(?:ya?ml|json))$/;
 export const FALLBACK_TOOLS = {
   'GET /v1/providers': 'get_providers',
   'GET /v1/capabilities': 'get_capabilities',
+  'GET /v1/recipes': 'get_recipes',
   'POST /v1/company/resolve': 'company_resolve',
   'POST /v1/company/domain': 'company_domain',
   'POST /v1/company/hierarchy': 'company_hierarchy',
