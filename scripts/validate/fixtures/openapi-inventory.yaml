@@ -38,6 +38,11 @@ paths:
       operationId: get_capabilities
       security:
         - bearer: []
+  /v1/recipes:
+    get:
+      operationId: getRecipes
+      security:
+        - bearer: []
   /v1/company/hierarchy:
     post:
       operationId: company_hierarchy
