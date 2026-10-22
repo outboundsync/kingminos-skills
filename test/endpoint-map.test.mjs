@@ -80,6 +80,8 @@ test('endpointRows parses METHOD /path to tool', () => {
 test('toSnake and resourceOperations skip discovery paths', () => {
   assert.equal(toSnake('getProviders'), 'get_providers');
   assert.equal(toSnake('company_resolve'), 'company_resolve');
+  assert.equal(toSnake('companyXAccount'), 'company_x_account');
+  assert.equal(toSnake('CompanyResolve'), 'company_resolve');
   const ops = resourceOperations({
     paths: {
       '/health': { get: {} },
