@@ -36,9 +36,14 @@ export const FALLBACK_TOOLS = {
   'DELETE /v1/subjects/{subject_key}': 'delete_subject',
 };
 
+/**
+ * Same rule as kingminos-application `mcpToolFromOperationId`: every capital
+ * after the first character starts a word, so `companyXAccount` is
+ * `company_x_account` (not `company_xaccount`).
+ */
 export function toSnake(operationId) {
   return String(operationId)
-    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .replace(/[A-Z]/g, (ch, index) => (index === 0 ? ch : `_${ch}`))
     .replace(/-/g, '_')
     .toLowerCase();
 }
