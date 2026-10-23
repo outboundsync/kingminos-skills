@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.23.0] - 2026-10-23
+
 ### Changed
 
 - Skills pack: removed `safe_to_write` teaching across skills and README; CRM writes use `answer.confidence`, path/`min_confidence` floors, and [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance). `api` 1.8.0 lists `POST /v1/company/x-account` (`company_x_account`, `company.x_account`, `result.x_url` / `x_handle`) — 30 Bearer resource operations.
