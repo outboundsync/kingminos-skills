@@ -1,5 +1,7 @@
 # KingMinos Agent Skills
 
+Website: [kingminos.com](https://kingminos.com/) · Docs: [kingminos.com/docs](https://kingminos.com/docs)
+
 Public [Agent Skills](https://agentskills.io) for **KingMinos by OutboundSync** — installable with [`npx skills`](https://github.com/vercel-labs/skills) in **Cursor**, **Claude Code**, and **Codex**.
 
 Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enrichment API at [`https://api.kingminos.com`](https://api.kingminos.com) (`GET /health` returns HTTP 200 JSON with `"ok": true` plus `service` / `version` / `git_sha`; contract: `GET /openapi.yaml`, also `/openapi.json`).
