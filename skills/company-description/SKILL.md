@@ -3,7 +3,7 @@ name: company-description
 description: >-
   Stamp a company description via POST /v1/company/description: domain-required,
   paths speed / balance / accuracy / coverage, result.description with quality
-  flags, confidence, identity, and the safe_to_write gate. Use when the user asks for company.description,
+  flags, confidence, identity, and min_confidence floors. Use when the user asks for company.description,
   company_description, Account Description, company blurb, firmographic
   description paragraph, routing.path speed balance accuracy coverage for
   description, or whether description text is safe to write to the CRM.
@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.2"
+  version: "1.2.0"
 ---
 
 # KingMinos company description (`company.description`)
@@ -53,7 +53,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    **Cache bypass** on `company.description` (30-day result cache) and `company.domain` (short TTL, about five minutes max; skips read only, still writes): header `X-Router-Cache: bypass` (any other value → `400 invalid_cache`), or `Cache-Control: no-cache` / `no-store`, or body `skip_cache: true`. Reusing the same `Idempotency-Key` still returns the stored response — omit or rotate that header when you need a fresh run despite bypass. **`company.resolve` silently ignores bypass** and may return a cached answer.
 5. Prefer `X-Router-Explain: minimal` on CRM callouts. Use `full` only when the user asks for `trace`.
 6. Read control fields: `es_decision`, `answer.outcome` (`hit` | `no_decision`), `answer.confidence` (`high` | `medium` | `low` | null), `answer.identity` (`{method: jev | name_domain | own_homepage, score}` or null), `result.description`, and `result.flags` (`hype`, `first_person`, `tagline`, `same_as_speed`, `truncated`, `cta`, `grammar`; ignore unknown keys).
-7. **CRM stamp rule:** stamp `result.description` **only when `answer.safe_to_write.description` is true** — decide from `safe_to_write`, not from `grammar`. It is true only on a hit with non-blank text, confidence `medium`/`high`, **and** a non-null `answer.identity` (Jev ≥ 0.85, name/domain match, or the input domain's own homepage). `truncated` and `cta` force confidence `low`, and **low is never safe to write**. `hype` / `first_person` / `tagline` / `same_as_speed` / `grammar` are advisory flags — `grammar` is informational only and does not change confidence or `safe_to_write`; the text may still be safe; apply your own CRM style bar on top. Never invent description text on `no_decision`.
+7. **CRM stamp rule:** stamp `result.description` only when it is non-blank and `answer.confidence` meets the path/`min_confidence` floor and the user's once-stated CRM acceptance floor — see [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance). On `balance` and above, identity-gated hits need a non-null `answer.identity` (Jev ≥ 0.85, name/domain match, or own homepage). `truncated` and `cta` force confidence `low` (still usable — ask the user once whether `low` is acceptable for their list). `hype` / `first_person` / `tagline` / `same_as_speed` / `grammar` are advisory — `grammar` is informational only and does not change confidence; apply your own CRM style bar on top. Below-floor withholds return blank `description` with candidates in `evidence`. Never invent description text on `no_decision`.
 8. HTTP 200 with `no_decision` is a decision, not UNVERIFIED. `400` `zi_credentials_required` → hand off to `credentials` (ZoomInfo forced via `routing.only` without a stored key).
 9. Write **SFDC** or **Salesforce**, never **SF**.
 
@@ -93,10 +93,10 @@ Decision  <bar>  <✓|✗|·> <ready | <outcome> | unverified>
 - <✓ description — <excerpt or full per user> | · description — null>
 - · flags — hype <b> · first_person <b> · tagline <b> · same_as_speed <b> · truncated <b> · cta <b> · grammar <b>
 - · identity — <jev <score> | name_domain | own_homepage | null>
-- <✓|·> safe_to_write.description — <true|false> (stamp only when true; low confidence or null identity is never safe)
+- <✓|·> CRM write — <meets user floor + path/min_confidence | withheld below floor | hold — null identity on balance+>
 - · credits spent <n> · providers <list from usage.providers_ran> (winner-only; miss = 0)
 - · UNVERIFIED — <status> (only when the POST failed to return a v2 envelope)
 
 ### Next
-1. <shortest action tied to a ✗, a false safe_to_write, or UNVERIFIED above>
+1. <shortest action tied to a ✗, a below-floor withhold, or UNVERIFIED above>
 ````

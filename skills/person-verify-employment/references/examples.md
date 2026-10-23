@@ -16,7 +16,7 @@ Decision  ████████████████████  ✓ es_d
 `Jane Doe · jane@acme-corp.com`
 
 - ✓ employment `still_there` at `Acme Corp` — email `valid`
-- · zoominfo_contact_id set — stamp only when safe_to_write (id-append, never overwrite)
+- · zoominfo_contact_id set — stamp only on hit + non-blank id (id-append, never overwrite)
 
 ### Next
 1. Safe to send; keep the contact id append-only.
