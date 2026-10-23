@@ -108,6 +108,12 @@ paths:
       operationId: personB2bSocial
       security:
         - bearer: []
+  # person.name: email or linkedin_url in; proper-cased first / last / full name out; API tenants only
+  /v1/person/name:
+    post:
+      operationId: personName
+      security:
+        - bearer: []
   /v1/runs/{id}:
     get:
       operationId: get_run

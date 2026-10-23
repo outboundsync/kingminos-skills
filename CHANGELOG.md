@@ -6,7 +6,13 @@
 
 ### Added
 
-- `person-b2b-social` skill (1.0.0) and `POST /v1/person/b2b-social` (`person_b2b_social`, scope `person.b2b_social`) in the API map: `email` in (`linkedin_url` / `first_name` / `last_name` are match-only → `person_mismatch`), canonical `result.linkedin_url` out; `answer.outcome` `found` | `not_found`; three paths outcome-priced 2 / 3 / 5 credits on a hit (speed / balance / accuracy; no coverage tier), 0 on a miss, mismatch or below-floor withhold; confidence is the only write signal (two agreeing sources `high`, one `medium`, a disagreement `low` + `conflicting_profiles`; default floors speed `low`, balance `medium`, accuracy `high`; `min_confidence` overrides). `api` 1.9.0, `auth` 1.1.11 (31 resource operations).
+- `person-b2b-social` skill (1.0.0) and `POST /v1/person/b2b-social` (`person_b2b_social`, scope `person.b2b_social`) in the API map: `email` in (`linkedin_url` / `first_name` / `last_name` are match-only → `person_mismatch`), canonical `result.linkedin_url` out; `answer.outcome` `found` | `not_found`; three paths outcome-priced 2 / 3 / 5 credits on a hit (speed / balance / accuracy; no coverage tier), 0 on a miss, mismatch or below-floor withhold; confidence is the only write signal (two agreeing sources `high`, one `medium`, a disagreement `low` + `conflicting_profiles`; default floors speed `low`, balance `medium`, accuracy `high`; `min_confidence` overrides). `api` 1.9.0, `auth` 1.1.11 (32 resource operations).
+
+## [2026.10.23.1] - 2026-10-23
+
+### Added
+
+- `person-name` skill (1.0.0) and `POST /v1/person/name` (`person_name`, scope `person.name`) in the API map: `email` or `linkedin_url` in, cleaned proper-cased `result.first_name` / `last_name` / `full_name` out; `answer.outcome` `resolved` | `parsed_only` | `role_address` | `conflict` | `not_found` | `unsupported_input`; four paths outcome-priced 1 / 2 / 3 / 5 credits on a hit, 0 on a miss, conflict or below-floor withhold; confidence is the only write signal (default floors speed / coverage `low`, balance `medium`, accuracy `high`; `min_confidence` overrides). `api` 1.9.0, `auth` 1.1.11 (31 resource operations).
 
 ## [2026.10.23.0] - 2026-10-23
 
