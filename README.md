@@ -8,7 +8,7 @@ Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enr
 
 **This is not the OutboundSync CRM / sequencer skills pack.** That sister repository is [`outboundsync/skills`](https://github.com/outboundsync/skills). Do not install this pack expecting launch preflight, sync monitoring, or cold-email copy. KingMinos decides company identity and vendor credentials; OutboundSync syncs sequencer events into the CRM.
 
-The pack ships **15** skills.
+The pack ships **16** skills.
 
 **Output style.** Every skill renders a fixed, terminal-friendly Markdown shape. Readiness checks (`auth`, `credentials`) and `company-resolve` lead with a verdict and a `█░▒` status gauge, then one card per system and a `Next` list. A failed lookup always shows as `UNVERIFIED`, never as a pass or an empty result. Business misses on `company.resolve` stay HTTP 200 and use `answer.outcome` / `es_decision`. See [CONVENTIONS.md](CONVENTIONS.md) and each skill's `references/examples.md`.
 
@@ -30,6 +30,7 @@ The pack ships **15** skills.
 | `person-language` | [`skills/person-language/`](skills/person-language/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/language` (`person.language`) — can we engage this person in English, and if not in what; API tenants only; `email` or `linkedin_url` required; name is match-only |
 | `person-phone` | [`skills/person-phone/`](skills/person-phone/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/phone` (`person.phone`) — one dialable `best_phone` (E.164) plus ranked typed `phones[]`; API tenants only; `email` or `linkedin_url` required; name is match-only; `phone_types` / `max_results`; 38 credits on a hit, 0 on a miss; write when non-blank `best_phone` and `answer.confidence` meets path/`min_confidence` floor |
 | `person-title` | [`skills/person-title/`](skills/person-title/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/title` (`person.title`) — cleaned current `title` plus derived `seniority` / `function`; API tenants only; `email` or `linkedin_url` required; name and `company_domain` are match-only; `fields` picks the answer; outcome-priced 1 / 2 / 3 / 5 credits on a hit (speed / balance / accuracy / coverage), 0 on a miss; write each non-blank field when `answer.confidence` meets path/`min_confidence` floor |
+| `person-b2b-social` | [`skills/person-b2b-social/`](skills/person-b2b-social/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/b2b-social` (`person.b2b_social`) — a person's canonical LinkedIn profile URL from an email; API tenants only; `email` required; `linkedin_url` and name are match-only (`person_mismatch`); paths `speed` / `balance` / `accuracy` only, outcome-priced 2 / 3 / 5 credits on a hit, 0 on a miss or below-floor withhold; write when `answer.outcome` is `found` and `answer.confidence` meets path/`min_confidence` floor |
 | `person-name` | [`skills/person-name/`](skills/person-name/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/name` (`person.name`) — cleaned, proper-cased `first_name` / `last_name` / `full_name`; API tenants only; `email` or `linkedin_url` required; a role address is never a person (`role_address`), disagreeing sources are a `conflict`; outcome-priced 1 / 2 / 3 / 5 credits on a hit (speed / balance / accuracy / coverage), 0 on a miss; write when `answer.outcome` is `resolved` and `answer.confidence` meets path/`min_confidence` floor |
 
 REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — same Bearer token and snake_case tool inventory as the `api` map. Session/product-app ops are out of scope. Do not invent tools outside that map.
@@ -54,6 +55,7 @@ npx skills add outboundsync/kingminos-skills --skill person-verify-employment -g
 npx skills add outboundsync/kingminos-skills --skill person-language -g
 npx skills add outboundsync/kingminos-skills --skill person-phone -g
 npx skills add outboundsync/kingminos-skills --skill person-title -g
+npx skills add outboundsync/kingminos-skills --skill person-b2b-social -g
 npx skills add outboundsync/kingminos-skills --skill person-name -g
 ```
 
@@ -76,6 +78,7 @@ npx skills use outboundsync/kingminos-skills --skill person-verify-employment
 npx skills use outboundsync/kingminos-skills --skill person-language
 npx skills use outboundsync/kingminos-skills --skill person-phone
 npx skills use outboundsync/kingminos-skills --skill person-title
+npx skills use outboundsync/kingminos-skills --skill person-b2b-social
 npx skills use outboundsync/kingminos-skills --skill person-name
 ```
 
