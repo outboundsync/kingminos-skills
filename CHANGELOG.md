@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+### Added
+
+- `person-name` skill (1.0.0) and `POST /v1/person/name` (`person_name`, scope `person.name`) in the API map: `email` or `linkedin_url` in, cleaned proper-cased `result.first_name` / `last_name` / `full_name` out; `answer.outcome` `resolved` | `parsed_only` | `role_address` | `conflict` | `not_found` | `unsupported_input`; four paths outcome-priced 1 / 2 / 3 / 5 credits on a hit, 0 on a miss, conflict or below-floor withhold; confidence is the only write signal (default floors speed / coverage `low`, balance `medium`, accuracy `high`; `min_confidence` overrides). `api` 1.9.0, `auth` 1.1.11 (31 resource operations).
+
 ## [2026.10.23.0] - 2026-10-23
 
 ### Changed
