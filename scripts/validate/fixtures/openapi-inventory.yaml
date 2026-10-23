@@ -102,6 +102,12 @@ paths:
       operationId: person_title
       security:
         - bearer: []
+  # person.b2b_social: email in (linkedin_url / name match-only); LinkedIn profile URL out; API tenants only
+  /v1/person/b2b-social:
+    post:
+      operationId: personB2bSocial
+      security:
+        - bearer: []
   /v1/runs/{id}:
     get:
       operationId: get_run
