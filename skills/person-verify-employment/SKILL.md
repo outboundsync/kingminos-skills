@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # KingMinos person.verify_employment
@@ -32,7 +32,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - Paths (`routing.path`; omit → `balance`): `speed` 0.5 (email validation only) · `balance` 13.5 (validation + LeadMagic email_to_profile + job-change when an expected company is present) · `accuracy` 14.5 (adds AI Ark reverse-lookup corroboration). `value` / `auto` / `coverage` / `fast` / `name_only` / `zi_stamp` → `400 invalid_routing`. `allow_paid_linkedin_lookup` defaults on for balance/accuracy.
 - Layer-1 is one validator, never two: LeadMagic email validation by default; Findymail only when LeadMagic is blocked/unconfigured or explicitly selected (`routing.only: ["findymail"]`). No websearch, no Wiza on this capability. House LeadMagic/Wiza/Findymail keys work for any authenticated tenant; BYOK overrides them. The post-decision ZoomInfo contact search (`continueForContactId`) appends `result.zoominfo_contact_id` at estimate 0 — house ZoomInfo runs only on tenant `default`, otherwise BYOK.
 - Catch-all / SEG / role-based mailboxes are **risk flags** on `result.email_validation`, never fifth outcomes — they shape confidence, not the enum. `result.soft_miss` (14 values, e.g. `ambiguous_current`, `email_ok_job_unknown`, `vendor_conflict`) explains soft non-blocks.
-- Stamp: `safe_to_write.zoominfo_contact_id` = true iff `es_decision: hit` and the id is non-blank. The contact id is **not** required for `es_decision: hit`. Id-append only — never overwrite person name/title/company/LinkedIn from ZoomInfo.
+- Stamp `zoominfo_contact_id` only when `es_decision: hit` and `result.zoominfo_contact_id` is non-blank. The contact id is **not** required for `es_decision: hit`. Id-append only — never overwrite person name/title/company/LinkedIn from ZoomInfo.
 
 ## Workflow
 
@@ -71,7 +71,7 @@ Decision  <bar>  <✓|✗|·> <es_decision hit — <send|block> | miss — <reas
 
 - <✓ employment `still_there` at `<company_name>` — email `<status>` | ✗ employment `left` — do not send | · UNVERIFIED — <reason>>
 - <· email_validation risk flags (catch_all / SEG / role) when present>
-- <· soft_miss <value> | zoominfo_contact_id <set|absent> — stamp only when safe_to_write>
+- <· soft_miss <value> | zoominfo_contact_id <set|absent> — stamp id-append only when hit + non-blank id>
 
 ### Next
 1. <shortest action tied to a ✗ or UNVERIFIED above>

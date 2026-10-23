@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # KingMinos person.title
@@ -70,7 +70,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - **Partial:** `no_decision` / `fields_incomplete` (`es_decision` `ambiguous`). Values are withheld; `result.answered_fields` names what was found.
 - **Headline-only or wrong-employer evidence:** `ambiguous`.
 - **Nothing found:** `zero_hits` (`miss`, `result.person` null).
-- **Write rule:** write a field only when `answer.safe_to_write.<field>` is true. It is false on `conflicting_titles`, `unconfirmed_identity` or `employer_mismatch`.
+- **Write rule:** write each non-blank field when `answer.confidence` meets path/`min_confidence` and the user's CRM acceptance floor — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance). Withhold on `conflicting_titles`, `unconfirmed_identity`, `employer_mismatch`, or below-floor blanks.
 
 ## Workflow
 
@@ -80,7 +80,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    - CRM title stamp → `["title"]` with `routing.path: "accuracy"` and `company_domain` set to the account's domain.
 3. Send `POST /v1/person/title` with `email` and/or `linkedin_url`. Pass `first_name` / `last_name` when known, so a wrong-person profile is rejected instead of trusted.
 4. Render the verdict from `answer.outcome` / `answer.reason_code`, `es_decision` and `result`. Report the per-field source (`vendor` / `derived` / `jev`) and any `flags`.
-5. **Clay:** one HTTP column, email in. Map `result.title` / `result.seniority` / `result.function` out, branch on `es_decision`, and gate each write on `answer.safe_to_write.<field>`.
+5. **Clay:** one HTTP column, email in. Map `result.title` / `result.seniority` / `result.function` out, branch on `es_decision`, and gate each write on `answer.confidence` vs the user's floor.
 6. Business misses stay HTTP 200. Relay these `400` codes verbatim: `validation_failed` (`email_or_linkedin_required` | `invalid_linkedin_url` | `invalid_domain` | `invalid_title_field`) | `invalid_routing` | `unknown_provider` | `invalid_compliance` | `invalid_explain`.
 
 ## Errors
@@ -112,7 +112,7 @@ Decision  <bar>  <✓|✗|·> <es_decision hit — <path> | fields_incomplete | 
 ### Person
 `<email or linkedin_url>`
 
-- <✓ title `<title>` via <provider> · safe_to_write | ✗ fields_incomplete — no <missing fields> | ✗ zero_hits — no title found | ✗ person_mismatch — profile rejected | ✗ employer_mismatch — title is at another company | · UNVERIFIED — <reason>>
+- <✓ title `<title>` via <provider> · <confidence> · meets write floor | ✗ fields_incomplete — no <missing fields> | ✗ zero_hits — no title found | ✗ person_mismatch — profile rejected | ✗ employer_mismatch — title is at another company | · UNVERIFIED — <reason>>
 - <· seniority: <seniority> (<vendor | derived | jev>)>
 - <· function: <function> (<vendor | derived | jev>)>
 - <· flags: <conflicting_titles — do not write | stale_title | single_source | …>>

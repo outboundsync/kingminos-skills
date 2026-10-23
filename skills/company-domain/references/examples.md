@@ -17,7 +17,7 @@ Decision  ████████████████████  ✓ es_d
 ### Stamp
 `outboundsync.com → outboundsync.com`
 
-- ✓ company_domain `outboundsync.com` — safe_to_write true
+- ✓ company_domain `outboundsync.com` — meets confidence floor
 - · corrected_via redirect · account_primary_domain `outboundsync.com`
 - · additional_domains (2) — ownership-proven only
 

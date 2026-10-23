@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.2.1"
+  version: "1.3.0"
 ---
 
 # KingMinos person.phone
@@ -28,9 +28,9 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - **Input:** `email` (the Smartlead / Clay primary) or `linkedin_url` (top level or under `person`; neither → `400 validation_failed` / `email_or_linkedin_required`; an unparseable URL → `invalid_linkedin_url`). `first_name` / `last_name` are **match-only**: they reject a profile that belongs to someone else (`person_mismatch`) and never infer anything.
 - **Options:** `phone_types` — `mobile` | `landline` | `other` | `unknown` (omit = any; anything else → `400 invalid_phone_type`). `max_results` — 1–10, default 3 (out of range → `400 max_results_out_of_range`). `format` — `e164` (default) | `international` | `national` | `digits` | `digits_national` picks the `number` string (anything else → `400 invalid_phone_format`); every phone also carries `e164` and all five under `formats`, and switching format replays the cache at 0 credits. When no ladder vendor can return any requested type, the vendor is not called: 0 credits, `insufficient_input` / `noop`. Also `dry_run`, `skip_cache`, `external_ref`, `compliance`.
 - **Routing:** locked ladder. `routing.only` / `routing.ignore` are honored (vendor isolation; unknown provider → `400 unknown_provider`); `routing.path` / `preset` / `order` are ignored.
-- **The answer** (`result`): `best_phone` or null, and `phones[]` — each `{ number, e164, formats, country_code, calling_code, type, line_type, source, sources, confidence, flags, safe_to_write }`, ranked safe-to-write first, then mobile, deduped, filter-honoring, capped by `max_results`; `flags` (`conflicting_numbers`, `numbers_dropped`) or null; `person` (null on every miss, including `person_mismatch`).
+- **The answer** (`result`): `best_phone` or null, and `phones[]` — each `{ number, e164, formats, country_code, calling_code, type, line_type, source, sources, confidence, flags }`, ranked by confidence then mobile, deduped, filter-honoring, capped by `max_results`; `flags` (`conflicting_numbers`, `numbers_dropped`) or null; `person` (null on every miss, including `person_mismatch`).
 - **Verification (free, no extra vendor):** libphonenumber validity (invalid numbers dropped); junk (repeated / sequential digits, NANP 555-01xx) dropped; numbering-plan `line_type` — toll-free, premium, shared-cost, pager and the company switchboard are not a direct dial and are dropped (a hit left with nothing is a 0-credit miss); `country_mismatch` (number vs the person's or company's location) lowers confidence; `email_country_mismatch` is informational; `multi_source` (two vendors agree) raises it; `secondary_number` = not the vendor's primary. US/Canada `line_type` is `fixed_line_or_mobile` — no carrier lookup is made.
-- **Hit gate:** `answer.outcome: hit` (`reason_code` `exact_one`) iff a matching number was found; otherwise `no_decision` with `answer.reason_code` `zero_hits` | `person_mismatch` | `provider_error` | a skip reason. A `mobile`-only request that only found a landline is `zero_hits`. `es_decision`: `hit` | `miss` | `noop` | `error` (no vendor answered → `provider_error`). Write the number only when `answer.safe_to_write.best_phone` — a hit without `conflicting_numbers` whose `best_phone.safe_to_write` is true. A wrong number is worse than none.
+- **Hit gate:** `answer.outcome: hit` (`reason_code` `exact_one`) iff a matching number was found; otherwise `no_decision` with `answer.reason_code` `zero_hits` | `person_mismatch` | `provider_error` | a skip reason. A `mobile`-only request that only found a landline is `zero_hits`. `es_decision`: `hit` | `miss` | `noop` | `error` (no vendor answered → `provider_error`). Write `best_phone` when non-blank and `answer.confidence` meets path/`min_confidence` and the user's CRM acceptance floor — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance). Treat `conflicting_numbers` as verify-before-dial. A wrong number is worse than none.
 - **Routing & billing:** Agent-managed router, answers in < 10 s: every eligible vendor (ZoomInfo / QuickEnrich / Blitz BYOK, LeadMagic, AI Ark, Findymail US-only, Wiza) runs in parallel under a ~8.5 s budget; late vendors are dropped (bill 0). Four modes via `routing.path`: `speed` (LeadMagic first with a 3 s head start, then the cheapest fallbacks race it; cap 10, never Wiza), `balance` (default: best single number by vendor prior / region / line type, no waiting for agreement), `accuracy` (agreement required, exactly one number; `conflicting_numbers` → not safe), `coverage` (up to 5 ranked numbers, each with source, line type, confidence, consensus). `consensus` and `do_not_call` on every number; `routing.only` / `ignore` filter the pool. Only vendors behind returned numbers bill (coverage: each returned number), capped at 38 credits; 0 on a miss; BYOK 0.1. Ceiling 38 (5 Wiza credits = 38). Pick the mode for the job: `speed` for cheap bulk, `balance` for a dialer, `accuracy` when a wrong number is costly, `coverage` to get several numbers. Never dial `do_not_call: true`. 30-day cache keyed on the request filter replays at 0 credits (`usage.cached: true`); `skip_cache` / `X-Router-Cache: bypass` skips the read. Scope `person.phone` (`403 scope_denied` without it).
 
 ## Workflow
@@ -38,7 +38,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 1. Confirm auth (`GET /v1/capabilities` or the `auth` skill). On `401`, stop.
 2. Send `POST /v1/person/phone` with `email` (or `linkedin_url`); pass `first_name` / `last_name` when known so a wrong-person profile is rejected instead of trusted. Add `phone_types: ["mobile"]` for dialers that need a mobile.
 3. Render the verdict from `answer.outcome` / `answer.reason_code` + `es_decision` + `result`: `best_phone` on a hit; `zero_hits` (no matching number); `person_mismatch` (`person: null`); `noop` (skipped, 0 credits); `provider_error`.
-4. Clay: one HTTP column over a Smartlead list — email in, map `result.best_phone.number` (+ `type`, `confidence`) out — pass `format: "national"` (or `digits`) when the dialer wants that string, branch on `es_decision`; gate the write on `answer.safe_to_write.best_phone`.
+4. Clay: one HTTP column over a Smartlead list — email in, map `result.best_phone.number` (+ `type`, `confidence`) out — pass `format: "national"` (or `digits`) when the dialer wants that string, branch on `es_decision`; gate the write on `answer.confidence` vs the user's floor.
 5. Business misses stay HTTP 200. `400` codes to relay verbatim: `validation_failed` (`email_or_linkedin_required` | `invalid_linkedin_url` | `invalid_phone_type` | `max_results_out_of_range` | `invalid_phone_format`) | `invalid_compliance` | `invalid_explain`.
 
 ## Errors
@@ -68,7 +68,7 @@ Decision  <bar>  <✓|✗|·> <es_decision hit — <type> | zero_hits | person_m
 ### Person
 `<email or linkedin_url>`
 
-- <✓ best_phone `<E.164>` — <type> via <source> · <confidence> · safe_to_write | ✗ zero_hits — no <phone_types> number | ✗ person_mismatch — profile rejected | · UNVERIFIED — <reason>>
+- <✓ best_phone `<E.164>` — <type> via <source> · <confidence> · meets write floor | ✗ zero_hits — no <phone_types> number | ✗ person_mismatch — profile rejected | · UNVERIFIED — <reason>>
 - <· phones: `<E.164> <type>` …>
 - <· flags: conflicting_numbers — do not write | country_mismatch — confirm before dialing | numbers_dropped — <n> invalid/junk/switchboard dropped>
 - <· credits: <38 | 0 | 0 cached>>

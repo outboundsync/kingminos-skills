@@ -53,6 +53,11 @@ paths:
       operationId: company_b2b_social
       security:
         - bearer: []
+  /v1/company/x-account:
+    post:
+      operationId: companyXAccount
+      security:
+        - bearer: []
   # company.icon: domain + optional name; resolve then re-host 256x256 PNG on logos.kingminos.com/i/{sha256}.png
   /v1/company/icon:
     post:

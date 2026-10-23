@@ -18,9 +18,9 @@ Decision  ████████████████████  ✓ read
 `run_demo123 · path auto · es_decision hit`
 
 - ✓ outcome — resolved · exact_one
-- ✓ company_name — Acme Roofing (fill-if-blank when `answer.safe_to_write.company_name`)
+- ✓ company_name — Acme Roofing (fill-if-blank when non-blank)
 - ✓ stamp-safe ZoomInfo company id 123456789
-- · company_domain — acmeexample.com (hygiene — write only when `answer.safe_to_write.company_domain`; never clobber)
+- · company_domain — acmeexample.com (hygiene when present; never clobber)
 - · credits spent 0 · providers websearch, zoominfo
 
 ## Passing — name without primary id
@@ -39,9 +39,9 @@ Decision  ████████████████████  ✓ read
 `run_demo456 · path auto · es_decision miss`
 
 - · outcome — resolved_without_primary_id · exact_one
-- ✓ company_name — Acme Roofing (fill-if-blank when `answer.safe_to_write.company_name`)
-- · do not stamp — `safe_to_write.zoominfo_company_id` is false
-- · company_domain — acmeexample.com (hygiene — write only when `answer.safe_to_write.company_domain`; never clobber)
+- ✓ company_name — Acme Roofing (fill-if-blank when non-blank)
+- · do not stamp — es_decision miss or zoominfo_company_id blank
+- · company_domain — acmeexample.com (hygiene when present; never clobber)
 - · credits spent 1 · providers websearch, leadmagic
 
 ### Next
@@ -64,8 +64,8 @@ Decision  ████████████████████  ✓ no_d
 
 - ✗ outcome — no_decision · no_domain
 - · company_name — null (name-only does not search)
-- · do not stamp — `safe_to_write.zoominfo_company_id` is false
-- · company_domain — null (hygiene — write only when `answer.safe_to_write.company_domain`; never clobber)
+- · do not stamp — es_decision miss or zoominfo_company_id blank
+- · company_domain — null (hygiene when present; never clobber)
 
 ### Next
 1. Retry with `email`, `domain`, or `website` — never stamp an id from a vendor name match
