@@ -24,7 +24,6 @@ Trimmed response (HTTP 200):
     "reason_code": "exact_one",
     "es_decision": "hit",
     "confidence": "high",
-    "safe_to_write": { "title": true, "seniority": true, "function": true }
   },
   "result": {
     "person": {
@@ -58,7 +57,7 @@ Trimmed response (HTTP 200):
 }
 ```
 
-Clay HTTP column: map `result.title`, `result.seniority`, `result.function`. Write each one only when its `answer.safe_to_write.<field>` is true.
+Clay HTTP column: map `result.title`, `result.seniority`, `result.function`. Write each non-blank field when `answer.confidence` meets the user's CRM floor.
 
 ## Cost by path
 
@@ -86,7 +85,7 @@ Decision  ████████████████████  ✓ es_d
 ### Person
 `anna@example.com`
 
-- ✓ title not requested · safe_to_write
+- ✓ title not requested · meets write floor
 - · seniority: vp (derived)
 - · function: sales (derived)
 - · credits: 2

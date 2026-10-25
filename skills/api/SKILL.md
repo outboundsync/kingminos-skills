@@ -4,13 +4,14 @@ description: >-
   Guide agents through the KingMinos enrichment API: Bearer auth, the REST ↔
   tool inventory, OpenAPI discovery, and which specialized skill to run. Use
   when the user asks how to use the KingMinos API, which endpoint or tool to
-  call, OpenAPI discovery, GET /v1/capabilities, or how API work relates to
-  auth, company-resolve, company-icon, company-description, and credentials.
+  call, OpenAPI discovery, GET /v1/capabilities, GET /v1/balance,
+  GET /v1/usage, or how API work relates to auth, company-resolve,
+  company-icon, company-description, and credentials.
 license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.7.0"
+  version: "1.11.0"
 ---
 
 # KingMinos API
@@ -53,6 +54,7 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 | Resolve a company / stamp ZoomInfo company id | `company-resolve` · `company_resolve` |
 | List or revoke vendor Your Keys (store in the app UI) | `credentials` · `list_credentials` / `delete_credentials` |
 | Company LinkedIn / B2B social page | `company-b2b-social` · `company_b2b_social` |
+| Company X account (`result.x_url` / `x_handle`) | REST `company_x_account` · see [guidance](https://api.kingminos.com/v1/recipes/guidance) (no dedicated skill) |
 | Company icon — resolve then re-host on `logos.kingminos.com` (`company.icon`, 256x256 PNG) | `company-icon` · `company_icon` |
 | Company description paragraph (`company.description`) | `company-description` · `company_description` |
 | Domain stamp | `company-domain` · `company_domain` |
@@ -61,7 +63,10 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 | Which language to engage in | `person-language` · `person_language` |
 | Phone number to dial (`person.phone`) | `person-phone` · `person_phone` |
 | Job title, seniority and function (`person.title`) | `person-title` · `person_title` |
+| Person LinkedIn profile URL from an email (`person.b2b_social`) | `person-b2b-social` · `person_b2b_social` |
+| First and last name, cleaned and proper-cased (`person.name`) | `person-name` · `person_name` |
 | Erase a subject | `delete_subject` — **not** these skills (`erase` scope) |
+| Workspace credit balance, ledger, forecast, health, or usage | REST `get_balance` / `get_usage` · see [references/endpoints.md](references/endpoints.md) (no dedicated skill; `billing:read`) |
 | File feedback when blocked or missing data | `submit_feedback` · `POST /v1/feedback` (free; not a support channel) |
 
 Do not call `put_credentials`, `delete_credentials`, or `delete_subject` from this skill.
@@ -88,11 +93,12 @@ Catalog     <bar>  <✓|✗|·> <ready | 401 <detail> | missing | unverified>
 ```
 
 ### Access
-`https://api.kingminos.com · Bearer · 28 resource operations`
+`https://api.kingminos.com · Bearer · 38 resource operations`
 
 - <✓ Key present in KINGMINOS_API_KEY | ✗ KINGMINOS_API_KEY is unset | · UNVERIFIED — <reason>>
 - <✓ Catalog readable — get_capabilities | ✗ 401 <missing|malformed|mismatch> | ✗ Catalog not called — no Bearer token | · UNVERIFIED — <status>>
-- · Inventory: get_providers · get_capabilities · company_hierarchy · company_b2b_social · company_icon · company_description · company_domain · company_resolve · person_verify_employment · person_language · person_phone · person_title · get_run · list_webhooks · create_webhook · get_webhook · patch_webhook · delete_webhook · rotate_webhook_secret · test_webhook · list_webhook_deliveries · replay_webhook_delivery · list_events · list_credentials · put_credentials · delete_credentials · delete_subject · submit_feedback
+- · Inventory: get_providers · get_capabilities · get_recipes · get_balance · get_balance_ledger · get_balance_history · get_balance_forecast · get_balance_health · get_usage · company_hierarchy · company_b2b_social · company_x_account · company_icon · company_description · company_domain · company_resolve · person_verify_employment · person_language · person_phone · person_title · person_b2b_social · person_name · get_run · list_webhooks · create_webhook · get_webhook · patch_webhook · delete_webhook · rotate_webhook_secret · test_webhook · list_webhook_deliveries · replay_webhook_delivery · list_events · list_credentials · put_credentials · delete_credentials · delete_subject · submit_feedback
+- · CRM writes: `answer.confidence` + optional `min_confidence` — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance)
 - · Hand off: <auth | company-resolve | credentials | none — REST for a live tool with no dedicated skill>
 
 ### Next

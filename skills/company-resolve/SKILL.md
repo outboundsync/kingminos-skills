@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # KingMinos company resolve
@@ -38,12 +38,13 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
    Optional: `domain`, `website`, `name`, `routing.path` (`value` | `auto` | `accuracy` | `coverage`; omit = `auto`), `routing.preset` (`name_only` → `value`; `zi_stamp` = ZoomInfo-first), `schema_version`: `"2"`.
 4. Prefer `X-Router-Explain: minimal` (alias of `default`) on CRM callouts. Use `full` only when the user asks for `trace`.
-5. Read **control** fields only: `answer.outcome`, `es_decision`, `answer.safe_to_write`, `answer.reason_code`. `answer.summary` and `sources` are explain — not control flow.
-6. Branch on `answer.safe_to_write` (do not re-derive fill/stamp rules):
-   - `safe_to_write.zoominfo_company_id` → stamp-safe ZoomInfo company id from `result.zoominfo_company_id`.
-   - `safe_to_write.company_name` → fill-if-blank Account Name from `result.company_name`.
-   - `safe_to_write.company_domain` → optional domain hygiene; never clobber an existing Website/domain.
-   - `answer.operator` / `result.operator` (0 credits, may be null) → who operates a product brand's site (fizzy.do → `company_name` Fizzy, `operator_name` 37signals, `operator_domain` 37signals.com, `operator_zoominfo_company_id`). Informational: it never replaces `company_name` and has no `safe_to_write` flag; use it for parent-account matching only when the user asks.
+5. Read **control** fields only: `answer.outcome`, `es_decision`, `answer.confidence`, `answer.reason_code`. `answer.summary` and `sources` are explain — not control flow. CRM write floors: [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance) (fetch once; optional `min_confidence` on the request overrides the path floor).
+6. Branch on outcomes and flats (do not invent values):
+   - **ZoomInfo company id:** stamp only when `es_decision=hit` and `result.zoominfo_company_id` is non-blank.
+   - **Account Name:** fill-if-blank from `result.company_name` whenever it is non-blank (including on `es_decision=miss` / `resolved_without_primary_id` per the live contract).
+   - **`company_domain`:** optional hygiene from `result.company_domain` when present; never clobber an existing Website/domain.
+   - **`answer.confidence`:** compare to the user's once-stated CRM acceptance floor and to any path/`min_confidence` withhold (blank fields + candidates in `evidence`).
+   - `answer.operator` / `result.operator` (0 credits, may be null) → who operates a product brand's site (fizzy.do → `company_name` Fizzy, `operator_name` 37signals, `operator_domain` 37signals.com, `operator_zoominfo_company_id`). Informational: it never replaces `company_name`; use for parent-account matching only when the user asks. Resolve does not decide LinkedIn or X — follow `next_steps` / dedicated capabilities (`company-b2b-social`, `company_x_account`).
    - Label the outcome from `answer.outcome`: `resolved` · `resolved_without_primary_id` · `no_decision` (honest abstain: `no_domain`, `zero_hits`, `not_configured`, credits, compliance).
    - HTTP 200 with a business miss is a decision, not UNVERIFIED.
    - `400` `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` / `enrichcrm_credentials_required` / `lemlist_credentials_required` → hand off to `credentials` (ZoomInfo, BuiltWith, Prospeo, Apollo, People Data Labs, HG Insights, Enrich-CRM, and Lemlist are BYOK on resolve; store in the app UI). LeadMagic, Wiza, Findymail, and AIArk are house-key and should not produce a credentials_required error for a default tenant. `companyurlfinder_credentials_required` is **`company.domain` / name→domain only** — not a normal `company.resolve` 400.
@@ -76,9 +77,10 @@ Decision  <bar>  <✓|✗|·> <ready | <outcome> | unverified>
 `<run_id> · path <auto|value|accuracy|coverage> · es_decision <hit|miss|ambiguous|error|noop|reject>`
 
 - <✓|·|✗> outcome — <resolved | resolved_without_primary_id | no_decision> · <reason_code>
-- <✓|·> company_name — <name or null> (fill-if-blank when `answer.safe_to_write.company_name`)
-- <✓ stamp-safe ZoomInfo company id <id> | · do not stamp — `safe_to_write.zoominfo_company_id` is false>
-- · company_domain — <domain or null> (hygiene — write only when `answer.safe_to_write.company_domain`; never clobber)
+- · confidence — <high|medium|low | —>
+- <✓|·> company_name — <name or null> (fill-if-blank when non-blank)
+- <✓ stamp ZoomInfo company id <id> | · do not stamp — es_decision not hit or id blank>
+- · company_domain — <domain or null> (hygiene when present; never clobber)
 - · operator — <operator_name (operator_domain) · operator_confidence, or none> (informational; never the Account Name)
 - · credits spent <n> · providers <list from usage.providers_ran>
 - · UNVERIFIED — <status> (only when the POST failed to return a v2 envelope)

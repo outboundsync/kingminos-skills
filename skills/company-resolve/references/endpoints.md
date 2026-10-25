@@ -2,6 +2,8 @@
 
 Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP (`https://mcp.kingminos.com`) share the Bearer tool inventory. Trimmed copy of the pack map (`api` skill `references/endpoints.md`); `npm run validate` keeps these rows matching it.
 
+CRM write floors: [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance).
+
 ## REST ↔ tools
 
 | REST | Tool id (OpenAPI operationId) | Access | Owner / notes |
@@ -29,6 +31,7 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP
 | `external_ref` | no | Client correlation key; echoed |
 | `routing.path` | no | `value` \| `auto` \| `accuracy` \| `coverage` (omit = `auto`). `fast` → `value`. `confidence` is not a path. |
 | `routing.preset` | no | Back-compat. `name_only` → `value`. `zi_stamp` = ZoomInfo-first. Prefer `path`. |
+| `min_confidence` | no | Overrides path floor — see [guidance](https://api.kingminos.com/v1/recipes/guidance). |
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
 | `dry_run` | no | Default false. The capability still does not write SFDC from this skill. |
 
@@ -40,7 +43,7 @@ Default `max_provider_credits` is `19` on `auto` (`accuracy` 21, `coverage` 23),
 
 | Layer | Fields | Use |
 | --- | --- | --- |
-| Control | `answer.outcome`, `es_decision`, `answer.safe_to_write`, `answer.reason_code` | Branch here |
+| Control | `answer.outcome`, `es_decision`, `answer.confidence`, `answer.reason_code` | Branch here |
 | Explain | `answer.summary`, `sources` | Humans only |
 | Audit | `trace.*` when `explain=full` | Debug |
 
@@ -48,13 +51,11 @@ Default `max_provider_credits` is `19` on `auto` (`accuracy` 21, `coverage` 23),
 
 | `answer.outcome` | Typical `es_decision` | Stamp / fill |
 | --- | --- | --- |
-| `resolved` | `hit` when a safe primary ZoomInfo id is present | Honor `answer.safe_to_write.zoominfo_company_id` / `.company_name` / `.company_domain` |
-| `resolved_without_primary_id` | `miss` | Honor `safe_to_write` — usually name yes, id no |
+| `resolved` | `hit` when a primary ZoomInfo id is present | Stamp id when `es_decision=hit` and `result.zoominfo_company_id` non-blank |
+| `resolved_without_primary_id` | `miss` | Fill name when `result.company_name` non-blank; do not stamp id |
 | `no_decision` | as returned (`miss` / `noop` / `error` per reason) | Never invent a name or id |
 
-Do not re-derive Account Name or stamp rules from `es_decision` alone — `answer.safe_to_write` is the control. The live `EsDecision.description` contradicts `SafeToWrite.company_name` on whether Account Name fills on `miss`; follow `safe_to_write`.
-
-`result.company_domain` is optional hygiene — write only when `safe_to_write.company_domain`; never clobber.
+**Account Name:** fill-if-blank from `result.company_name` whenever non-blank (including on `es_decision=miss`). **ZoomInfo id:** Salesforce stamp only when `es_decision=hit` and `result.zoominfo_company_id` is non-blank. **`company_domain`:** optional hygiene when `result.company_domain` is present — never clobber.
 
 A LeadMagic-only or websearch-only hit is `resolved_without_primary_id`. A websearch name is not terminal while ZoomInfo remains in `effectiveOrder`.
 

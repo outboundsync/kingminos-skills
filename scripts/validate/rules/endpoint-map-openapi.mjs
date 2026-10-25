@@ -15,17 +15,26 @@ import { endpointRows } from './endpoint-map-consistent.mjs';
 export const CANONICAL = 'skills/api/references/endpoints.md';
 export const FIXTURE = 'scripts/validate/fixtures/openapi-inventory.yaml';
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
-const DISCOVERY = /(?:^|\/)(?:health|openapi\.(?:ya?ml|json))$/;
+// Unversioned liveness and OpenAPI discovery only — not GET /v1/balance/health.
+const DISCOVERY = /(?:^\/health$|\/openapi\.(?:ya?ml|json)$)/;
 
 // snake_case tools when the served spec has not yet published operationId
 // (PR 137 inventory). Live paths still win; this only names the tool.
 export const FALLBACK_TOOLS = {
   'GET /v1/providers': 'get_providers',
   'GET /v1/capabilities': 'get_capabilities',
+  'GET /v1/recipes': 'get_recipes',
+  'GET /v1/balance': 'get_balance',
+  'GET /v1/balance/ledger': 'get_balance_ledger',
+  'GET /v1/balance/history': 'get_balance_history',
+  'GET /v1/balance/forecast': 'get_balance_forecast',
+  'GET /v1/balance/health': 'get_balance_health',
+  'GET /v1/usage': 'get_usage',
   'POST /v1/company/resolve': 'company_resolve',
   'POST /v1/company/domain': 'company_domain',
   'POST /v1/company/hierarchy': 'company_hierarchy',
   'POST /v1/company/b2b-social': 'company_b2b_social',
+  'POST /v1/company/x-account': 'company_x_account',
   'POST /v1/company/icon': 'company_icon',
   'POST /v1/person/verify-employment': 'person_verify_employment',
   'GET /v1/runs/{id}': 'get_run',
@@ -35,9 +44,14 @@ export const FALLBACK_TOOLS = {
   'DELETE /v1/subjects/{subject_key}': 'delete_subject',
 };
 
+/**
+ * Same rule as kingminos-application `mcpToolFromOperationId`: every capital
+ * after the first character starts a word, so `companyXAccount` is
+ * `company_x_account` (not `company_xaccount`).
+ */
 export function toSnake(operationId) {
   return String(operationId)
-    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .replace(/[A-Z]/g, (ch, index) => (index === 0 ? ch : `_${ch}`))
     .replace(/-/g, '_')
     .toLowerCase();
 }

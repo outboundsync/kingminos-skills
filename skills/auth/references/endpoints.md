@@ -73,5 +73,7 @@ Write **SFDC** or **Salesforce**, never **SF**.
 | `person-language` | `person_language` |
 | `person-phone` | `person_phone` |
 | `person-title` | `person_title` |
+| `person-b2b-social` | `person_b2b_social` |
+| `person-name` | `person_name` |
 | Not these skills (`erase` scope) | `delete_subject` |
 | Session / product app | `/v1/auth/*` · `/v1/account/*` — out of scope |

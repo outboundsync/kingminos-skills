@@ -21,7 +21,7 @@ Decision  ████████████████████  ✓ read
 - ✓ description — OutboundSync syncs outbound email and sequencer activity into CRMs such as Salesforce and HubSpot.
 - · flags — hype false · first_person false · tagline false · same_as_speed false · truncated false · cta false · grammar false
 - · identity — jev 0.96
-- ✓ safe_to_write.description — true
+- ✓ CRM write — meets balance floor (high confidence)
 - · credits spent 0 · providers aiark
 
 ## Passing — hit, not safe to write (cta)
@@ -43,7 +43,7 @@ Decision  ████████████████████  ✓ read
 - ✓ description — Example makes outbound easy for revenue teams. Start your free trial today!
 - · flags — hype false · first_person false · tagline false · same_as_speed false · truncated false · cta true · grammar false
 - · identity — jev 0.95
-- · safe_to_write.description — false (cta forces low confidence)
+- · CRM write — withheld or user may accept low (cta forces low confidence)
 - · credits spent 0 · providers aiark
 
 ### Next
@@ -68,7 +68,7 @@ Decision  ████████████████████  ✓ read
 - · description — null
 - · flags — null
 - · identity — null
-- · safe_to_write.description — false
+- · CRM write — below floor or miss
 - · credits spent 0 · providers aiark
 
 ## Failing — name-only input

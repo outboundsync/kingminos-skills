@@ -38,6 +38,47 @@ paths:
       operationId: get_capabilities
       security:
         - bearer: []
+  /v1/recipes:
+    get:
+      operationId: getRecipes
+      security:
+        - bearer: []
+  /v1/balance:
+    get:
+      operationId: getBalance
+      summary: Workspace credit snapshot
+      security:
+        - bearer: []
+  /v1/balance/ledger:
+    get:
+      operationId: getBalanceLedger
+      summary: Paginated credit ledger
+      security:
+        - bearer: []
+  /v1/balance/history:
+    get:
+      operationId: getBalanceHistory
+      summary: UTC day/hour balance series
+      security:
+        - bearer: []
+  /v1/balance/forecast:
+    get:
+      operationId: getBalanceForecast
+      summary: Credit runout forecast
+      security:
+        - bearer: []
+  /v1/balance/health:
+    get:
+      operationId: getBalanceHealth
+      summary: Credit-health snapshot
+      security:
+        - bearer: []
+  /v1/usage:
+    get:
+      operationId: getUsage
+      summary: Workspace usage aggregates
+      security:
+        - bearer: []
   /v1/company/hierarchy:
     post:
       operationId: company_hierarchy
@@ -46,6 +87,11 @@ paths:
   /v1/company/b2b-social:
     post:
       operationId: company_b2b_social
+      security:
+        - bearer: []
+  /v1/company/x-account:
+    post:
+      operationId: companyXAccount
       security:
         - bearer: []
   # company.icon: domain + optional name; resolve then re-host 256x256 PNG on logos.kingminos.com/i/{sha256}.png
@@ -90,6 +136,18 @@ paths:
   /v1/person/title:
     post:
       operationId: person_title
+      security:
+        - bearer: []
+  # person.b2b_social: email in (linkedin_url / name match-only); LinkedIn profile URL out; API tenants only
+  /v1/person/b2b-social:
+    post:
+      operationId: personB2bSocial
+      security:
+        - bearer: []
+  # person.name: email or linkedin_url in; proper-cased first / last / full name out; API tenants only
+  /v1/person/name:
+    post:
+      operationId: personName
       security:
         - bearer: []
   /v1/runs/{id}:

@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # KingMinos company.domain
@@ -28,12 +28,12 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 | `answer.outcome` | `es_decision` | What it means | Domain field action |
 | --- | --- | --- | --- |
-| `verified` / `corrected` / `discovered` | `hit` | Trusted stamp — `result.company_domain` non-null | Write the domain (`safe_to_write.company_domain` true) |
+| `verified` / `corrected` / `discovered` | `hit` | Trusted stamp — `result.company_domain` non-null | Write when non-blank and `answer.confidence` meets path/`min_confidence` + user floor ([guidance](https://api.kingminos.com/v1/recipes/guidance)) |
 | `rejected` | `reject` | Input is junk (mailbox, social, directory, platform apex, unparseable) | **Do not write** the input; optional half-trusted find is `discovered_domain` only |
 | `unverified` | `miss` | Clean enough to look at, not safe to stamp (mismatch, unconfirmed, dead, parked, no web, sources disagree) | Hold for review |
 | `no_decision` | by reason (`insufficient_input` → `noop`) | Router skipped | Do not write |
 
-- **Write-safe gate is `answer.safe_to_write.company_domain`** — `result.company_domain` non-null and `es_decision: hit`. Read the gate instead of re-implementing it.
+- **Stamp gate:** trusted outcome (`verified` / `corrected` / `discovered`) with `es_decision: hit`, non-blank `result.company_domain`, and `answer.confidence` meeting path/`min_confidence` and the user's CRM acceptance floor — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance).
 - Paths (`routing.path` or flattened `path`; nested wins; omit → `balance`): `speed` (hygiene + DNS + site probe, cap 0) · `balance` (adds a 0-credit ZoomInfo search on tenant `default`; no-ZI fallthrough to LeadMagic then Serper, cap 0-2) · `accuracy` (ZI → LeadMagic → websearch, miss-only, plus free Wikidata/GLEIF/RDAP evidence, cap 2) · `coverage` (adds BuiltWith Relationships, cap 3). Legacy `fast`/`value`/`name_only` → `speed`, `auto` → `balance`.
 - **Disagreeing `domain` / `email` / `website` is accepted, not a 400** — the capability adjudicates. ZoomInfo is BYOK for workspace keys; the house key runs only on tenant `default` (SFDC Flow).
 - Result fields that are **not** the stamp: `account_primary_domain` (HubSpot `domain` — `collapse_brand` can lift a regional above `company_domain`), `additional_domains` (ownership-proven only — never "all domains found"), `review_domains` / `related_domains` (review columns), `discovered_domain` (half-trusted side column), `corrected_from` / `corrected_via`.
@@ -46,7 +46,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 2. Send `POST /v1/company/domain` with any of `domain` / `website` / `email` / `name` (alias `company_name`); ≥ 1 required or `400 validation_failed`. Optional `family_policy` (`collapse_brand` default | `separate_regional`), `city` / `state` / `country` / `postal_code` / `phone`, `dry_run`, `external_ref`.
 3. A `/in/` LinkedIn URL is `400 validation_failed` (`linkedin_person_url_not_allowed`) — company pages only.
 4. Branch on `answer.outcome` / `es_decision`. Business misses (`rejected` / `unverified` / `no_decision`) stay HTTP 200 — render them as the verdict, never as an empty result.
-5. Stamp only when `answer.safe_to_write.company_domain` is true. Name fill-if-blank may use `result.company_name` whenever present (including a miss); never clobber an existing domain with `discovered_domain`.
+5. Stamp only when the trusted-outcome gate above passes. Name fill-if-blank may use `result.company_name` whenever present (including a miss); never clobber an existing domain with `discovered_domain`.
 6. Aliases: HubSpot `domain` ← `account_primary_domain` and `hs_additional_domains` ← `additional_domains.join(";")` — the caller joins. `review_domains` / `related_domains` are review columns, never merges.
 7. `400` errors to relay verbatim: `validation_failed` | `invalid_routing` | `invalid_compliance` | `invalid_explain` | `invalid_schema` | `unsupported_schema` | `invalid_cache` | `builtwith_credentials_required` (coverage path needs the BuiltWith key) | `zi_credentials_required` (explicit `zi_stamp` / `routing.only: ["zoominfo"]` without Your Keys).
 
@@ -77,7 +77,7 @@ Decision  <bar>  <✓|✗|·> <es_decision hit — write-safe | reject — do no
 ### Stamp
 `<input summary>`
 
-- <✓ company_domain `<domain>` — safe_to_write true | ✗ rejected: <reason> — do not write the input | · UNVERIFIED — <reason>>
+- <✓ company_domain `<domain>` — write when confidence meets floor | ✗ rejected: <reason> — do not write the input | · UNVERIFIED — <reason>>
 - <· discovered_domain / corrected_from / family_policy / account_primary_domain when present>
 - <· additional_domains (n) — ownership-proven only | review_domains (n) — review before use>
 

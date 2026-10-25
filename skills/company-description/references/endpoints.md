@@ -57,8 +57,8 @@ Skips the result-cache **read** only; the fresh answer is still written. TTL dif
 
 | Layer | Fields | Use |
 | --- | --- | --- |
-| Control | `es_decision`, `answer.outcome`, `answer.safe_to_write.description`, `result.description` | Branch here |
-| Quality | `answer.confidence`, `answer.identity`, `result.flags` | Why it is (or is not) safe |
+| Control | `es_decision`, `answer.outcome`, `answer.confidence`, `result.description` | Branch here |
+| Quality | `answer.identity`, `result.flags` | Identity basis and advisory flags |
 | Explain | `answer.summary`, `sources` | Humans only |
 | Audit | `trace.*` when `explain=full` | Debug |
 
@@ -66,12 +66,12 @@ Skips the result-cache **read** only; the fresh answer is still written. TTL dif
 
 | `answer.outcome` | `result.description` | Meaning |
 | --- | --- | --- |
-| `hit` | English text (≤ `max_chars`) | Decision returned — stamp only when `answer.safe_to_write.description` is true |
+| `hit` | English text (≤ `max_chars`) | Decision returned — stamp when non-blank and `answer.confidence` meets path/`min_confidence` + user floor ([guidance](https://api.kingminos.com/v1/recipes/guidance)) |
 | `no_decision` | null | Honest abstain — do not invent copy |
 
-### `answer.safe_to_write.description`
+### CRM writes
 
-True only when **all** hold: `es_decision=hit`, non-blank text, `answer.confidence` is `medium` or `high`, and `answer.identity` is non-null (`jev` score ≥ 0.85, `name_domain` match, or `own_homepage`). Low confidence is never safe. `safe_to_write.company_domain` is true only on a hit; `safe_to_write.company_name` is always false here.
+`answer.confidence` is the only write signal. Path floors: `speed`/`coverage` → `low` and up; `balance` → `medium` and up; `accuracy` → `high`. Optional `min_confidence` overrides. Below floor: blank `description`, candidates in `evidence`. On `balance`+, a non-null `answer.identity` (`jev` ≥ 0.85, `name_domain`, or `own_homepage`) is required for a delivered hit.
 
 ### `result.flags` (on a hit; null on a miss)
 
@@ -85,7 +85,7 @@ The API may add new boolean keys over time — ignore unknown flag names.
 | `same_as_speed` | Ranked fallback that matches the `speed` winner |
 | `truncated` | Trimmed to the last whole word (no complete sentence left) — forces confidence `low` |
 | `cta` | Marketing / imperative line (`Join N+ …`, `trusted by`, `Get started`, exclamation) — forces confidence `low` |
-| `grammar` | Informational quality signal only — does **not** change `answer.confidence` or `answer.safe_to_write.description`; stamp from `safe_to_write`, not `grammar` |
+| `grammar` | Informational quality signal only — does **not** change `answer.confidence`; stamp from confidence + user floor, not `grammar` |
 
 Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`filtered` \| `translated` \| `interpreted` \| null), `company_domain`, `compose_echo`, `homepage_meta_only`. No `company_name` in the result.
 
@@ -124,12 +124,6 @@ Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`f
     "reason_code": "exact_one",
     "es_decision": "hit",
     "confidence": "high",
-    "safe_to_write": {
-      "company_name": false,
-      "zoominfo_company_id": false,
-      "company_domain": true,
-      "description": true
-    },
     "summary": "Site probe search hit via homepage_extract",
     "identity": { "method": "jev", "score": 0.96 }
   },

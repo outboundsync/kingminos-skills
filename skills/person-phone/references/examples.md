@@ -23,8 +23,7 @@ Trimmed response (HTTP 200):
     "outcome": "hit",
     "reason_code": "exact_one",
     "es_decision": "hit",
-    "confidence": "high",
-    "safe_to_write": { "best_phone": true }
+    "confidence": "high"
   },
   "result": {
     "person": {
@@ -50,8 +49,7 @@ Trimmed response (HTTP 200):
       "source": "wiza",
       "sources": ["wiza"],
       "confidence": "high",
-      "flags": [],
-      "safe_to_write": true
+      "flags": []
     },
     "phones": [
       {
@@ -71,8 +69,7 @@ Trimmed response (HTTP 200):
         "source": "wiza",
         "sources": ["wiza"],
         "confidence": "high",
-        "flags": [],
-        "safe_to_write": true
+        "flags": []
       }
     ],
     "flags": null
@@ -84,7 +81,7 @@ Trimmed response (HTTP 200):
 }
 ```
 
-Clay HTTP column: map `result.best_phone.number` (in the requested `format`; `result.best_phone.e164` is always E.164) and `result.best_phone.type` / `confidence`; write only when `answer.safe_to_write.best_phone` is true.
+Clay HTTP column: map `result.best_phone.number` (in the requested `format`; `result.best_phone.e164` is always E.164) and `result.best_phone.type` / `confidence`; write when non-blank and `answer.confidence` meets the user's CRM floor.
 
 ## Found (hit)
 
@@ -101,7 +98,7 @@ Decision  ████████████████████  ✓ es_d
 ### Person
 `anna@example.com`
 
-- ✓ best_phone `+14155552672` — mobile via wiza · high · safe_to_write
+- ✓ best_phone `+14155552672` — mobile via wiza · high · meets write floor
 - · phones: `+14155552672 mobile`
 - · credits: 38
 

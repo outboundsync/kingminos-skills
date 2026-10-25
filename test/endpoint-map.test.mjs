@@ -80,14 +80,20 @@ test('endpointRows parses METHOD /path to tool', () => {
 test('toSnake and resourceOperations skip discovery paths', () => {
   assert.equal(toSnake('getProviders'), 'get_providers');
   assert.equal(toSnake('company_resolve'), 'company_resolve');
+  assert.equal(toSnake('companyXAccount'), 'company_x_account');
+  assert.equal(toSnake('CompanyResolve'), 'company_resolve');
   const ops = resourceOperations({
     paths: {
       '/health': { get: {} },
       '/v1/openapi.yaml': { get: {} },
+      '/v1/balance/health': { get: { operationId: 'getBalanceHealth', security: [{ bearer: [] }] } },
       '/v1/company/resolve': { post: { operationId: 'companyResolve', security: [{ bearer: [] }] } },
     },
   });
-  assert.deepEqual(ops.map((op) => [op.route, op.tool]), [['POST /v1/company/resolve', 'company_resolve']]);
+  assert.deepEqual(ops.map((op) => [op.route, op.tool]), [
+    ['GET /v1/balance/health', 'get_balance_health'],
+    ['POST /v1/company/resolve', 'company_resolve'],
+  ]);
   assert.equal(opDeclaresBearer(ops[0].security), true);
   assert.equal(FALLBACK_TOOLS['DELETE /v1/subjects/{subject_key}'], 'delete_subject');
   assert.equal(FALLBACK_TOOLS['GET /v1/credentials'], 'list_credentials');

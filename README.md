@@ -1,12 +1,14 @@
 # KingMinos Agent Skills
 
+Website: [kingminos.com](https://kingminos.com/) · Docs: [kingminos.com/docs](https://kingminos.com/docs)
+
 Public [Agent Skills](https://agentskills.io) for **KingMinos by OutboundSync** — installable with [`npx skills`](https://github.com/vercel-labs/skills) in **Cursor**, **Claude Code**, and **Codex**.
 
 Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enrichment API at [`https://api.kingminos.com`](https://api.kingminos.com) (`GET /health` returns HTTP 200 JSON with `"ok": true` plus `service` / `version` / `git_sha`; contract: `GET /openapi.yaml`, also `/openapi.json`).
 
 **This is not the OutboundSync CRM / sequencer skills pack.** That sister repository is [`outboundsync/skills`](https://github.com/outboundsync/skills). Do not install this pack expecting launch preflight, sync monitoring, or cold-email copy. KingMinos decides company identity and vendor credentials; OutboundSync syncs sequencer events into the CRM.
 
-The pack ships **14** skills.
+The pack ships **16** skills.
 
 **Output style.** Every skill renders a fixed, terminal-friendly Markdown shape. Readiness checks (`auth`, `credentials`) and `company-resolve` lead with a verdict and a `█░▒` status gauge, then one card per system and a `Next` list. A failed lookup always shows as `UNVERIFIED`, never as a pass or an empty result. Business misses on `company.resolve` stay HTTP 200 and use `answer.outcome` / `es_decision`. See [CONVENTIONS.md](CONVENTIONS.md) and each skill's `references/examples.md`.
 
@@ -14,20 +16,22 @@ The pack ships **14** skills.
 
 | Skill | Path | Needs API key? | What it does |
 | --- | --- | --- | --- |
-| `api` | [`skills/api/`](skills/api/) | Yes (`KINGMINOS_API_KEY`) | KingMinos REST ↔ tool inventory (`skills/api/references/endpoints.md`): one row per OpenAPI Bearer resource operation; routes to `auth`, `company-resolve`, `credentials` |
+| `api` | [`skills/api/`](skills/api/) | Yes (`KINGMINOS_API_KEY`) | KingMinos REST ↔ tool inventory (`skills/api/references/endpoints.md`): one row per OpenAPI Bearer resource operation (incl. `POST /v1/company/x-account` / `company.x_account`); CRM write floors in [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance); routes to `auth`, `company-resolve`, `credentials` |
 | `auth` | [`skills/auth/`](skills/auth/) | Yes (`KINGMINOS_API_KEY`) | Bearer auth against `https://api.kingminos.com`, 401 `missing` / `malformed` / `mismatch`, SFDC Named Credential Custom Headers, `GET /v1/capabilities` |
-| `company-resolve` | [`skills/company-resolve/`](skills/company-resolve/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/resolve` — email/domain/website in, one `answer` back; honor `answer.safe_to_write` for stamp/fill |
+| `company-resolve` | [`skills/company-resolve/`](skills/company-resolve/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/resolve` — email/domain/website in, one `answer` back; stamp id on `es_decision=hit` + non-blank `zoominfo_company_id`; use `answer.confidence` + user acceptance per [guidance](https://api.kingminos.com/v1/recipes/guidance) |
 | `company-b2b-social` | [`skills/company-b2b-social/`](skills/company-b2b-social/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/b2b-social` — Serper-verified LinkedIn `https://www.linkedin.com/company/{slug}` or null; paths `speed` / `balance` / `accuracy` / `coverage` |
-| `company-icon` | [`skills/company-icon/`](skills/company-icon/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/icon` (`company.icon`) — resolve manifest icons / apple-touch-icon / favicon and Brandfetch / ZoomInfo logos, re-host `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**); optional `icon_source_url`; domain + optional `name`; low-res hits keep `safe_to_write.icon_url` true |
-| `company-description` | [`skills/company-description/`](skills/company-description/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/description` (`company.description`) — paths `speed` / `balance` / `accuracy` / `coverage`; AI Ark is the only firmographic vendor; ZoomInfo BYOK only; flags incl. `truncated` / `cta` / `grammar` (informational); send `path` explicitly (recommended — omit runs balance at cap 6 not 2); stamp only when `answer.safe_to_write.description` (identity-gated, low never safe); winner-only billing |
+| `company-icon` | [`skills/company-icon/`](skills/company-icon/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/icon` (`company.icon`) — resolve manifest icons / apple-touch-icon / favicon and Brandfetch / ZoomInfo logos, re-host `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**); optional `icon_source_url`; domain + optional `name`; low-res hits return `confidence` low + `flags.low_res` (default floor `low`); optional `min_confidence` |
+| `company-description` | [`skills/company-description/`](skills/company-description/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/description` (`company.description`) — paths `speed` / `balance` / `accuracy` / `coverage`; AI Ark is the only firmographic vendor; ZoomInfo BYOK only; flags incl. `truncated` / `cta` / `grammar` (informational); send `path` explicitly (recommended — omit runs balance at cap 6 not 2); stamp when non-blank text and `answer.confidence` meets path/`min_confidence` floor; winner-only billing |
 | `webhooks` | [`skills/webhooks/`](skills/webhooks/) | Yes (`KINGMINOS_API_KEY`) | Register webhook endpoints, verify `KingMinos-Signature`, inspect deliveries, replay after fixes, read the `GET /v1/events` log; active events `run.failed` / `run.recovered` / `test.ping` |
 | `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic, Wiza, Findymail, and AIArk are house-key; ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are BYOK |
-| `company-domain` | [`skills/company-domain/`](skills/company-domain/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/domain` (`company.domain`) — write-safe domain stamp + ownership-proven aliases; branch on `answer.outcome` / `es_decision`; stamp only when `answer.safe_to_write.company_domain` |
+| `company-domain` | [`skills/company-domain/`](skills/company-domain/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/domain` (`company.domain`) — trusted domain stamp + ownership-proven aliases; branch on `answer.outcome` / `es_decision`; stamp when trusted outcome + non-blank domain and `answer.confidence` meets path/`min_confidence` floor |
 | `company-hierarchy` | [`skills/company-hierarchy/`](skills/company-hierarchy/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/hierarchy` — immediate / ultimate parent + capped subsidiaries; `speed` = free Wikidata `exact_one`; ZoomInfo enrich bills 1 on first `FULL_MATCH` only; `coverage` is `400` |
 | `person-verify-employment` | [`skills/person-verify-employment/`](skills/person-verify-employment/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/verify-employment` — four-way send/block pre-flight (`high_confidence_send` … `high_confidence_block`); email validation + job-change; paths `speed`/`balance`/`accuracy` only |
 | `person-language` | [`skills/person-language/`](skills/person-language/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/language` (`person.language`) — can we engage this person in English, and if not in what; API tenants only; `email` or `linkedin_url` required; name is match-only |
-| `person-phone` | [`skills/person-phone/`](skills/person-phone/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/phone` (`person.phone`) — one dialable `best_phone` (E.164) plus ranked typed `phones[]`; API tenants only; `email` or `linkedin_url` required; name is match-only; `phone_types` / `max_results`; 38 credits on a hit, 0 on a miss; write only when `answer.safe_to_write.best_phone` |
-| `person-title` | [`skills/person-title/`](skills/person-title/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/title` (`person.title`) — cleaned current `title` plus derived `seniority` / `function`; API tenants only; `email` or `linkedin_url` required; name and `company_domain` are match-only; `fields` picks the answer; outcome-priced 1 / 2 / 3 / 5 credits on a hit (speed / balance / accuracy / coverage), 0 on a miss; write each field only when `answer.safe_to_write.<field>` |
+| `person-phone` | [`skills/person-phone/`](skills/person-phone/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/phone` (`person.phone`) — one dialable `best_phone` (E.164) plus ranked typed `phones[]`; API tenants only; `email` or `linkedin_url` required; name is match-only; `phone_types` / `max_results`; 38 credits on a hit, 0 on a miss; write when non-blank `best_phone` and `answer.confidence` meets path/`min_confidence` floor |
+| `person-title` | [`skills/person-title/`](skills/person-title/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/title` (`person.title`) — cleaned current `title` plus derived `seniority` / `function`; API tenants only; `email` or `linkedin_url` required; name and `company_domain` are match-only; `fields` picks the answer; outcome-priced 1 / 2 / 3 / 5 credits on a hit (speed / balance / accuracy / coverage), 0 on a miss; write each non-blank field when `answer.confidence` meets path/`min_confidence` floor |
+| `person-b2b-social` | [`skills/person-b2b-social/`](skills/person-b2b-social/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/b2b-social` (`person.b2b_social`) — a person's canonical LinkedIn profile URL from an email; API tenants only; `email` required; `linkedin_url` and name are match-only (`person_mismatch`); paths `speed` / `balance` / `accuracy` only, outcome-priced 2 / 3 / 5 credits on a hit, 0 on a miss or below-floor withhold; write when `answer.outcome` is `found` and `answer.confidence` meets path/`min_confidence` floor |
+| `person-name` | [`skills/person-name/`](skills/person-name/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/name` (`person.name`) — cleaned, proper-cased `first_name` / `last_name` / `full_name`; API tenants only; `email` or `linkedin_url` required; a role address is never a person (`role_address`), disagreeing sources are a `conflict`; outcome-priced 1 / 2 / 3 / 5 credits on a hit (speed / balance / accuracy / coverage), 0 on a miss; write when `answer.outcome` is `resolved` and `answer.confidence` meets path/`min_confidence` floor |
 
 REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — same Bearer token and snake_case tool inventory as the `api` map. Session/product-app ops are out of scope. Do not invent tools outside that map.
 
@@ -51,6 +55,8 @@ npx skills add outboundsync/kingminos-skills --skill person-verify-employment -g
 npx skills add outboundsync/kingminos-skills --skill person-language -g
 npx skills add outboundsync/kingminos-skills --skill person-phone -g
 npx skills add outboundsync/kingminos-skills --skill person-title -g
+npx skills add outboundsync/kingminos-skills --skill person-b2b-social -g
+npx skills add outboundsync/kingminos-skills --skill person-name -g
 ```
 
 The Skills CLI detects the harness (Cursor, Claude Code, Codex, and others). Add `-a claude-code`, `-a codex`, or `-a cursor` only when you want to force a target. OpenClaw global install is the same CLI with `-a openclaw -g`.
@@ -72,6 +78,8 @@ npx skills use outboundsync/kingminos-skills --skill person-verify-employment
 npx skills use outboundsync/kingminos-skills --skill person-language
 npx skills use outboundsync/kingminos-skills --skill person-phone
 npx skills use outboundsync/kingminos-skills --skill person-title
+npx skills use outboundsync/kingminos-skills --skill person-b2b-social
+npx skills use outboundsync/kingminos-skills --skill person-name
 ```
 
 ## Credentials

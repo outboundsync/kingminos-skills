@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.5"
+  version: "1.2.0"
 ---
 
 # KingMinos company icon (`company.icon`)
@@ -43,9 +43,9 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
    **Domain** plus optional **`name`** (and optional `website`, `email`, `schema_version`: `"2"`). One server-side implementation; client `routing`, `routing.only`, `path`, and `preset` are **ignored** if sent.
 4. Prefer `X-Router-Explain: minimal` on CRM callouts. Use `full` only when the user asks for `trace`.
-5. Branch on control fields: `answer.outcome` (`hit` | `no_decision`), `es_decision`, `answer.reason_code`. Read **`result.icon_url`** — hosted `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**) or null. Read **`result.icon_source_url`** when present (advisory origin only). Read **`answer.confidence`** and hit-only **`result.flags.low_res`** when present. Honor **`answer.safe_to_write.icon_url`** for SFDC stamp/fill (true when `icon_url` is the hosted URL — including low-res hits; never stamp when false or null).
+5. Branch on control fields: `answer.outcome` (`hit` | `no_decision`), `es_decision`, `answer.reason_code`, **`answer.confidence`**. Read **`result.icon_url`** — hosted `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**) or null. Read **`result.icon_source_url`** when present (advisory origin only). Read hit-only **`result.flags.low_res`** when present. Stamp when `icon_url` is hosted on `logos.kingminos.com` and confidence meets the path default floor (`low`) / optional `min_confidence` and the user's CRM acceptance floor — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance).
 6. Treat any non-hosted `icon_url` (third-party favicon, site URL, or non-`logos.kingminos.com` host) as invalid — only the Worker-validated hosted URL counts for stamping.
-7. **Hits vs misses:** wrong-company, junk, or empty images are **rejected** (`no_decision`, `icon_url` null). A **fetch or store failure** is also a miss with `icon_url` null. A **small but valid** source (best raster under **64px**) still **re-hosts** as a hit: `answer.confidence` is `low`, `result.flags.low_res` is `true`, and **`safe_to_write.icon_url` stays `true`** — the caller decides whether to stamp.
+7. **Hits vs misses:** wrong-company, junk, or empty images are **rejected** (`no_decision`, `icon_url` null). A **fetch or store failure** is also a miss with `icon_url` null. A **small but valid** source (best raster under **64px**) still **re-hosts** as a hit: `answer.confidence` is `low`, `result.flags.low_res` is `true` — default floor is `low`; the caller may still skip low-res stamps in CRM policy.
 8. HTTP 200 with `no_decision` is a decision, not UNVERIFIED. `400` `*_credentials_required` on the icon ladder (Brandfetch / ZoomInfo) → hand off to `credentials`.
 
 ### Default ladder (resolve → re-host)
@@ -84,8 +84,8 @@ Decision  <bar>  <✓|✗|·> <ready | <outcome> | unverified>
 - <✓|·|✗> outcome — <hit | no_decision> · <reason_code>
 - <✓ icon_url — `https://logos.kingminos.com/i/…` (256x256 PNG) | · icon_url — null>
 - · icon_source_url — <https url | null> (origin only — do not stamp)
-- · confidence — <high|medium|low | —> · flags.low_res — <true|false | —> (low + true when source was under 64px; safe_to_write may still be true)
-- · safe_to_write.icon_url — <true|false> (stamp only when true and URL is hosted logos.kingminos.com; caller may skip low_res)
+- · confidence — <high|medium|low | —> · flags.low_res — <true|false | —> (low + true when source was under 64px)
+- <✓|·> CRM stamp — <hosted icon_url meets confidence floor | withheld below min_confidence | null icon_url>
 - · ladder — site manifest / apple-touch-icon / favicon → Brandfetch BYOK → ZoomInfo logo
 - · credits spent <n> · providers <list from usage.providers_ran>
 - · UNVERIFIED — <status> (only when the POST failed to return a v2 envelope)
