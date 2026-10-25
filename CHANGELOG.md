@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.25.0] - 2026-10-25
+
 ### Added
 
 - `api` 1.11.0: Bearer billing reads from kingminos-application#355 — `GET /v1/balance` (`get_balance`), `/v1/balance/ledger` (`get_balance_ledger`), `/v1/balance/history` (`get_balance_history`), `/v1/balance/forecast` (`get_balance_forecast`), `/v1/balance/health` (`get_balance_health`), and `GET /v1/usage` (`get_usage`); `billing:read`; 38 resource operations.
