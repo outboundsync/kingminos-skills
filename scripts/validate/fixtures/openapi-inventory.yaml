@@ -43,6 +43,42 @@ paths:
       operationId: getRecipes
       security:
         - bearer: []
+  /v1/balance:
+    get:
+      operationId: getBalance
+      summary: Workspace credit snapshot
+      security:
+        - bearer: []
+  /v1/balance/ledger:
+    get:
+      operationId: getBalanceLedger
+      summary: Paginated credit ledger
+      security:
+        - bearer: []
+  /v1/balance/history:
+    get:
+      operationId: getBalanceHistory
+      summary: UTC day/hour balance series
+      security:
+        - bearer: []
+  /v1/balance/forecast:
+    get:
+      operationId: getBalanceForecast
+      summary: Credit runout forecast
+      security:
+        - bearer: []
+  /v1/balance/health:
+    get:
+      operationId: getBalanceHealth
+      summary: Credit-health snapshot
+      security:
+        - bearer: []
+  /v1/usage:
+    get:
+      operationId: getUsage
+      summary: Workspace usage aggregates
+      security:
+        - bearer: []
   /v1/company/hierarchy:
     post:
       operationId: company_hierarchy
