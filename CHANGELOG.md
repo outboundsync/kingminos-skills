@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.10.28.1] - 2026-10-28
+
 ### Added
 
 - `person-email` skill (1.0.0) and `POST /v1/person/email` (`person_email`, scope `person.email`) in the API map: `first_name` + `last_name` + `company_domain` and/or `linkedin_url` in, one verified work `result.email` out (no guessed patterns); `answer.outcome` `found` | `not_found` | `conflict` | `catch_all`; a wrong person, another domain or a personal mailbox is dropped; four paths outcome-priced 1.5–5 credits on a delivered email, 0 otherwise; confidence is the only write signal (two independent sources `high`, one `medium`); `451 subject_suppressed`.
