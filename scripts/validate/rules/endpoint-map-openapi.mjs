@@ -4,6 +4,9 @@
 // `npm run check:surfaces`. CI on PR/push compares the map to the offline
 // fixture; a scheduled workflow curls the live spec.
 //
+// Operator routes under `/v1/admin/*` (or tagged `admin`) are excluded the same
+// way: they are not tenant resource operations.
+//
 // Prefer structured YAML (`yaml.parseDocument`). Fall back to a line scan only
 // when parsing fails (YAML 1.1 compact-mapping quirks).
 import { execFileSync } from 'node:child_process';
@@ -62,8 +65,18 @@ export function opDeclaresBearer(security) {
   return security.some((req) => req && typeof req === 'object' && Object.keys(req).some((name) => name.toLowerCase() === 'bearer'));
 }
 
+/**
+ * Operator routes (`/v1/admin/*`, tagged `admin` in the spec) are not tenant
+ * resource operations: they are not taught in the api map, whatever security
+ * the spec gives them.
+ */
+export function isAdminOperation(op) {
+  if (typeof op?.path === 'string' && /^\/v1\/admin(?:\/|$)/.test(op.path)) return true;
+  return Array.isArray(op?.tags) && op.tags.some((tag) => String(tag).toLowerCase() === 'admin');
+}
+
 export function bearerResourceOperations(ops) {
-  return ops.filter((op) => opDeclaresBearer(op.security));
+  return ops.filter((op) => opDeclaresBearer(op.security) && !isAdminOperation(op));
 }
 
 function inheritedSecurity(spec, op) {
@@ -81,7 +94,7 @@ export function resourceOperations(spec) {
       const route = `${method.toUpperCase()} ${routePath}`;
       const operationId = typeof op.operationId === 'string' && op.operationId.trim() ? op.operationId.trim() : null;
       const tool = operationId ? toSnake(operationId) : (FALLBACK_TOOLS[route] ?? null);
-      out.push({ route, method: method.toUpperCase(), path: routePath, operationId, tool, security: inheritedSecurity(spec, op) });
+      out.push({ route, method: method.toUpperCase(), path: routePath, operationId, tool, security: inheritedSecurity(spec, op), tags: Array.isArray(op.tags) ? op.tags : [] });
     }
   }
   return out;

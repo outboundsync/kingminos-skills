@@ -10,6 +10,7 @@ import {
   loadOpenApi,
   opDeclaresBearer,
   bearerResourceOperations,
+  isAdminOperation,
   resourceOperations,
   resourceOperationsFromOpenApiLines,
   resourceOperationsFromOpenApiText,
@@ -215,4 +216,62 @@ test('endpoint-map-openapi warns when tooling exists but no spec is loaded', () 
     if (prevUrl === undefined) delete process.env.KINGMINOS_OPENAPI_URL;
     else process.env.KINGMINOS_OPENAPI_URL = prevUrl;
   }
+});
+
+const ADMIN_INVENTORY = `${INVENTORY}  /v1/admin/signups:
+    get:
+      operationId: adminListSignups
+      tags: [admin]
+      security:
+        - bearer: []
+  /v1/admin/privacy/suppressions/{id}:
+    delete:
+      operationId: adminDeletePrivacySuppression
+      tags: [admin]
+      security:
+        - bearer: []
+  /v1/ops/tagged:
+    get:
+      operationId: adminTaggedElsewhere
+      tags: [Admin]
+      security:
+        - bearer: []
+`;
+
+test('bearerResourceOperations skips /v1/admin/* and admin-tagged ops', () => {
+  const ops = resourceOperationsFromOpenApiText(ADMIN_INVENTORY);
+  assert.equal(ops.filter((op) => opDeclaresBearer(op.security)).length, 5);
+  assert.deepEqual(bearerResourceOperations(ops).map((op) => op.route), [
+    'GET /v1/providers',
+    'GET /v1/capabilities',
+  ]);
+  assert.equal(isAdminOperation({ path: '/v1/admin' }), true);
+  assert.equal(isAdminOperation({ path: '/v1/administrators' }), false);
+});
+
+test('bearerResourceOperations skips /v1/admin/* in the line-scan fallback', () => {
+  const ops = resourceOperationsFromOpenApiLines(`paths:
+  /v1/providers:
+    get:
+      operationId: get_providers
+      security:
+        - bearer: []
+  /v1/admin/signups:
+    get:
+      operationId: adminListSignups
+      security:
+        - bearer: []
+`);
+  assert.deepEqual(bearerResourceOperations(ops).map((op) => op.route), ['GET /v1/providers']);
+});
+
+test('endpoint-map-openapi: admin bearer ops are not required in the map', () => {
+  assert.deepEqual(withOpenApi(ADMIN_INVENTORY, {}), []);
+});
+
+test('endpoint-map-openapi: an admin route in the map fails', () => {
+  const diags = withOpenApi(ADMIN_INVENTORY, {
+    'skills/api/references/endpoints.md': `${MAP}| \`GET /v1/admin/signups\` | \`admin_list_signups\` | R | no |\n`,
+  });
+  assert.equal(diags.some((d) => /GET \/v1\/admin\/signups/.test(d.msg)), true);
 });
