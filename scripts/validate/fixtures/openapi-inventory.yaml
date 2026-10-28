@@ -150,6 +150,18 @@ paths:
       operationId: personName
       security:
         - bearer: []
+  # person.email: name + company_domain and/or linkedin_url in; verified work email out; API tenants only
+  /v1/person/email:
+    post:
+      operationId: personEmail
+      security:
+        - bearer: []
+  # email.verify: email in; valid | invalid | catch_all | unknown out; API tenants only
+  /v1/email/verify:
+    post:
+      operationId: emailVerify
+      security:
+        - bearer: []
   /v1/runs/{id}:
     get:
       operationId: get_run
