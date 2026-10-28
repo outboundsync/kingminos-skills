@@ -8,7 +8,7 @@ Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enr
 
 **This is not the OutboundSync CRM / sequencer skills pack.** That sister repository is [`outboundsync/skills`](https://github.com/outboundsync/skills). Do not install this pack expecting launch preflight, sync monitoring, or cold-email copy. KingMinos decides company identity and vendor credentials; OutboundSync syncs sequencer events into the CRM.
 
-The pack ships **16** skills.
+The pack ships **18** skills.
 
 **Output style.** Every skill renders a fixed, terminal-friendly Markdown shape. Readiness checks (`auth`, `credentials`) and `company-resolve` lead with a verdict and a `█░▒` status gauge, then one card per system and a `Next` list. A failed lookup always shows as `UNVERIFIED`, never as a pass or an empty result. Business misses on `company.resolve` stay HTTP 200 and use `answer.outcome` / `es_decision`. See [CONVENTIONS.md](CONVENTIONS.md) and each skill's `references/examples.md`.
 
@@ -32,6 +32,8 @@ The pack ships **16** skills.
 | `person-title` | [`skills/person-title/`](skills/person-title/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/title` (`person.title`) — cleaned current `title` plus derived `seniority` / `function`; API tenants only; `email` or `linkedin_url` required; name and `company_domain` are match-only; `fields` picks the answer; outcome-priced 1 / 2 / 3 / 5 credits on a hit (speed / balance / accuracy / coverage), 0 on a miss; write each non-blank field when `answer.confidence` meets path/`min_confidence` floor |
 | `person-b2b-social` | [`skills/person-b2b-social/`](skills/person-b2b-social/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/b2b-social` (`person.b2b_social`) — a person's canonical LinkedIn profile URL from an email; API tenants only; `email` required; `linkedin_url` and name are match-only (`person_mismatch`); paths `speed` / `balance` / `accuracy` only, outcome-priced 2 / 3 / 5 credits on a hit, 0 on a miss or below-floor withhold; write when `answer.outcome` is `found` and `answer.confidence` meets path/`min_confidence` floor |
 | `person-name` | [`skills/person-name/`](skills/person-name/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/name` (`person.name`) — cleaned, proper-cased `first_name` / `last_name` / `full_name`; API tenants only; `email` or `linkedin_url` required; a role address is never a person (`role_address`), disagreeing sources are a `conflict`; outcome-priced 1 / 2 / 3 / 5 credits on a hit (speed / balance / accuracy / coverage), 0 on a miss; write when `answer.outcome` is `resolved` and `answer.confidence` meets path/`min_confidence` floor |
+| `person-email` | [`skills/person-email/`](skills/person-email/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/email` (`person.email`) — a person's verified work email from name + company domain and/or a LinkedIn URL; API tenants only; no guessed patterns; `found` / `not_found` / `conflict` / `catch_all`; outcome-priced 1.5–5 credits on a delivered email, 0 otherwise; write when `answer.outcome` is `found` and `answer.confidence` meets path/`min_confidence` floor; chain `email-verify` for extra assurance |
+| `email-verify` | [`skills/email-verify/`](skills/email-verify/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/email/verify` (`email.verify`) — is this mailbox deliverable: `valid` / `invalid` / `catch_all` / `unknown` plus mailbox flags; API tenants only; `email` is the only input; free local checks first; outcome-priced 0.5–1.5 credits on a delivered vendor `valid` / `invalid`, 0 on `catch_all`, `unknown`, a local `invalid` or a withhold |
 
 REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — same Bearer token and snake_case tool inventory as the `api` map. Session/product-app ops are out of scope. Do not invent tools outside that map.
 
@@ -57,6 +59,8 @@ npx skills add outboundsync/kingminos-skills --skill person-phone -g
 npx skills add outboundsync/kingminos-skills --skill person-title -g
 npx skills add outboundsync/kingminos-skills --skill person-b2b-social -g
 npx skills add outboundsync/kingminos-skills --skill person-name -g
+npx skills add outboundsync/kingminos-skills --skill person-email -g
+npx skills add outboundsync/kingminos-skills --skill email-verify -g
 ```
 
 The Skills CLI detects the harness (Cursor, Claude Code, Codex, and others). Add `-a claude-code`, `-a codex`, or `-a cursor` only when you want to force a target. OpenClaw global install is the same CLI with `-a openclaw -g`.
@@ -80,6 +84,8 @@ npx skills use outboundsync/kingminos-skills --skill person-phone
 npx skills use outboundsync/kingminos-skills --skill person-title
 npx skills use outboundsync/kingminos-skills --skill person-b2b-social
 npx skills use outboundsync/kingminos-skills --skill person-name
+npx skills use outboundsync/kingminos-skills --skill person-email
+npx skills use outboundsync/kingminos-skills --skill email-verify
 ```
 
 ## Credentials
