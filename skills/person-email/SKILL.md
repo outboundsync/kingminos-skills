@@ -13,7 +13,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # KingMinos person.email
@@ -63,7 +63,7 @@ Send at least one route (fields top level or under `person`):
 
 ### Billing (outcome-priced)
 
-- **Only a delivered `found`** at or above the floor bills the path price, once: **1.5–5 credits** depending on the path (`speed` cheapest, `coverage` most).
+- **Only a delivered `found`** at or above the floor bills the path price, once: **2–5 credits** depending on the path (`speed` cheapest, `coverage` most).
 - **0 credits** on `not_found`, `conflict`, `catch_all`, a disagreement, a person mismatch, a below-floor withhold, a suppressed address, a timeout and a dry run.
 - On your own vendor key (BYOK), a delivered email bills a flat 0.1 router fee; you pay your vendor directly.
 - 30-day hits-only cache; a replay costs 0 credits (`usage.cached: true`). `skip_cache` / `X-Router-Cache: bypass` skip the read only.
@@ -74,7 +74,7 @@ Send at least one route (fields top level or under `person`):
 `answer.outcome` (also `result.status`). Only `found` returns an address.
 
 - `found` — a verified work email at or above the floor (`es_decision` `hit`). `result.email`, `result.email_status: valid`, `result.route` (`name` | `linkedin`), `result.person` (identity echo).
-- `conflict` — sources returned two different addresses. No address; 0 credits.
+- `conflict` — sources returned two different addresses and nothing settled it. No address; 0 credits. On `coverage`, each address is checked independently first: when exactly one passes and the other fails, the passing one is delivered as `found` at `low` with flag `conflict_settled_by_check`.
 - `catch_all` — the domain accepts every address, so the find cannot be proven. Withheld; 0 credits.
 - `not_found` — every other non-answer. `answer.reason_code` says which: `zero_hits` | `person_mismatch` | `no_match` | `sources_disagree` (the independent check said `invalid`) | `below_min_confidence` | `compliance_blocked` (the found address is suppressed) | `provider_error` (retry later) | `max_credits_reached` | `not_configured` | `status_down`.
 - Off a hit, `result.candidates` lists only the source, route and status — never an address. Never write from `result.candidates`.
