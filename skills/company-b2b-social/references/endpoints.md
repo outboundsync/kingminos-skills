@@ -30,7 +30,7 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP
 | `external_ref` | no | Client correlation key; echoed |
 | `routing.path` | no | `speed` \| `balance` \| `accuracy` \| `coverage` (omit = `balance`). Legacy aliases (`auto`, `value`, `fast`, `name_only`) normalize — echoed paths are the four live names. |
 | `routing.preset` | no | Back-compat; nested `routing.path` wins when both are sent |
-| `routing.only` | no | BYOK / escape providers (e.g. `["zoominfo"]` for scoped enrich, `["aiark"]` for AI Ark alone) |
+| `routing.only` | no | BYOK / escape providers (e.g. `["zoominfo"]` with a stored ZoomInfo key) |
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
 | `dry_run` | no | Default false |
 
@@ -48,10 +48,10 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 
 | `answer.outcome` | `result.linkedin_url` | Meaning |
 | --- | --- | --- |
-| `hit` | Serper-confirmed company URL or null per path rules | Decision returned |
+| `hit` | Search-confirmed company URL or null per path rules | Decision returned |
 | `no_decision` | null | Honest abstain |
 
-Output `result.linkedin_url` is only the accept form `https://www.linkedin.com/company/{slug}` (slug lowercased) after Serper confirmation, or null. Reject `/in/`, school/showcase, unverified title/snippet misses, and parent brand pages when the input is a distinct unit.
+Output `result.linkedin_url` is only the accept form `https://www.linkedin.com/company/{slug}` (slug lowercased) after search confirmation, or null. Reject `/in/`, school/showcase, unverified title/snippet misses, and parent brand pages when the input is a distinct unit.
 
 ## Routing (live Worker)
 

@@ -71,7 +71,7 @@ Skips the result-cache **read** only; the fresh answer is still written. TTL dif
 
 ### CRM writes
 
-`answer.confidence` is the only write signal. Path floors: `speed`/`coverage` → `low` and up; `balance` → `medium` and up; `accuracy` → `high`. Optional `min_confidence` overrides. Below floor: blank `description`, candidates in `evidence`. On `balance`+, a non-null `answer.identity` (`jev` ≥ 0.85, `name_domain`, or `own_homepage`) is required for a delivered hit.
+`answer.confidence` is the only write signal. Path floors: `speed`/`coverage` → `low` and up; `balance` → `medium` and up; `accuracy` → `high`. Optional `min_confidence` overrides. Below floor: blank `description`, candidates in `evidence`. On `balance`+, a non-null `answer.identity` (`jev` score ≥ 0.85, `name_domain`, or `own_homepage`) is required for a delivered hit.
 
 ### `result.flags` (on a hit; null on a miss)
 
@@ -93,19 +93,17 @@ Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`f
 
 | Path | Stack | Cap |
 | --- | --- | --- |
-| `speed` | Homepage meta / og (deterministic gates) → house **AI Ark** | 1 |
-| `balance` | Jev-ranked homepage extracts + meta/og + AI Ark; optional rewrite | 2 |
-| `accuracy` | xAI neutral third-person compose from homepage evidence + one Jev; falls back to the cheaper hit | 3 |
-| `coverage` | Accuracy compose + off-homepage house websearch + **ZoomInfo BYOK**; falls back to the accuracy winner | 6 |
+| `speed` | Homepage meta / og (deterministic gates), then a data-provider description | 1 |
+| `balance` | Judge-ranked homepage extracts + meta/og + data-provider text; optional rewrite | 2 |
+| `accuracy` | Neutral third-person compose from homepage evidence + one identity check; falls back to the cheaper hit | 3 |
+| `coverage` | Accuracy compose + off-homepage evidence + your own ZoomInfo key when stored; falls back to the accuracy winner | 6 |
 
-- **AI Ark** is the **only firmographic vendor** on this route.
 - **ZoomInfo** is **BYOK only** (coverage evidence when a key is stored; `400` `zi_credentials_required` when forced via `routing.only` without one).
-- **LeadMagic, Wiza, Findymail, Brandfetch, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are not `company.description` vendors.**
 - Hard 10 s cap from request start on every path.
 
 ## Billing
 
-- **Winner-only:** `usage.credits.spent` is the winning hop only (AI Ark 1, rewrite 0.5, compose 2, websearch 0.1, ZoomInfo BYOK 1 on full match). Rejected / lost hops and `no_decision` → **0**.
+- **Winner-only:** `usage.credits.spent` is the winning hop only (data-provider text 1, rewrite 0.5, compose 2, off-homepage evidence 0.1, your own ZoomInfo key 1 on full match). Rejected / lost hops and `no_decision` → **0**.
 - `usage.credits.cap` is the resolved path budget; `usage.credits.by_provider` breaks down the winner; `usage.hops` lists every attempt.
 - Results are cached about 30 days. Bypass: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or `skip_cache: true` (read skip only; still writes). Idempotency replay is independent of bypass. (`company.domain` uses a shorter cache; same bypass headers apply there.)
 

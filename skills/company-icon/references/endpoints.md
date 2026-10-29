@@ -51,7 +51,7 @@ Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain:
 | `hit` | `https://logos.kingminos.com/i/{sha256}.png` | **256x256 PNG** on KingMinos logo CDN — stamp when hosted URL + confidence meets path/`min_confidence` ([guidance](https://api.kingminos.com/v1/recipes/guidance)) |
 | `no_decision` | null | Wrong-company / junk / empty reject, or fetch/store failure — do not invent an icon |
 
-On a hit, **`result.icon_url` is always** the hosted KingMinos URL — never a raw third-party or site favicon URL in the stamp field. **`result.icon_source_url`** (optional) is the winning source URL (manifest icon, apple-touch-icon, favicon, Brandfetch, ZoomInfo logo, etc.) for display/debug only.
+On a hit, **`result.icon_url` is always** the hosted KingMinos URL — never a raw third-party or site favicon URL in the stamp field. **`result.icon_source_url`** (optional) is the winning source URL for display/debug only.
 
 ### Low-resolution hits (under 64px source)
 
@@ -59,12 +59,9 @@ When the best accepted source raster is **under 64px**, the Worker still returns
 
 ## Sources (resolve → re-host)
 
-Default ladder: **site manifest / apple-touch-icon / favicon (0 credits) → Brandfetch BYOK brand logo (1, soft-fail and continue) → ZoomInfo enrich logo (1)**
-
-- Resolves from **site manifest icons**, **apple-touch-icon**, and **favicon** (best candidate first), then **Brandfetch** and **ZoomInfo** brand logos; validates, stores, and serves a **256x256 PNG** on `logos.kingminos.com`.
-- Brandfetch prefers **icon** over wider brand **logo** when both exist.
-- **Enrich-CRM, AI Ark, LeadMagic, and Prospeo are not icon sources.**
-- **Brandfetch** and **ZoomInfo** require stored Your Keys for their ladder steps (`credentials` skill).
+- Picks the best icon candidate; validates, stores, and serves a **256x256 PNG** on `logos.kingminos.com`.
+- A square **icon** is preferred over a wider brand **logo** when both exist.
+- Connecting your own **Brandfetch** or **ZoomInfo** key (`credentials` skill) adds larger logos for more companies.
 
 ## Errors (run not started)
 
