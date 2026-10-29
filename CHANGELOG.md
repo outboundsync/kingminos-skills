@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+- `person-email` skill 1.1.0: `speed` is 2 credits on a delivered email (was 1.5), so `person.email` is outcome-priced 2–5. On `coverage`, two different addresses are each checked independently; when exactly one passes and the other fails it is delivered at `low` with the new flag `conflict_settled_by_check`. `api` skill 1.12.1: the API map row carries the same price and flag.
+
 ## [2026.10.28.1] - 2026-10-28
 
 ### Added

@@ -50,7 +50,7 @@ Clay HTTP column: `first_name`, `last_name`, `company_domain` (plus `linkedin_ur
 
 | Answer | Credits |
 | --- | --- |
-| Delivered `found` | 1.5–5 by path (`speed` cheapest, `coverage` most); 0.1 on your own vendor key |
+| Delivered `found` | 2–5 by path (`speed` cheapest, `coverage` most); 0.1 on your own vendor key |
 | `not_found`, `conflict`, `catch_all`, below-floor withhold, suppressed address, timeout, dry run | 0 |
 | Cached replay | 0 |
 | `451 subject_suppressed` | 0 |
@@ -92,7 +92,7 @@ Decision  ████████████████████  ✓ es_d
 - ✓ email `anna.example@example.com` · medium · meets write floor
 - · route: name
 - · flags: single_source — verify before a send
-- · credits: 1.5
+- · credits: 2
 
 ### Next
 1. For extra assurance, run `email-verify` on `anna.example@example.com` with `routing.path: accuracy` and send only on `valid`.
