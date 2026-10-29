@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP). Mutations only after explicit confirmation.
 metadata:
   author: outboundsync
-  version: "1.3.0"
+  version: "1.3.1"
 ---
 
 # KingMinos credentials
@@ -33,7 +33,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | Findymail | `findymail` | **House-key** (approved; OutboundSync-provided). Tenant store is optional. | `{ "apiKey" }` |
 | ZoomInfo | `zoominfo` | BYOK | `{ "clientId", "clientSecret" }` |
 | Wiza | `wiza` | **House-key** (approved; OutboundSync-provided). Tenant store is optional. | `{ "apiKey" }` |
-| AIArk | `aiark` | **House-key** (approved; OutboundSync-provided). Tenant store is optional. Default on `company.b2b_social` `balance` / `accuracy`; `routing.only: ["aiark"]` for AI-Ark-only. | `{ "apiKey" }` |
+| AIArk | `aiark` | **House-key** (approved; OutboundSync-provided). Tenant store is optional. | `{ "apiKey" }` |
 | BuiltWith | `builtwith` | BYOK | `{ "apiKey" }` |
 | Brandfetch | `brandfetch` | BYOK | `{ "apiKey" }` |
 | Prospeo | `prospeo` | BYOK | `{ "apiKey" }` |

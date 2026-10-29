@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # KingMinos company.hierarchy
@@ -26,9 +26,9 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 ## Policy (locked)
 
 - Outcomes: **`subsidiary` | `ultimate_parent` | `no_decision`** — there is no "standalone" outcome. `subsidiary` / `ultimate_parent` → `es_decision: hit`; `no_decision` maps by reason (`no_match` / `no_hierarchy_data` → `miss`; `ambiguous` / `sources_disagree` / `domain_mismatch` → `ambiguous`; `provider_unavailable` → `error`; budget/compliance/config → `noop`).
-- **Identity first:** `speed` resolves identity with free Wikidata `exact_one` on P856 official-website (cap 0). `balance` (default) / `accuracy` add a ZoomInfo company search (`exact_one`, 0 credits; a candidate whose registrable domain ≠ input is `domain_mismatch`, never enriched) then the corporate-hierarchy enrich — **1 credit on the first `FULL_MATCH` only**; rematch / `NO_MATCH` / errors are free. `speed`/`balance`/`accuracy` all cap at 1; legacy `fast`/`value`/`name_only` → `speed`, `auto` → `balance`; **`coverage` is `400 invalid_routing`**.
+- **Identity first:** `speed` is free public registry data (cap 0). `balance` (default) / `accuracy` add a corporate-hierarchy lookup (a candidate whose registrable domain ≠ input is `domain_mismatch`, never enriched) — **1 credit on the first `FULL_MATCH` only**; connect your own ZoomInfo key for best results; rematch / `NO_MATCH` / errors are free. `speed`/`balance`/`accuracy` all cap at 1; legacy `fast`/`value`/`name_only` → `speed`, `auto` → `balance`; **`coverage` is `400 invalid_routing`**.
 - **Input:** one of `domain` | `website` | `email` (required; name alone is `400 validation_failed` with `fields: [domain, website, email]`). Optional `name` (alias `company_name`), `country`, `dry_run`, `external_ref`, `compliance`. **Disagreeing `domain` / `email` / `website` → `400 domain_website_mismatch`** — this capability does not adjudicate identity (contrast `company.domain`).
-- Subsidiaries are **capped at 50** with `family_tree_size` (raw node count) + `truncated` (boolean) telling you what was cut; parent/subsidiary `*_domain` is null unless Wikidata filled it — join websites via `zoominfo_company_id`. Raw ZoomInfo `familyTree` never reaches the wire (4 MiB read cap).
+- Subsidiaries are **capped at 50** with `family_tree_size` (raw node count) + `truncated` (boolean) telling you what was cut; parent/subsidiary `*_domain` is often null — join websites via `zoominfo_company_id`.
 - `es_decision: hit` (subsidiary/ultimate_parent) is the stamp gate — fill `zoominfo_company_id` only on hit + non-blank id. Not in `openapi.es.yaml` yet: no External Services action until Harris opens it.
 - `exact_one`; no fuzzy; ties never broken. An ambiguous search or a mismatched single hit does **not** enrich. A ZoomInfo alias gap (`billpay.com`-style `NO_MATCH`) is `no_hierarchy_data`, not an entitlement miss — alias repair belongs on `company.domain`.
 

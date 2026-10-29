@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # KingMinos person.title
@@ -52,7 +52,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | `speed` | One profile read, keywords only, never `high` | 1 |
 | `balance` | First usable title wins | 2 |
 | `accuracy` | Two independent sources plus a judge; agreement is `high`, a disagreement flags `conflicting_titles`; 10 s cap | 3 |
-| `coverage` | Adds AI Ark people search and Findymail whenever a second source is wanted | 5 |
+| `coverage` | Adds more sources whenever a second source is wanted | 5 |
 
 - **Other routing:** `routing.only` / `routing.ignore` are honored; an unknown provider → `400 unknown_provider`. ZoomInfo is searched only on a workspace BYOK key.
 - **Optional:** `dry_run`, `skip_cache`, `external_ref`, `compliance`.

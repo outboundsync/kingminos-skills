@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # KingMinos company description (`company.description`)
@@ -32,10 +32,10 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
    | Path | Stack | Cap |
    | --- | --- | --- |
-   | `speed` | Homepage meta / og description (deterministic gates), then house **AI Ark** | 1 |
-   | `balance` | Jev-ranked homepage extracts + meta/og + AI Ark; optional neutral rewrite (0.5) | 2 |
-   | `accuracy` | Neutral third-person **xAI** compose from homepage evidence (2) + one Jev identity check; falls back to the cheaper hit | 3 |
-   | `coverage` | Accuracy compose plus off-homepage house websearch (0.1) and **ZoomInfo BYOK** evidence; falls back to the accuracy winner | 6 |
+   | `speed` | Homepage meta / og description (deterministic gates), then a data-provider description | 1 |
+   | `balance` | Judge-ranked homepage extracts + meta/og + data-provider text; optional neutral rewrite (0.5) | 2 |
+   | `accuracy` | Neutral third-person compose from homepage evidence (2) + one identity check; falls back to the cheaper hit | 3 |
+   | `coverage` | Accuracy compose plus off-homepage evidence (0.1), and your own ZoomInfo key when stored; falls back to the accuracy winner | 6 |
 
 4. `POST https://api.kingminos.com/v1/company/description` with JSON. Typical body:
 
@@ -53,17 +53,17 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    **Cache bypass** on `company.description` (30-day result cache) and `company.domain` (short TTL, about five minutes max; skips read only, still writes): header `X-Router-Cache: bypass` (any other value → `400 invalid_cache`), or `Cache-Control: no-cache` / `no-store`, or body `skip_cache: true`. Reusing the same `Idempotency-Key` still returns the stored response — omit or rotate that header when you need a fresh run despite bypass. **`company.resolve` silently ignores bypass** and may return a cached answer.
 5. Prefer `X-Router-Explain: minimal` on CRM callouts. Use `full` only when the user asks for `trace`.
 6. Read control fields: `es_decision`, `answer.outcome` (`hit` | `no_decision`), `answer.confidence` (`high` | `medium` | `low` | null), `answer.identity` (`{method: jev | name_domain | own_homepage, score}` or null), `result.description`, and `result.flags` (`hype`, `first_person`, `tagline`, `same_as_speed`, `truncated`, `cta`, `grammar`; ignore unknown keys).
-7. **CRM stamp rule:** stamp `result.description` only when it is non-blank and `answer.confidence` meets the path/`min_confidence` floor and the user's once-stated CRM acceptance floor — see [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance). On `balance` and above, identity-gated hits need a non-null `answer.identity` (Jev ≥ 0.85, name/domain match, or own homepage). `truncated` and `cta` force confidence `low` (still usable — ask the user once whether `low` is acceptable for their list). `hype` / `first_person` / `tagline` / `same_as_speed` / `grammar` are advisory — `grammar` is informational only and does not change confidence; apply your own CRM style bar on top. Below-floor withholds return blank `description` with candidates in `evidence`. Never invent description text on `no_decision`.
+7. **CRM stamp rule:** stamp `result.description` only when it is non-blank and `answer.confidence` meets the path/`min_confidence` floor and the user's once-stated CRM acceptance floor — see [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance). On `balance` and above, identity-gated hits need a non-null `answer.identity` (judge score ≥ 0.85, name/domain match, or own homepage). `truncated` and `cta` force confidence `low` (still usable — ask the user once whether `low` is acceptable for their list). `hype` / `first_person` / `tagline` / `same_as_speed` / `grammar` are advisory — `grammar` is informational only and does not change confidence; apply your own CRM style bar on top. Below-floor withholds return blank `description` with candidates in `evidence`. Never invent description text on `no_decision`.
 8. HTTP 200 with `no_decision` is a decision, not UNVERIFIED. `400` `zi_credentials_required` → hand off to `credentials` (ZoomInfo forced via `routing.only` without a stored key).
 9. Write **SFDC** or **Salesforce**, never **SF**.
 
 ### Vendors
 
-**AI Ark is the only firmographic vendor** on this capability (house key). House site fetch, Jev, xAI compose/rewrite, and websearch (coverage) are house steps. **ZoomInfo is BYOK only** (never the house key). **LeadMagic, Wiza, Findymail, Brandfetch, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are not `company.description` vendors.**
+Default paths run on house keys. **ZoomInfo runs only with your own key.**
 
 ### Billing
 
-**Winner-only:** only the hop that produced the returned text is charged (AI Ark 1, rewrite 0.5, compose 2, websearch 0.1, ZoomInfo BYOK 1 on a full match). Rejected/lost hops and a miss cost **0**. Read **`usage.credits.spent`** and **`usage.credits.by_provider`** on every run — do not infer spend from the path name.
+**Winner-only:** only the hop that produced the returned text is charged (data-provider text 1, rewrite 0.5, compose 2, off-homepage evidence 0.1, your own ZoomInfo key 1 on a full match). Rejected/lost hops and a miss cost **0**. Read **`usage.credits.spent`** and **`usage.credits.by_provider`** on every run — do not infer spend from the path name.
 
 Hosted MCP: `https://mcp.kingminos.com` — same Bearer and `company_description` tool. Prefer REST for scripts.
 

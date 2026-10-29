@@ -37,7 +37,7 @@ CRM write floors: [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/reci
 
 Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`.
 
-Default `max_provider_credits` is `19` on `auto` (`accuracy` 21, `coverage` 23), `2` on `value`. Wiza name recovery bills 15 credits; any step on your own key (BYOK) bills 0.1.
+Default `max_provider_credits` is `19` on `auto` (`accuracy` 21, `coverage` 23), `2` on `value`. Paid name recovery bills 15 credits; any step on your own key (BYOK) bills 0.1.
 
 ## Control vs explain
 
@@ -57,7 +57,7 @@ Default `max_provider_credits` is `19` on `auto` (`accuracy` 21, `coverage` 23),
 
 **Account Name:** fill-if-blank from `result.company_name` whenever non-blank (including on `es_decision=miss`). **ZoomInfo id:** Salesforce stamp only when `es_decision=hit` and `result.zoominfo_company_id` is non-blank. **`company_domain`:** optional hygiene when `result.company_domain` is present — never clobber.
 
-A LeadMagic-only or websearch-only hit is `resolved_without_primary_id`. A websearch name is not terminal while ZoomInfo remains in `effectiveOrder`.
+A hit without a primary company id is `resolved_without_primary_id`. Connect your own ZoomInfo key for stampable ids.
 
 ## Routing (live Worker)
 

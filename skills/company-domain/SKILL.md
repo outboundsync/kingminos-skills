@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # KingMinos company.domain
@@ -34,7 +34,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | `no_decision` | by reason (`insufficient_input` → `noop`) | Router skipped | Do not write |
 
 - **Stamp gate:** trusted outcome (`verified` / `corrected` / `discovered`) with `es_decision: hit`, non-blank `result.company_domain`, and `answer.confidence` meeting path/`min_confidence` and the user's CRM acceptance floor — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance).
-- Paths (`routing.path` or flattened `path`; nested wins; omit → `balance`): `speed` (hygiene + DNS + site probe, cap 0) · `balance` (adds a 0-credit ZoomInfo search on tenant `default`; no-ZI fallthrough to LeadMagic then Serper, cap 0-2) · `accuracy` (ZI → LeadMagic → websearch, miss-only, plus free Wikidata/GLEIF/RDAP evidence, cap 2) · `coverage` (adds BuiltWith Relationships, cap 3). Legacy `fast`/`value`/`name_only` → `speed`, `auto` → `balance`.
+- Paths (`routing.path` or flattened `path`; nested wins; omit → `balance`): `speed` (hygiene + DNS + site probe, cap 0) · `balance` (adds a name/domain lookup, cap 0-2) · `accuracy` (miss-only lookups plus free public registry evidence, cap 2) · `coverage` (adds related-domain evidence, cap 3). Legacy `fast`/`value`/`name_only` → `speed`, `auto` → `balance`.
 - **Disagreeing `domain` / `email` / `website` is accepted, not a 400** — the capability adjudicates. ZoomInfo is BYOK for workspace keys; the house key runs only on tenant `default` (SFDC Flow).
 - Result fields that are **not** the stamp: `account_primary_domain` (HubSpot `domain` — `collapse_brand` can lift a regional above `company_domain`), `additional_domains` (ownership-proven only — never "all domains found"), `review_domains` / `related_domains` (review columns), `discovered_domain` (half-trusted side column), `corrected_from` / `corrected_via`.
 - `exact_one`; no fuzzy. Weak discovery abstains (`R11_discovery_abstain`) — it never invents. A dead-domain verdict is soft `unverified`, not `rejected`.
