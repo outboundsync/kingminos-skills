@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # KingMinos person.b2b_social
@@ -78,16 +78,23 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - Write `result.linkedin_url` only on `found` when `answer.confidence` meets the user's CRM acceptance floor — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance).
 - Withhold on `conflicting_profiles` and `unconfirmed_identity` (a requested name the record could not be checked against; never `high`). A `person_mismatch` flag on a hit means another profile was rejected; the returned one passed.
 
+### Chaining from person.name
+
+- `POST /v1/person/name` may put **`/v1/person/b2b-social`** in **`next_steps[]`** or **`options[]`** when the request had `email` but no `linkedin_url` (miss, withhold, `parsed_only`, or `quality_flags`). Quote the API's **`est_credits`** (2 / 3 / 5 by path) and **ask before calling** — the same rule as `agent_guidance` on person.name.
+- Step 2 of recipe **`crm_contact_name_cleanup`** (`GET /v1/recipes`). After a profile URL is `found` at the user's floor, a follow-up **`POST /v1/person/name`** with `email` + `linkedin_url` is step 3 (`person-name` skill).
+
 ## Workflow
 
 1. Confirm auth (`GET /v1/capabilities` or the `auth` skill). On `401`, stop.
-2. Pick the path for the job:
+2. When the user arrived from `person.name` `next_steps` / `options`, confirm path and credits before spending.
+3. Pick the path for the job:
    - fill a blank LinkedIn field for a social touch → `balance`;
    - CRM profile-URL stamp → `accuracy` (floor `high`: only two agreeing sources deliver).
-3. Send `POST /v1/person/b2b-social` with `email`. Pass `first_name` / `last_name` when known, so a wrong-person profile is rejected instead of trusted. Pass a known `linkedin_url` only to confirm it.
-4. Render the verdict from `answer.outcome` / `answer.reason_code`, `es_decision`, `answer.confidence` and `result`. Report how many `result.candidates` agree and any `flags`.
-5. **Clay:** one HTTP column, email in. Map `result.linkedin_url` out, branch on `answer.outcome`, and gate the write on `answer.confidence` vs the user's floor.
-6. Business misses stay HTTP 200. Relay these `400` codes verbatim: `validation_failed` (`email_required` | `invalid_linkedin_url` | `min_confidence`) | `invalid_routing` | `unknown_provider` | `invalid_compliance` | `invalid_explain`.
+4. Send `POST /v1/person/b2b-social` with `email`. Pass `first_name` / `last_name` when known, so a wrong-person profile is rejected instead of trusted. Pass a known `linkedin_url` only to confirm it.
+5. Render the verdict from `answer.outcome` / `answer.reason_code`, `es_decision`, `answer.confidence` and `result`. Report how many `result.candidates` agree and any `flags`.
+6. On `found`, offer a **`person.name`** retry with the new `linkedin_url` when the user wants a CRM name stamp — quote credits from `person.name` `options[]` if you have them.
+7. **Clay:** one HTTP column, email in. Map `result.linkedin_url` out, branch on `answer.outcome`, and gate the write on `answer.confidence` vs the user's floor.
+8. Business misses stay HTTP 200. Relay these `400` codes verbatim: `validation_failed` (`email_required` | `invalid_linkedin_url` | `min_confidence`) | `invalid_routing` | `unknown_provider` | `invalid_compliance` | `invalid_explain`.
 
 ## Errors
 

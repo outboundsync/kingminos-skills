@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.12.2"
+  version: "1.13.0"
 ---
 
 # KingMinos API
@@ -72,6 +72,12 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 | File feedback when blocked or missing data | `submit_feedback` · `POST /v1/feedback` (free; not a support channel) |
 
 Do not call `put_credentials`, `delete_credentials`, or `delete_subject` from this skill.
+
+### Agent enrichment (person.name and recipes)
+
+- **`POST /v1/person/name`** returns **`options[]`** (all path prices plus related endpoints), **`agent_guidance`**, and often **`next_steps[]`** with **`est_credits`**. Agents must present every option with credits and **wait** — never assume low spend or stop on `not_found`. Hand off execution details to `person-name`.
+- **`result.quality_flags`** on a delivered name means **do not write** the name to CRM; follow `next_steps`.
+- **`GET /v1/recipes`** (`get_recipes`, free): chained workflows with per-step `est_credits`. Recipe **`crm_contact_name_cleanup`** — `person.name`, then `person.b2b_social` on rows that still need a profile URL, then `person.name` with `linkedin_url`, then stamp names and LinkedIn when confidence and quality rules pass. Ask which recipe dial (`speed` / `balance` / `accuracy` / `coverage`) before bulk rows.
 
 ## Output contract
 
