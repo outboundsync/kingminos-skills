@@ -2,8 +2,9 @@
 name: company-domain
 description: >-
   Decide and audit the KingMinos company.domain stamp: which domain a CRM
-  account should carry, whether it is write-safe, and which ownership-proven
-  account aliases come with it. Use when the user asks to verify a company
+  account should carry, whether it is write-safe, and which write-safe
+  account aliases (ownership-proven hosts plus cross-domain redirect targets)
+  come with it. Use when the user asks to verify a company
   domain, why a domain was rejected or unverified, what discovered_domain or
   additional_domains mean, which domain_family to use, or how to fill
   Domain__c safely from KingMinos.
@@ -11,12 +12,12 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # KingMinos company.domain
 
-One decision: **what should the CRM domain field say, and is it safe to write?** `POST /v1/company/domain` returns a trusted stamp (`company_domain`), optional ownership-proven account aliases (`additional_domains`), and review columns (`review_domains`, `related_domains`, `discovered_domain`). Read-only enrichment: a business miss is HTTP 200 — branch on `answer.outcome` / `es_decision`, never on the status code.
+One decision: **what should the CRM domain field say, and is it safe to write?** `POST /v1/company/domain` returns a trusted stamp (`company_domain`), optional write-safe account aliases (`additional_domains` / `additional_domains_csv`; per-host `additional_domain_proofs`), and review columns (`review_domains`, `related_domains`, `discovered_domain`). Read-only enrichment: a business miss is HTTP 200 — branch on `answer.outcome` / `es_decision`, never on the status code.
 
 **Blocked or missing data?** File feedback — MCP submit_feedback or POST /v1/feedback (free, never costs credits). Not a support channel.
 
@@ -36,7 +37,8 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - **Stamp gate:** trusted outcome (`verified` / `corrected` / `discovered`) with `es_decision: hit`, non-blank `result.company_domain`, and `answer.confidence` meeting path/`min_confidence` and the user's CRM acceptance floor — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance).
 - Paths (`routing.path` or flattened `path`; nested wins; omit → `balance`): `speed` (hygiene + DNS + site probe, cap 0) · `balance` (adds a name/domain lookup, cap 0-2) · `accuracy` (miss-only lookups plus free public registry evidence, cap 2) · `coverage` (adds related-domain evidence, cap 3). Legacy `fast`/`value`/`name_only` → `speed`, `auto` → `balance`.
 - **Disagreeing `domain` / `email` / `website` is accepted, not a 400** — the capability adjudicates. ZoomInfo is BYOK for workspace keys; the house key runs only on tenant `default` (SFDC Flow).
-- Result fields that are **not** the stamp: `account_primary_domain` (HubSpot `domain` — `collapse_brand` can lift a regional above `company_domain`), `additional_domains` (ownership-proven only — never "all domains found"), `review_domains` / `related_domains` (review columns), `discovered_domain` (half-trusted side column), `corrected_from` / `corrected_via`.
+- Result fields that are **not** the stamp: `account_primary_domain` (HubSpot `domain` — `collapse_brand` can lift a regional above `company_domain`), `input_domain` (normalized caller host — keep this on the CRM primary when the integration preserves what was entered), `additional_domains` / `additional_domains_csv` (write-safe aliases only — never "all domains found"; never the input host or its www/apex twins), `additional_domain_proofs` (per-host proof tags such as `redirect` — additive, not a write gate), `review_domains` / `related_domains` (review columns), `discovered_domain` (half-trusted side column), `corrected_from` / `corrected_via` (`redirect` \| `cname` \| `canonical_link` \| `og_url` when outcome is `corrected`).
+- **Cross-domain HTTP redirect:** when the input host redirects to a different registrable domain and identity passes, that live target (typically `company_domain` when it differs from the input) is included in `additional_domains` / `additional_domains_csv` with proof `redirect` in `additional_domain_proofs`. Same-site redirects (www, http→https), identity-mismatch redirects, and an input already on the stamp add nothing.
 - `exact_one`; no fuzzy. Weak discovery abstains (`R11_discovery_abstain`) — it never invents. A dead-domain verdict is soft `unverified`, not `rejected`.
 - Cache: per-tenant ~5-minute result cache; bypass the **read** with `X-Router-Cache: bypass` / `Cache-Control: no-cache` / `skip_cache: true`. Bypass does not skip Idempotency-Key replay — omit or rotate the key.
 
@@ -47,7 +49,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 3. A `/in/` LinkedIn URL is `400 validation_failed` (`linkedin_person_url_not_allowed`) — company pages only.
 4. Branch on `answer.outcome` / `es_decision`. Business misses (`rejected` / `unverified` / `no_decision`) stay HTTP 200 — render them as the verdict, never as an empty result.
 5. Stamp only when the trusted-outcome gate above passes. Name fill-if-blank may use `result.company_name` whenever present (including a miss); never clobber an existing domain with `discovered_domain`.
-6. Aliases: HubSpot `domain` ← `account_primary_domain` and `hs_additional_domains` ← `additional_domains.join(";")` — the caller joins. `review_domains` / `related_domains` are review columns, never merges.
+6. Aliases: HubSpot `domain` ← `account_primary_domain` (or `input_domain` when the CRM primary must stay as entered) and `hs_additional_domains` ← `additional_domains.join(";")` or `additional_domains_csv` (SFDC `Secondary_Domains__c`) — the caller joins. On a moved domain, keep the entered host on the primary field and put the live redirect target in secondary aliases only (`additional_domains` never includes the input). `review_domains` / `related_domains` are review columns, never merges.
 7. `400` errors to relay verbatim: `validation_failed` | `invalid_routing` | `invalid_compliance` | `invalid_explain` | `invalid_schema` | `unsupported_schema` | `invalid_cache` | `builtwith_credentials_required` (coverage path needs the BuiltWith key) | `zi_credentials_required` (explicit `zi_stamp` / `routing.only: ["zoominfo"]` without Your Keys).
 
 ## Errors
@@ -79,7 +81,7 @@ Decision  <bar>  <✓|✗|·> <es_decision hit — write-safe | reject — do no
 
 - <✓ company_domain `<domain>` — write when confidence meets floor | ✗ rejected: <reason> — do not write the input | · UNVERIFIED — <reason>>
 - <· discovered_domain / corrected_from / family_policy / account_primary_domain when present>
-- <· additional_domains (n) — ownership-proven only | review_domains (n) — review before use>
+- <· additional_domains (n) — write-safe aliases (+ redirect target when cross-domain) · additional_domain_proofs when present | review_domains (n) — review before use>
 
 ### Next
 1. <shortest action tied to a ✗ or UNVERIFIED above>
