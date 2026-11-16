@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.11.16.0] - 2026-11-16
+
 ### Changed
 
 - `person-name` skill 1.1.0: `POST /v1/person/name` agent surfaces — `next_steps[]` (endpoint, inputs, `est_credits`) on misses, below-floor, `parsed_only`, and quality-flagged names; `options[]` on every response (path prices plus related endpoints such as `/v1/person/b2b-social` when email and no LinkedIn); `agent_guidance` (present choices and wait; never pick a cheaper default); `result.quality_flags` (`surname_initial_only`, `surname_truncated`, `surname_repeats_first`, `credential_suffix`) with a no-write rule; `crm_contact_name_cleanup` recipe via `GET /v1/recipes`.
