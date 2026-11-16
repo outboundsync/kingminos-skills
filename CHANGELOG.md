@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.11.16.3] - 2026-11-16
+
 ### Removed
 
 - The unpublished `kingminos-skills` npm package (`npm/`) and its `publish-npm` release job. It never shipped. `npx skills add outboundsync/kingminos-skills` is the only install path, and README now documents `npx skills update` for refreshing installed skills.
