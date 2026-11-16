@@ -27,8 +27,6 @@ jobs:
     timeout-minutes: 25
     env:
       RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
-    outputs:
-      published_tag: ${{ steps.npm_publish_tag.outputs.tag }}
 
     steps:
       - name: Checkout
@@ -93,25 +91,3 @@ jobs:
           REPO: ${{ github.repository }}
           TAG: ${{ steps.calver.outputs.next_tag }}
         run: bash scripts/release-changelog-pr.sh
-
-      - name: Record tag for npm publish
-        id: npm_publish_tag
-        if: always()
-        run: |
-          if [ "${{ steps.calver.outputs.has_changes }}" = "true" ] \
-             && [ "${{ steps.tag.outputs.created }}" = "true" ]; then
-            echo "tag=${{ steps.calver.outputs.next_tag }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=" >> "$GITHUB_OUTPUT"
-          fi
-
-  publish-npm:
-    needs: release
-    if: needs.release.outputs.published_tag != ''
-    permissions:
-      contents: read
-      id-token: write # npm provenance (reusable workflow)
-    uses: ./.github/workflows/publish-npm.yml
-    with:
-      tag: ${{ needs.release.outputs.published_tag }}
-    secrets: inherit

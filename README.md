@@ -88,6 +88,17 @@ npx skills use outboundsync/kingminos-skills --skill person-email
 npx skills use outboundsync/kingminos-skills --skill email-verify
 ```
 
+### Stay up to date
+
+`npx skills add` and `npx skills use` always read the latest `main` of this repo, so new installs get every merged change. Skills you already installed are a snapshot. Refresh them with:
+
+```bash
+npx skills update -g   # skills installed with -g
+npx skills update -p   # skills installed in this project
+```
+
+This GitHub repo is the only distribution channel. The pack is not published to npm.
+
 ## Credentials
 
 Mint a personal access token at [`https://app.kingminos.com`](https://app.kingminos.com) (workspace owner → tokens). It is shown once, starts with `km_`, is scoped to explicit capabilities (not `*`), and has a daily credit cap (default 100). Set it before live calls. **Never print, log, or commit the API key.**
@@ -167,8 +178,6 @@ Releases are created automatically after hermetic Validate skill integrity passe
 - Versioning format: `YYYY.MM.DD.N` (CalVer). Each skill also has its own `metadata.version`.
 - Release notes: [GitHub Releases](https://github.com/outboundsync/kingminos-skills/releases), generated from commit subjects.
 - Curated changelog: [CHANGELOG.md](CHANGELOG.md). Each release moves the `## Unreleased` lines under the new tag automatically through a bot PR (`main` is protected; see CONTRIBUTING).
-- npm package `kingminos-skills`: published automatically after each new CalVer release when repository secret `NPM_TOKEN` is set; otherwise the publish step is skipped with a notice (see CONTRIBUTING).
-
 To preview the next release locally:
 
 ```bash
