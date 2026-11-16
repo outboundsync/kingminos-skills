@@ -167,6 +167,7 @@ Releases are created automatically after hermetic Validate skill integrity passe
 - Versioning format: `YYYY.MM.DD.N` (CalVer). Each skill also has its own `metadata.version`.
 - Release notes: [GitHub Releases](https://github.com/outboundsync/kingminos-skills/releases), generated from commit subjects.
 - Curated changelog: [CHANGELOG.md](CHANGELOG.md). Each release moves the `## Unreleased` lines under the new tag automatically through a bot PR (`main` is protected; see CONTRIBUTING).
+- npm package `kingminos-skills`: published automatically after each new CalVer release when repository secret `NPM_TOKEN` is set; otherwise the publish step is skipped with a notice (see CONTRIBUTING).
 
 To preview the next release locally:
 
