@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+### Removed
+
+- The unpublished `kingminos-skills` npm package (`npm/`) and its `publish-npm` release job. It never shipped. `npx skills add outboundsync/kingminos-skills` is the only install path, and README now documents `npx skills update` for refreshing installed skills.
+
 ## [2026.11.16.2] - 2026-11-16
 
 - `company-domain` skill 1.2.0: `POST /v1/company/domain` cross-domain HTTP redirects — when the input redirects to a different registrable domain and identity passes, the live target is included in `additional_domains` / `additional_domains_csv` with `additional_domain_proofs` proof `redirect` (input host never listed); CRM guidance to keep the entered primary and store redirect targets in secondary aliases (`Secondary_Domains__c` / `hs_additional_domains`).
