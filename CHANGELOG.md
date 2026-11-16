@@ -4,6 +4,9 @@
 
 ## Unreleased
 
+- `company-domain` skill 1.2.0: `POST /v1/company/domain` cross-domain HTTP redirects — when the input redirects to a different registrable domain and identity passes, the live target is included in `additional_domains` / `additional_domains_csv` with `additional_domain_proofs` proof `redirect` (input host never listed); CRM guidance to keep the entered primary and store redirect targets in secondary aliases (`Secondary_Domains__c` / `hs_additional_domains`).
+- `api` skill 1.14.0: API map row for `company_domain` documents redirect aliases and CRM primary/secondary mapping.
+
 ## [2026.11.16.0] - 2026-11-16
 
 ### Changed

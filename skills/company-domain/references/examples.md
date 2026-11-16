@@ -19,10 +19,32 @@ Decision  ████████████████████  ✓ es_d
 
 - ✓ company_domain `outboundsync.com` — meets confidence floor
 - · corrected_via redirect · account_primary_domain `outboundsync.com`
-- · additional_domains (2) — ownership-proven only
+- · additional_domains (2) — write-safe aliases (ownership-proven hosts)
 
 ### Next
 1. Stamp `Domain__c` with `outboundsync.com`; fill the name from `result.company_name` when the field is blank.
+
+## Cross-domain redirect (moved brand)
+
+## Domain — corrected
+
+```text
+Overall   ████████████████████  3/3 · ready
+
+Auth      ████████████████████  ✓ ready
+Input     ████████████████████  ✓ domain
+Decision  ████████████████████  ✓ es_decision hit — write-safe
+```
+
+### Stamp
+`snowplowanalytics.com → snowplow.io (redirect)`
+
+- ✓ company_domain `snowplow.io` — meets confidence floor
+- · input_domain `snowplowanalytics.com` · corrected_via redirect
+- · additional_domains (1) — `snowplow.io` (redirect proof) · additional_domains_csv `snowplow.io`
+
+### Next
+1. Keep `Domain__c` as `snowplowanalytics.com` (entered primary); write `Secondary_Domains__c` from `additional_domains_csv` (`snowplow.io`).
 
 ## Rejected input
 
