@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+### Changed
+
+- `person-name` skill 1.1.0: `POST /v1/person/name` agent surfaces — `next_steps[]` (endpoint, inputs, `est_credits`) on misses, below-floor, `parsed_only`, and quality-flagged names; `options[]` on every response (path prices plus related endpoints such as `/v1/person/b2b-social` when email and no LinkedIn); `agent_guidance` (present choices and wait; never pick a cheaper default); `result.quality_flags` (`surname_initial_only`, `surname_truncated`, `surname_repeats_first`, `credential_suffix`) with a no-write rule; `crm_contact_name_cleanup` recipe via `GET /v1/recipes`.
+- `person-b2b-social` skill 1.1.0: chaining from `person.name` `next_steps` / `options` and step 2 of `crm_contact_name_cleanup`.
+- `api` skill 1.13.0: API map and agent-enrichment notes for person.name fields and `crm_contact_name_cleanup`.
+
 ## [2026.10.29.0] - 2026-10-29
 
 - `person-email` skill 1.1.0: `speed` is 2 credits on a delivered email (was 1.5), so `person.email` is outcome-priced 2–5. On `coverage`, two different addresses are each checked independently; when exactly one passes and the other fails it is delivered at `low` with the new flag `conflict_settled_by_check`. `api` skill 1.12.1: the API map row carries the same price and flag.
