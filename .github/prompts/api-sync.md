@@ -22,12 +22,13 @@ Only edit these files:
 - `scripts/validate/fixtures/providers.yaml`, only when the spec's `/v1/credentials/{provider}` enum changed:
   - **Added id:** add an entry (`id`, `label`, `supply`, `credentials_required`, `path_enum`, `api_key`) following the comments at the top of the file and the spec's parameter description. Then add the id to every BYOK list, path-`provider` enum and `*_credentials_required` list under `skills/` that `provider-enum` reports. Say in your summary which fields you inferred, so a human can confirm them.
   - **Removed id:** don't delete the entry. Set `path_enum: false`, remove the id from path-`provider` enum lists under `skills/`, and say in your summary that a human must confirm the removal, because it may be a spec mistake.
+- `README.md`, `CONVENTIONS.md` and `SECURITY.md`: only the BYOK / house-key provider lists that `provider-enum` checks, after a provider change. Edit nothing else in these files.
 - `CHANGELOG.md`: add lines under `## Unreleased` only, in the style of the existing entries (``- `<skill>` skill <new version>: <what changed>.``). Never change a released `## [YYYY.MM.DD.N]` section.
 
 Do not edit:
 
 - `scripts/validate/fixtures/openapi-inventory.yaml` or anything under `api-sync/`. The workflow generates them.
-- Any other file under `scripts/`, `test/`, `templates/` or `.github/`, `package.json`, `package-lock.json`, `README.md`, `CONVENTIONS.md`, `SECURITY.md`, `CONTRIBUTING.md` or `DISCLAIMER.md`. If one of them needs a change (for example a BYOK list in `README.md`, `CONVENTIONS.md` or `SECURITY.md` after a provider change), leave it and name the file and line in your summary.
+- Any other file under `scripts/`, `test/`, `templates/` or `.github/`, `package.json`, `package-lock.json`, `CONTRIBUTING.md` or `DISCLAIMER.md`, and anything in `README.md`, `CONVENTIONS.md` or `SECURITY.md` other than those provider lists. If one of them needs a change, leave it and name the file and line in your summary.
 - Don't create a new skill folder. When a new capability operation appears (a new `POST /v1/<subject>/<capability>`), add its map row and say `New capability skill needed: <METHOD /path> (<tool>)` in your summary.
 
 ## Rules

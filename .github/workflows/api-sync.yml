@@ -173,6 +173,9 @@ jobs:
                 "Write(skills/**)",
                 "Write(scripts/validate/fixtures/providers.yaml)",
                 "Write(CHANGELOG.md)",
+                "Write(README.md)",
+                "Write(CONVENTIONS.md)",
+                "Write(SECURITY.md)",
                 "Shell(git:status*)",
                 "Shell(git:diff*)",
                 "Shell(jq*)",
@@ -245,10 +248,10 @@ jobs:
         run: |
           rm -f .cursor/cli.json
           rmdir .cursor 2>/dev/null || true
-          # Anything the agent touched outside skills/, providers.yaml and
-          # CHANGELOG.md is put back. The fixture is regenerated below.
+          # Anything the agent touched outside skills/, providers.yaml,
+          # CHANGELOG.md and the BYOK lists in README/CONVENTIONS/SECURITY is put back. The fixture is regenerated below.
           stray="$(git status --porcelain --untracked-files=all | awk '{print $NF}' \
-            | grep -vE '^(skills/|scripts/validate/fixtures/providers\.yaml$|CHANGELOG\.md$)' \
+            | grep -vE '^(skills/|scripts/validate/fixtures/providers\.yaml$|CHANGELOG\.md$|README\.md$|CONVENTIONS\.md$|SECURITY\.md$)' \
             | grep -vxF "$FIXTURE" || true)"
           if [ -n "$stray" ]; then
             echo "::warning title=Agent edits reverted::The agent changed files outside its allowed paths; they were reverted: $(echo "$stray" | tr '\n' ' ')"
@@ -350,13 +353,16 @@ jobs:
             scripts/validate/fixtures/providers.yaml
             skills/**
             CHANGELOG.md
+            README.md
+            CONVENTIONS.md
+            SECURITY.md
           commit-message: 'chore(api): sync skills pack with KingMinos OpenAPI (${{ steps.spec.outputs.hash }})'
           title: 'chore(api): sync skills pack with KingMinos OpenAPI (${{ steps.spec.outputs.hash }})'
           body: |
             Automated by the `API sync` workflow. The live KingMinos OpenAPI spec (`https://api.kingminos.com/openapi.json`, canonical hash `${{ steps.spec.outputs.hash }}`) differs from `api-sync/openapi.snapshot.json`. Mode: **${{ steps.spec.outputs.mode }}**${{ steps.spec.outputs.mode == 'bootstrap' && ' (first run, no previous snapshot, so the agent audited the whole pack)' || '' }}.
 
             - **Generated:** `api-sync/openapi.snapshot.json` (the live spec, `jq -S .`) and `scripts/validate/fixtures/openapi-inventory.yaml` (`scripts/openapi-inventory.mjs`). Don't edit them by hand.
-            - **Drafted by the agent (Cursor CLI):** changes under `skills/` (the API map `skills/api/references/endpoints.md`, trimmed copies, capability skills and their `metadata.version` bumps), `scripts/validate/fixtures/providers.yaml` (only when the spec's credentials `provider` enum changed) and `## Unreleased` lines in `CHANGELOG.md`. Review them like any skills edit.
+            - **Drafted by the agent (Cursor CLI):** changes under `skills/` (the API map `skills/api/references/endpoints.md`, trimmed copies, capability skills and their `metadata.version` bumps), `scripts/validate/fixtures/providers.yaml` (only when the spec's credentials `provider` enum changed) the BYOK provider lists in `README.md`, `CONVENTIONS.md` and `SECURITY.md` (only after a provider change) and `## Unreleased` lines in `CHANGELOG.md`. Review them like any skills edit.
 
             ### Agent notes
 
