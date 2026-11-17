@@ -2,7 +2,8 @@
 // operations. Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare
 // no bearer security and are out of scope — the same Bearer-only rule as
 // `npm run check:surfaces`. CI on PR/push compares the map to the offline
-// fixture; a scheduled workflow curls the live spec.
+// fixture. The API sync workflow (.github/workflows/api-sync.yml) regenerates
+// that fixture from the live spec (scripts/openapi-inventory.mjs) and opens a PR.
 //
 // Operator routes under `/v1/admin/*` (or tagged `admin`) are excluded the same
 // way: they are not tenant resource operations.
@@ -19,7 +20,7 @@ export const CANONICAL = 'skills/api/references/endpoints.md';
 export const FIXTURE = 'scripts/validate/fixtures/openapi-inventory.yaml';
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 // Unversioned liveness and OpenAPI discovery only — not GET /v1/balance/health.
-const DISCOVERY = /(?:^\/health$|\/openapi\.(?:ya?ml|json)$)/;
+export const DISCOVERY = /(?:^\/health$|\/openapi\.(?:ya?ml|json)$)/;
 
 // snake_case tools when the served spec has not yet published operationId
 // (PR 137 inventory). Live paths still win; this only names the tool.
@@ -59,11 +60,34 @@ export function toSnake(operationId) {
     .toLowerCase();
 }
 
-/** True when the operation (or inherited root) security requirement names `bearer`. */
-export function opDeclaresBearer(security) {
-  if (!Array.isArray(security) || security.length === 0) return false;
-  return security.some((req) => req && typeof req === 'object' && Object.keys(req).some((name) => name.toLowerCase() === 'bearer'));
+/**
+ * Names of the spec's HTTP Bearer security schemes (`type: http`,
+ * `scheme: bearer`), or null when the spec declares no security schemes
+ * (hand-written test fixtures) — then a scheme named `bearer` counts.
+ */
+export function bearerSchemeNames(spec) {
+  const schemes = spec?.components?.securitySchemes;
+  if (!schemes || typeof schemes !== 'object' || Object.keys(schemes).length === 0) return null;
+  return new Set(Object.entries(schemes)
+    .filter(([, s]) => s && String(s.type).toLowerCase() === 'http' && String(s.scheme).toLowerCase() === 'bearer')
+    .map(([name]) => name));
 }
+
+/**
+ * True when the effective security (operation-level, else top-level) includes
+ * an HTTP Bearer scheme. With `bearerSchemes` from the spec the scheme's type
+ * decides, not its key; without it (no components), a key named `bearer` counts.
+ */
+export function opDeclaresBearer(security, bearerSchemes = null) {
+  if (!Array.isArray(security) || security.length === 0) return false;
+  return security.some((req) => req && typeof req === 'object' && Object.keys(req).some((name) => (
+    bearerSchemes ? bearerSchemes.has(name) : name.toLowerCase() === 'bearer'
+  )));
+}
+
+// Session/product-app and operator prefixes are never the public surface,
+// whatever security the spec gives them.
+const PRIVATE_PREFIX = /^\/v1\/(?:auth|account|admin)(?:\/|$)/;
 
 /**
  * Operator routes (`/v1/admin/*`, tagged `admin` in the spec) are not tenant
@@ -75,8 +99,15 @@ export function isAdminOperation(op) {
   return Array.isArray(op?.tags) && op.tags.some((tag) => String(tag).toLowerCase() === 'admin');
 }
 
+/**
+ * The KingMinos public surface (same rule in kingminos-mcp, -website, -cli):
+ * Bearer ops, minus `/v1/auth`, `/v1/account`, `/v1/admin`, `admin`-tagged ops
+ * and discovery (already dropped by resourceOperations).
+ */
 export function bearerResourceOperations(ops) {
-  return ops.filter((op) => opDeclaresBearer(op.security) && !isAdminOperation(op));
+  return ops.filter((op) => (op.bearer ?? opDeclaresBearer(op.security))
+    && !isAdminOperation(op)
+    && !PRIVATE_PREFIX.test(String(op.path ?? '')));
 }
 
 function inheritedSecurity(spec, op) {
@@ -86,6 +117,7 @@ function inheritedSecurity(spec, op) {
 
 export function resourceOperations(spec) {
   const out = [];
+  const bearerSchemes = bearerSchemeNames(spec);
   for (const [routePath, item] of Object.entries(spec?.paths ?? {})) {
     if (DISCOVERY.test(routePath) || !item || typeof item !== 'object') continue;
     for (const method of METHODS) {
@@ -94,7 +126,8 @@ export function resourceOperations(spec) {
       const route = `${method.toUpperCase()} ${routePath}`;
       const operationId = typeof op.operationId === 'string' && op.operationId.trim() ? op.operationId.trim() : null;
       const tool = operationId ? toSnake(operationId) : (FALLBACK_TOOLS[route] ?? null);
-      out.push({ route, method: method.toUpperCase(), path: routePath, operationId, tool, security: inheritedSecurity(spec, op), tags: Array.isArray(op.tags) ? op.tags : [] });
+      const security = inheritedSecurity(spec, op);
+      out.push({ route, method: method.toUpperCase(), path: routePath, operationId, tool, security, bearer: opDeclaresBearer(security, bearerSchemes), tags: Array.isArray(op.tags) ? op.tags : [] });
     }
   }
   return out;

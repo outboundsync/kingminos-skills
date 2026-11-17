@@ -1,0 +1,501 @@
+name: API sync
+
+# Keeps the pack in step with the live KingMinos API. Source of truth:
+# https://api.kingminos.com/openapi.json (auth-free).
+#
+# Every 6 hours, on workflow_dispatch, or on a repository_dispatch
+# ("api-spec-updated"): fetch the live spec, canonicalise it (`jq -S .`) and
+# compare it to api-sync/openapi.snapshot.json. Two jobs:
+#   propose — read-only token, no credentials persisted. When the spec changed:
+#     1. scripts/openapi-inventory.mjs regenerates the hermetic inventory
+#        fixture (scripts/validate/fixtures/openapi-inventory.yaml);
+#     2. a Cursor CLI agent (Grok) updates the API map, the affected skills
+#        (with metadata.version bumps), providers.yaml and the BYOK provider
+#        lists in README/CONVENTIONS/SECURITY when the credentials provider
+#        enum changed, and CHANGELOG `## Unreleased` (.github/prompts/api-sync.md;
+#        skipped with a notice when the CURSOR_API_KEY secret is unset);
+#     3. the new snapshot is written, `npm run validate -- --base origin/main`
+#        and `npm test` run, and the allowed-path changes are saved as a patch
+#        plus a PR body (artifact).
+#   open-pr — write token. Fresh checkout, runs no repo code: applies the
+#     patch, checks it only touches allowed paths, and opens or updates the PR
+#     on chore/api-sync. A human merges it; this workflow never merges or
+#     pushes to main.
+# Agent-written files never run in a job that holds a write token.
+# No snapshot yet = bootstrap: the agent audits the whole pack against the spec.
+#
+# The PR is opened with RELEASE_PR_TOKEN when it is set, so the required
+# `validate` check runs on it; otherwise with GITHUB_TOKEN, and a maintainer
+# closes and reopens the PR to run `validate`. On PRs, the `api-sync-snapshot`
+# rule inside `validate` keeps the fixture equal to what the snapshot renders.
+# Replaces the old "Live OpenAPI surfaces" drift-issue job.
+
+on:
+  schedule:
+    - cron: '41 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Run the agent even when an open sync PR already carries the live spec
+        type: boolean
+        default: false
+  repository_dispatch:
+    types: [api-spec-updated]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: api-sync
+  cancel-in-progress: false
+
+env:
+  OPENAPI_URL: https://api.kingminos.com/openapi.json
+  SNAPSHOT: api-sync/openapi.snapshot.json
+  FIXTURE: scripts/validate/fixtures/openapi-inventory.yaml
+  SYNC_BRANCH: chore/api-sync
+
+jobs:
+  propose:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      pull-requests: read # the open-PR skip check
+    outputs:
+      changed: ${{ steps.patch.outputs.changed }}
+      hash: ${{ steps.spec.outputs.hash }}
+      mode: ${{ steps.spec.outputs.mode }}
+      title: ${{ steps.patch.outputs.title }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # version-bumped compares against origin/main; the skip check reads the sync branch
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # A fetch failure or a non-OpenAPI body fails the run. It is never read as
+      # "no change", and the snapshot is never overwritten with it.
+      - name: Fetch the live spec and compare it to the snapshot
+        id: spec
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.force || false }}
+        run: |
+          raw="$RUNNER_TEMP/openapi.raw.json"
+          live="$RUNNER_TEMP/openapi.live.json"
+          if ! curl -fsSL --retry 3 --retry-all-errors --max-time 30 "$OPENAPI_URL" -o "$raw"; then
+            echo "::error title=OpenAPI fetch failed::Could not fetch $OPENAPI_URL. Nothing was compared or changed."
+            exit 1
+          fi
+          if ! jq -S . "$raw" > "$live"; then
+            echo "::error title=Invalid OpenAPI::$OPENAPI_URL did not return valid JSON. The snapshot was left alone."
+            exit 1
+          fi
+          if ! jq -e '(.openapi | type == "string") and ((.paths // {} | length) >= 10)' "$live" > /dev/null; then
+            echo "::error title=Invalid OpenAPI::$OPENAPI_URL has no openapi version or fewer than 10 paths. The snapshot was left alone."
+            exit 1
+          fi
+          hash="$(sha256sum "$live" | cut -c1-12)"
+
+          changed=true
+          mode=""
+          if [ ! -f "$SNAPSHOT" ]; then
+            mode=bootstrap
+          elif cmp -s "$live" "$SNAPSHOT"; then
+            echo "The snapshot already matches the live spec ($hash)."
+            changed=false
+          else
+            mode=update
+          fi
+
+          # Don't re-run the agent (or overwrite fixes pushed to the PR branch)
+          # while an open sync PR already carries this exact spec, unless forced.
+          if [ "$changed" = "true" ] && [ "$FORCE" != "true" ]; then
+            pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$SYNC_BRANCH" --state open --json number --jq '.[0].number // empty')"
+            if [ -n "$pr" ] && git cat-file -e "origin/$SYNC_BRANCH:$SNAPSHOT" 2>/dev/null \
+              && cmp -s "$live" <(git show "origin/$SYNC_BRANCH:$SNAPSHOT"); then
+              echo "::notice title=Already proposed::PR #$pr already carries this spec ($hash). Merge it, or run this workflow with force; nothing to do."
+              changed=false
+            fi
+          fi
+          if [ "$changed" = "true" ]; then echo "Live spec $hash differs from the snapshot (mode: $mode)."; fi
+
+          {
+            echo "live=$live"
+            echo "hash=$hash"
+            echo "changed=$changed"
+            echo "mode=$mode"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Regenerate the inventory fixture from the live spec
+        if: steps.spec.outputs.changed == 'true'
+        env:
+          LIVE: ${{ steps.spec.outputs.live }}
+        run: |
+          node scripts/openapi-inventory.mjs "$LIVE"
+          git diff --stat -- "$FIXTURE"
+
+      # The edit pass runs on Cursor CLI (headless `agent -p`), billed to the
+      # Cursor Teams plan through the CURSOR_API_KEY secret. Change the model
+      # with the CURSOR_MODEL repository variable; `agent --list-models` lists
+      # the slugs. The key itself is only in the agent step's env (and the
+      # scrub step's, to redact it).
+      - name: Check for a Cursor API key
+        id: ai
+        if: steps.spec.outputs.changed == 'true'
+        env:
+          HAS_KEY: ${{ secrets.CURSOR_API_KEY != '' }}
+        run: |
+          if [ "$HAS_KEY" = "true" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Skills not updated::CURSOR_API_KEY is not set, so the agent did not update the skills. The PR lists what the checks found."
+          fi
+
+      - name: Install Cursor CLI
+        if: steps.ai.outputs.enabled == 'true'
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          {
+            echo "$HOME/.cursor/bin"
+            echo "$HOME/.local/bin"
+          } >> "$GITHUB_PATH"
+
+      # Written at run time only, so it never changes anyone's local Cursor
+      # setup. Print mode may edit workspace files without asking, so deny
+      # rules (which win over allow rules) fence off what the agent must not
+      # touch, and the step after the agent reverts anything outside the
+      # allowed paths anyway.
+      - name: Restrict what the agent may run and write
+        if: steps.ai.outputs.enabled == 'true'
+        run: |
+          mkdir -p .cursor
+          cat > .cursor/cli.json <<'JSON'
+          {
+            "permissions": {
+              "allow": [
+                "Read(**)",
+                "Write(skills/**)",
+                "Write(scripts/validate/fixtures/providers.yaml)",
+                "Write(CHANGELOG.md)",
+                "Write(README.md)",
+                "Write(CONVENTIONS.md)",
+                "Write(SECURITY.md)",
+                "Shell(git:status*)",
+                "Shell(git:diff*)",
+                "Shell(jq*)",
+                "Shell(npm:run validate*)",
+                "Shell(npm:test*)",
+                "Shell(node:scripts/validate/cli.mjs*)"
+              ],
+              "deny": [
+                "Shell(git:add*)",
+                "Shell(git:commit*)",
+                "Shell(git:push*)",
+                "Shell(git:checkout*)",
+                "Shell(git:reset*)",
+                "Shell(git:config*)",
+                "Shell(npm:install*)",
+                "Shell(npm:ci*)",
+                "Shell(npx)",
+                "Shell(curl)",
+                "Shell(wget)",
+                "Shell(gh)",
+                "Shell(rm)",
+                "Write(.git/**)",
+                "Write(.github/**)",
+                "Write(.cursor/**)",
+                "Write(api-sync/**)",
+                "Write(**/*.mjs)",
+                "Write(**/*.cjs)",
+                "Write(**/*.js)",
+                "Write(**/*.ts)",
+                "Write(**/*.sh)",
+                "Write(**/*.json)",
+                "Write(scripts/validate/fixtures/openapi-inventory.yaml)",
+                "Write(test/**)",
+                "Write(templates/**)",
+                "Write(node_modules/**)",
+                "Read(.env*)"
+              ]
+            }
+          }
+          JSON
+
+      - name: Update the skills with Cursor
+        id: agent
+        if: steps.ai.outputs.enabled == 'true'
+        continue-on-error: true
+        timeout-minutes: 25
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          CURSOR_MODEL: ${{ vars.CURSOR_MODEL || 'grok-4.7-high' }}
+          LIVE: ${{ steps.spec.outputs.live }}
+          MODE: ${{ steps.spec.outputs.mode }}
+        run: |
+          if [ "$MODE" = "bootstrap" ]; then
+            previous="There is no previous snapshot (bootstrap mode): audit the whole pack against the live spec."
+          else
+            previous="The previous spec is $SNAPSHOT (update mode)."
+          fi
+          agent --version
+          # stdin is closed so print mode never waits for input.
+          agent -p --trust --model "$CURSOR_MODEL" --output-format json \
+            "Follow the instructions in .github/prompts/api-sync.md. The live KingMinos OpenAPI spec is $LIVE. $previous" \
+            < /dev/null > "$RUNNER_TEMP/agent-result.json"
+
+      - name: Keep only the agent's allowed edits
+        if: steps.ai.outputs.enabled == 'true'
+        env:
+          LIVE: ${{ steps.spec.outputs.live }}
+        run: |
+          rm -f .cursor/cli.json
+          rmdir .cursor 2>/dev/null || true
+          # Anything the agent touched outside skills/ (Markdown and YAML only),
+          # providers.yaml, CHANGELOG.md and the BYOK lists in
+          # README/CONVENTIONS/SECURITY is put back. The fixture is regenerated below.
+          stray="$(git status --porcelain --untracked-files=all | awk '{print $NF}' \
+            | grep -vE '^(skills/.+\.(md|ya?ml)$|scripts/validate/fixtures/providers\.yaml$|CHANGELOG\.md$|README\.md$|CONVENTIONS\.md$|SECURITY\.md$)' \
+            | grep -vxF "$FIXTURE" || true)"
+          if [ -n "$stray" ]; then
+            echo "::warning title=Agent edits reverted::The agent changed files outside its allowed paths; they were reverted: $(echo "$stray" | tr '\n' ' ')"
+            while IFS= read -r f; do
+              if git ls-files --error-unmatch -- "$f" >/dev/null 2>&1; then git checkout -- "$f"; else rm -f -- "$f"; fi
+            done <<< "$stray"
+          fi
+          # Only `## Unreleased` may change in CHANGELOG.md: everything from the
+          # first released `## [` heading on must be untouched.
+          released() { awk '/^## \[/ { found = 1 } found'; }
+          if ! cmp -s <(git show HEAD:CHANGELOG.md | released) <(released < CHANGELOG.md); then
+            echo "::warning title=CHANGELOG edit reverted::The agent changed a released CHANGELOG section; CHANGELOG.md was reverted."
+            git checkout -- CHANGELOG.md
+          fi
+          node scripts/openapi-inventory.mjs "$LIVE"
+          git status --short
+
+      # Written after the agent so it could diff the previous snapshot against
+      # the live spec.
+      - name: Write the snapshot
+        if: steps.spec.outputs.changed == 'true'
+        env:
+          LIVE: ${{ steps.spec.outputs.live }}
+        run: |
+          mkdir -p "$(dirname "$SNAPSHOT")"
+          cp "$LIVE" "$SNAPSHOT"
+          node scripts/openapi-inventory.mjs "$SNAPSHOT" --check
+
+      # The agent's summary goes to a file, with the Cursor key redacted, never
+      # to a step output.
+      - name: Collect the agent's summary
+        if: steps.spec.outputs.changed == 'true'
+        env:
+          AI_ENABLED: ${{ steps.ai.outputs.enabled }}
+          AI_OUTCOME: ${{ steps.agent.outcome }}
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          notes="$RUNNER_TEMP/api-sync-out/notes.md"
+          mkdir -p "$(dirname "$notes")"
+          result="$RUNNER_TEMP/agent-result.json"
+          if [ "$AI_ENABLED" != "true" ]; then
+            echo "The agent did not run: the \`CURSOR_API_KEY\` secret is not set. Update the API map and skills by hand until the checks below pass." > "$notes"
+          elif [ "$AI_OUTCOME" != "success" ]; then
+            echo "The agent's pass failed (see the workflow run). Check the API map and skills by hand." > "$notes"
+          elif [ -s "$result" ]; then
+            # `result` holds all of the agent's messages; the prompt has it end
+            # with "Summary:", and only that part goes in the PR.
+            python3 -c 'import json, os, sys
+          r = json.load(open(sys.argv[1])).get("result") or ""
+          i = r.rfind("Summary:")
+          text = (r[i + len("Summary:"):] if i >= 0 else r).strip() or "The agent finished without a summary."
+          key = os.environ.get("CURSOR_API_KEY") or ""
+          if key:
+              text = text.replace(key, "***")
+          print(text)' "$result" > "$notes" \
+              || echo "The agent finished; its summary could not be read." > "$notes"
+          else
+            echo "The agent finished without a summary." > "$notes"
+          fi
+
+      # Results go in the PR body; a failure here doesn't stop the PR. No
+      # write token exists in this job, so agent-written files can't reach one.
+      - name: Run the repo checks
+        id: checks
+        if: steps.spec.outputs.changed == 'true'
+        run: |
+          out_dir="$RUNNER_TEMP/api-sync-out"
+          mkdir -p "$out_dir"
+          validate_ok=false
+          test_ok=false
+          if npm run -s validate -- --base origin/main > "$out_dir/validate.txt" 2>&1; then validate_ok=true; fi
+          cat "$out_dir/validate.txt"
+          if npm test --silent > "$out_dir/test.txt" 2>&1; then test_ok=true; fi
+          cat "$out_dir/test.txt"
+          {
+            echo "validate_ok=$validate_ok"
+            echo "test_ok=$test_ok"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build the patch and PR body
+        id: patch
+        if: steps.spec.outputs.changed == 'true'
+        env:
+          HASH: ${{ steps.spec.outputs.hash }}
+          MODE: ${{ steps.spec.outputs.mode }}
+          VALIDATE_OK: ${{ steps.checks.outputs.validate_ok }}
+          TEST_OK: ${{ steps.checks.outputs.test_ok }}
+        run: |
+          out_dir="$RUNNER_TEMP/api-sync-out"
+          mkdir -p "$out_dir"
+          git add -A -- "$SNAPSHOT" "$FIXTURE" scripts/validate/fixtures/providers.yaml skills \
+            CHANGELOG.md README.md CONVENTIONS.md SECURITY.md
+          git diff --cached --binary > "$out_dir/api-sync.patch"
+          if [ ! -s "$out_dir/api-sync.patch" ]; then
+            echo "Nothing to propose."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git diff --cached --stat
+
+          mark() { if [ "$1" = "true" ]; then echo "✅"; else echo "❌"; fi; }
+          bootstrap_note=""
+          if [ "$MODE" = "bootstrap" ]; then bootstrap_note=" (first run, no previous snapshot, so the agent audited the whole pack)"; fi
+          fence='```'
+          {
+            echo "Automated by the \`API sync\` workflow. The live KingMinos OpenAPI spec (\`$OPENAPI_URL\`, canonical hash \`$HASH\`) differs from \`$SNAPSHOT\`. Mode: **$MODE**$bootstrap_note."
+            echo
+            echo "- **Generated:** \`$SNAPSHOT\` (the live spec, \`jq -S .\`) and \`$FIXTURE\` (\`scripts/openapi-inventory.mjs\`). Don't edit them by hand."
+            echo "- **Drafted by the agent (Cursor CLI):** changes under \`skills/\` (the API map \`skills/api/references/endpoints.md\`, trimmed copies, capability skills and their \`metadata.version\` bumps), \`scripts/validate/fixtures/providers.yaml\` (only when the spec's credentials \`provider\` enum changed), the BYOK provider lists in \`README.md\`, \`CONVENTIONS.md\` and \`SECURITY.md\` (only after a provider change) and \`## Unreleased\` lines in \`CHANGELOG.md\`. Review them like any skills edit."
+            echo
+            echo "### Agent notes"
+            echo
+            cat "$out_dir/notes.md"
+            echo
+            echo "### Checks"
+            echo
+            echo "$(mark "$VALIDATE_OK") \`npm run validate -- --base origin/main\`"
+            echo
+            echo "${fence}text"
+            tail -n 40 "$out_dir/validate.txt"
+            echo "$fence"
+            echo
+            echo "$(mark "$TEST_OK") \`npm test\`"
+            echo
+            echo "${fence}text"
+            tail -n 40 "$out_dir/test.txt"
+            echo "$fence"
+          } > "$out_dir/pr-body.md"
+          {
+            echo "changed=true"
+            echo "title=chore(api): sync skills pack with KingMinos OpenAPI ($HASH)"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "### API sync"
+            echo "Live spec $HASH ($MODE): patch ready for the open-pr job."
+            echo "validate: $VALIDATE_OK · npm test: $TEST_OK"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the patch and PR body
+        if: steps.patch.outputs.changed == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: api-sync
+          path: |
+            ${{ runner.temp }}/api-sync-out/api-sync.patch
+            ${{ runner.temp }}/api-sync-out/pr-body.md
+          if-no-files-found: error
+          retention-days: 7
+
+  open-pr:
+    needs: propose
+    if: needs.propose.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    # No npm ci and no repo scripts here: this job holds the write token.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Download the patch and PR body
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: api-sync
+          path: ${{ runner.temp }}/api-sync
+
+      - name: Apply the patch (allowed paths only)
+        env:
+          HAS_PAT: ${{ secrets.RELEASE_PR_TOKEN != '' }}
+        run: |
+          patch="$RUNNER_TEMP/api-sync/api-sync.patch"
+          if ! git apply --index --binary "$patch"; then
+            echo "::error title=Patch did not apply::The propose job's patch does not apply to $(git rev-parse --short HEAD)."
+            exit 1
+          fi
+          allowed='^(api-sync/openapi\.snapshot\.json|scripts/validate/fixtures/(openapi-inventory|providers)\.yaml|skills/.+\.(md|ya?ml)|CHANGELOG\.md|README\.md|CONVENTIONS\.md|SECURITY\.md)$'
+          bad="$(git diff --cached --name-only | grep -vE "$allowed" || true)"
+          if [ -n "$bad" ]; then
+            echo "::error title=Patch touches forbidden paths::$(echo "$bad" | tr '\n' ' ')"
+            exit 1
+          fi
+          git diff --cached --stat
+          body="$RUNNER_TEMP/api-sync/pr-body.md"
+          {
+            echo
+            echo "### Merging"
+            echo
+            if [ "$HAS_PAT" = "true" ]; then
+              echo "This PR was opened with \`RELEASE_PR_TOKEN\`, so the required \`validate\` check runs on it. Fix anything above on this branch, then squash-merge once \`validate\` passes."
+            else
+              echo "GitHub doesn't start CI on PRs opened by this workflow; close and reopen this PR to run \`validate\`, then merge."
+            fi
+            echo "The CalVer release and CHANGELOG promotion run automatically after the merge, and kingminos.com picks up the skills on its next \`Skills mirror sync\`."
+            echo
+            echo "Later runs leave this PR alone while it carries the current spec, and update it in place when the spec changes again."
+          } >> "$body"
+
+      - name: Open or update the sync PR
+        id: cpr
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          # RELEASE_PR_TOKEN (fine-grained PAT, this repo, contents + pull
+          # requests write) lets the PR start the required `validate` check.
+          token: ${{ secrets.RELEASE_PR_TOKEN || secrets.GITHUB_TOKEN }}
+          branch: ${{ env.SYNC_BRANCH }}
+          delete-branch: true
+          add-paths: |
+            api-sync/openapi.snapshot.json
+            scripts/validate/fixtures/openapi-inventory.yaml
+            scripts/validate/fixtures/providers.yaml
+            skills/**
+            CHANGELOG.md
+            README.md
+            CONVENTIONS.md
+            SECURITY.md
+          commit-message: ${{ needs.propose.outputs.title }}
+          title: ${{ needs.propose.outputs.title }}
+          body-path: ${{ runner.temp }}/api-sync/pr-body.md
+
+      - name: Summary
+        if: always()
+        env:
+          PR_URL: ${{ steps.cpr.outputs.pull-request-url }}
+          PR_OP: ${{ steps.cpr.outputs.pull-request-operation }}
+          HASH: ${{ needs.propose.outputs.hash }}
+        run: |
+          {
+            echo "### API sync"
+            echo "Live spec $HASH → PR ${PR_URL:-not opened} (${PR_OP:-none})"
+          } >> "$GITHUB_STEP_SUMMARY"
