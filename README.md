@@ -173,7 +173,7 @@ npm test
 
 ## Releases & Changelog
 
-Releases are created automatically after hermetic Validate skill integrity passes on `main` via `.github/workflows/release-calver.yml`. Live OpenAPI drift is a scheduled job and does not block release.
+Releases are created automatically after hermetic Validate skill integrity passes on `main` via `.github/workflows/release-calver.yml`. Live OpenAPI changes arrive as `API sync` PRs that a maintainer merges (see [CONTRIBUTING.md](CONTRIBUTING.md#api-sync)); they never block release.
 
 - Versioning format: `YYYY.MM.DD.N` (CalVer). Each skill also has its own `metadata.version`.
 - Release notes: [GitHub Releases](https://github.com/outboundsync/kingminos-skills/releases), generated from commit subjects.

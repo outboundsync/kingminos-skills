@@ -1,3 +1,4 @@
+import apiSyncSnapshot from './api-sync-snapshot.mjs';
 import barGeometry from './bar-geometry.mjs';
 import brand from './brand.mjs';
 import descriptionStyle from './description-style.mjs';
@@ -31,6 +32,7 @@ export const rules = [
   endpointMapConsistent,
   endpointMapOpenapi,
   providerEnum,
+  apiSyncSnapshot,
   brand,
   links,
   linksEscapeSkill,

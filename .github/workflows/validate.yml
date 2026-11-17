@@ -30,8 +30,9 @@ jobs:
 
       - run: npm ci
 
-      # Hermetic: fixture only. Live OpenAPI curl lives in openapi-surfaces.yml
-      # (scheduled + workflow_dispatch) so an API outage never blocks PRs or release.
+      # Hermetic: fixture + api-sync snapshot only. The live OpenAPI fetch lives
+      # in api-sync.yml (scheduled sync PRs) so an API outage never blocks PRs
+      # or release.
       - name: Validate skills
         env:
           BASE_REF: ${{ github.base_ref }}

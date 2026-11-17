@@ -2,7 +2,8 @@
 // operations. Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare
 // no bearer security and are out of scope — the same Bearer-only rule as
 // `npm run check:surfaces`. CI on PR/push compares the map to the offline
-// fixture; a scheduled workflow curls the live spec.
+// fixture. The API sync workflow (.github/workflows/api-sync.yml) regenerates
+// that fixture from the live spec (scripts/openapi-inventory.mjs) and opens a PR.
 //
 // Operator routes under `/v1/admin/*` (or tagged `admin`) are excluded the same
 // way: they are not tenant resource operations.
@@ -19,7 +20,7 @@ export const CANONICAL = 'skills/api/references/endpoints.md';
 export const FIXTURE = 'scripts/validate/fixtures/openapi-inventory.yaml';
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 // Unversioned liveness and OpenAPI discovery only — not GET /v1/balance/health.
-const DISCOVERY = /(?:^\/health$|\/openapi\.(?:ya?ml|json)$)/;
+export const DISCOVERY = /(?:^\/health$|\/openapi\.(?:ya?ml|json)$)/;
 
 // snake_case tools when the served spec has not yet published operationId
 // (PR 137 inventory). Live paths still win; this only names the tool.

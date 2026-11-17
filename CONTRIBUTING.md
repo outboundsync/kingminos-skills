@@ -21,12 +21,10 @@ npm test                                  # validator + release tooling tests
 
 The `validate` job is the required check on `main` (`npm run ci` runs the same thing locally); branches must be up to date and protection applies to admins.
 
-PR and push **Validate** is hermetic: it compares the api map to `scripts/validate/fixtures/openapi-inventory.yaml` and BYOK provider lists to `scripts/validate/fixtures/providers.yaml` only. A live API outage, deploy, or `curl` blip must not fail a typo-fix PR or block CalVer release.
-
-Live OpenAPI comparison is a scheduled + `workflow_dispatch` job (`.github/workflows/openapi-surfaces.yml`). It fails visibly and can open an issue. It never gates release. Run it locally when you change the map or the provider inventory:
+PR and push **Validate** is hermetic: it compares the api map to `scripts/validate/fixtures/openapi-inventory.yaml` and BYOK provider lists to `scripts/validate/fixtures/providers.yaml` only. A live API outage, deploy, or `curl` blip must not fail a typo-fix PR or block CalVer release. The live spec reaches the pack through [API sync](#api-sync) PRs. To compare your branch to the live spec directly:
 
 ```bash
-KINGMINOS_OPENAPI_URL=https://api.kingminos.com/openapi.yaml npm run check:surfaces
+npm run check:surfaces:live
 ```
 
 The inventory is **Bearer-only**. Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare no bearer security and are out of scope, and operator routes (`/v1/admin/*`, tagged `admin`) are skipped even when the spec gives them bearer security. `GET /v1/credentials` (`list_credentials`) is in scope. `npm run check:surfaces` in this repo uses the same Bearer-only rule as the live API inventory.
@@ -54,8 +52,20 @@ CI runs [lychee](https://github.com/lycheeverse/lychee) on `**/*.md` (`.github/w
 5. If the skill writes to KingMinos, add a `## Mutations` section naming each REST call (and hosted MCP at `https://mcp.kingminos.com` when the same tool exists), and follow the [write-on-confirm protocol](SECURITY.md#write-on-confirm-protocol). Do not ask the user to paste a vendor secret into chat.
 6. Add the skill to every README list: the count, its category table, the install commands, and the "try without installing" commands.
 7. Add a line under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md).
-8. Teach only Bearer resource operations that `GET https://api.kingminos.com/openapi.yaml` exposes today. Those operations belong in `skills/api/references/endpoints.md` (METHOD /path → snake_case tool). Do not invent endpoints or tools outside that map. Do not add session/product-app ops or `/v1/admin/*` operator routes. `npm run check:surfaces` (fixture) and the live surfaces job must stay green.
-9. When KingMinos adds a credentials / BYOK provider, add it to `scripts/validate/fixtures/providers.yaml` (and the OpenAPI fixture path-`provider` enum) before listing it in skills. `provider-enum` fails if a BYOK list, path enum, or `*_credentials_required` line is short.
+8. Teach only Bearer resource operations that `GET https://api.kingminos.com/openapi.yaml` exposes today. Those operations belong in `skills/api/references/endpoints.md` (METHOD /path → snake_case tool). Do not invent endpoints or tools outside that map. Do not add session/product-app ops or `/v1/admin/*` operator routes. `npm run check:surfaces` (fixture) must stay green.
+9. When KingMinos adds a credentials / BYOK provider, add it to `scripts/validate/fixtures/providers.yaml` before listing it in skills. The OpenAPI fixture's path-`provider` enum comes from the live spec through [API sync](#api-sync); don't edit the fixture by hand. `provider-enum` fails if a BYOK list, path enum, or `*_credentials_required` line is short.
+
+## API sync
+
+The `API sync` workflow (`.github/workflows/api-sync.yml`) keeps the pack in step with the live API. Every 6 hours (or from the Actions tab) it fetches `https://api.kingminos.com/openapi.json` and compares it, canonicalised with `jq -S .`, to `api-sync/openapi.snapshot.json`. When the spec changed it:
+
+1. regenerates `scripts/validate/fixtures/openapi-inventory.yaml` from the live spec (`scripts/openapi-inventory.mjs`);
+2. has a Cursor CLI agent (Grok, `.github/prompts/api-sync.md`) update the API map, the trimmed copies, the affected skills with `metadata.version` bumps, `providers.yaml` when the credentials `provider` enum changed, and `## Unreleased` in the CHANGELOG. The agent never creates a skill: a new capability operation gets a map row and a "New capability skill needed" note;
+3. writes the new snapshot, runs `npm run validate -- --base origin/main` and `npm test`, and opens or updates a `chore(api): sync skills pack with KingMinos OpenAPI (<hash>)` PR on `chore/api-sync` with the agent's notes and the check results.
+
+A human reviews and merges every sync PR. The PR is opened with `RELEASE_PR_TOKEN` when that secret is set, so `validate` runs on it; without it, close and reopen the PR to run `validate`. Release, CHANGELOG promotion and the kingminos.com mirror follow the merge automatically. The first run has no snapshot, so it audits the whole pack (bootstrap) and adds one.
+
+The `api-sync-snapshot` validate rule fails when the fixture isn't exactly what the snapshot renders, so don't edit either by hand (`npm run openapi:fixture` refreshes the fixture from the snapshot). Until the first sync PR merges it only warns. The agent needs the `CURSOR_API_KEY` org secret (model: `CURSOR_MODEL` repository variable, default `grok-4.7-high`); without it the PR still opens with the generated files, and you update the skills by hand.
 
 ## Versioning
 
