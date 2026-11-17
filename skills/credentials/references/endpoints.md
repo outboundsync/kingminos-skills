@@ -26,7 +26,7 @@ This skill's default path is `GET /v1/credentials`. Store secrets in the product
 
 `zoominfo` | `leadmagic` | `findymail` | `wiza` | `aiark` | `builtwith` | `brandfetch` | `prospeo` | `apollo` | `companyurlfinder` | `peopledatalabs` | `hginsights` | `enrichcrm` | `lemlist` | `snovio` | `cognism` | `lusha` | `starbridge` | `clay` | `databar` | `quickenrich` | `getleads` | `blitzapi`
 
-`websearch` is rejected (`byok_not_supported`).
+`websearch` and `favicon` (house-only hops) are rejected (`400 validation_failed`, reason `byok_not_supported`).
 
 ## GET `/v1/credentials` 200
 
@@ -76,6 +76,6 @@ Capability POSTs may return `400` `zi_credentials_required` | `findymail_credent
 
 - **House-key:** LeadMagic, Wiza, Findymail, AIArk (optional tenant store; house AI Ark on default `company.b2b_social` paths — `company-b2b-social`).
 - **BYOK:** ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI.
-- **House-only:** websearch.
+- **House-only:** websearch, favicon (`400 validation_failed`, reason `byok_not_supported`). Neither id is on the path `provider` enum.
 - Live credential writes require server-side encryption configured on the API deployment (operator concern — never a skill input).
 - Store secrets at `https://app.kingminos.com`. Never paste a vendor secret into chat.

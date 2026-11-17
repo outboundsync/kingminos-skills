@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP). Mutations only after explicit confirmation.
 metadata:
   author: outboundsync
-  version: "1.3.1"
+  version: "1.4.0"
 ---
 
 # KingMinos credentials
@@ -52,7 +52,8 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | QuickEnrich | `quickenrich` | BYOK | `{ "apiKey" }` |
 | GetLeads | `getleads` | BYOK | `{ "apiKey" }` |
 | BlitzAPI | `blitzapi` | BYOK | `{ "apiKey" }` |
-| websearch | `websearch` | House-only | `PUT` → `byok_not_supported` |
+| websearch | `websearch` | House-only | `PUT` → `400 validation_failed`, reason `byok_not_supported` |
+| favicon | `favicon` | House-only | `PUT` → `400 validation_failed`, reason `byok_not_supported` |
 
 `PUT` also accepts `api_key` as an alias of `apiKey` for API-key vendors. Do not tell a customer they have a house ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, or BlitzAPI key. Do not call `PUT` from this skill.
 
@@ -113,7 +114,7 @@ BYOK      <bar>  <✓|✗|·> <ready | missing <vendor> | unverified>
 - <✓|·|✗> <provider> <set|unset|managed>
 - · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are BYOK
 - · LeadMagic, Wiza, Findymail, and AIArk are house-key (tenant Your Keys optional)
-- · websearch is house-only (byok_not_supported)
+- · websearch and favicon are house-only (`400 validation_failed`, reason `byok_not_supported`)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
 ### Next

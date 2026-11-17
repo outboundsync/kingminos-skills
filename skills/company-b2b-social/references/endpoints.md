@@ -23,7 +23,9 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP
 | Field | Required | Notes |
 | --- | --- | --- |
 | `domain` | subject required | Or `website` / `email` → same registrable domain after hygiene |
-| `name` | no | Optional unit/brand corroboration |
+| `name` | no | Unit/brand corroboration. Sufficient alone on `accuracy` / `coverage` (name→domain). On `speed` / `balance`, name→domain runs only when `hint` is sent; otherwise those paths miss rather than guess when domain, website, and email are absent |
+| `hint` | no | Optional list/industry context. Any path uses it with `country` so short names resolve; on `speed` / `balance` it also turns name→domain on |
+| `country` | no | Optional ISO country. Used with `hint` for name→domain |
 | `website` | no | |
 | `email` | no | |
 | `linkedin_url` | no | Must already be `https://www.linkedin.com/company/{slug}`; person `/in/` is `400` |
@@ -34,7 +36,7 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
 | `dry_run` | no | Default false |
 
-Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`.
+Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`, `X-Router-Max-Provider-Credits` (used only when the body omits `routing.max_provider_credits`; can raise the path default up to the server ceiling; a non-number is `400 invalid_routing`).
 
 ## Control vs explain
 
@@ -57,9 +59,9 @@ Output `result.linkedin_url` is only the accept form `https://www.linkedin.com/c
 
 - `speed`: websearch company-page query (cap 1)
 - `balance` (default): websearch then house **AI Ark** even after a search candidate (cap 2)
-- `accuracy`: LeadMagic, house AI Ark, then Wiza (cap 18) — verified-only accept
+- `accuracy`: LeadMagic, house AI Ark (cap 18) — verified-only accept. House Wiza is opt-in only (`routing.only` / `routing.order`), off every default path; when that hop decides it bills 15 instead of the path price
 - `coverage`: adds Findymail (cap 19) — structurally valid pages with confidence tiers
-- Default stacks: **house keys only** (LeadMagic, Wiza, Findymail, AI Ark, websearch)
+- Default stacks: **house keys only** (LeadMagic, Findymail, AI Ark, websearch). House Wiza is off every default path
 - BYOK: ZoomInfo (`company_linkedin_enrich` — search → scoped company enrich `socialMediaUrls`), BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, BlitzAPI — `routing.only` / explicit order only for hop vendors above **except Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI** (Your Keys catalog only on this route; Lemlist is a `company.resolve` hop only — `company-resolve`; Snov.io is a credential vendor with no enrichment hop)
 
 ## Errors (run not started)
@@ -68,7 +70,7 @@ Output `result.linkedin_url` is only the accept form `https://www.linkedin.com/c
 | --- | --- | --- |
 | `400` | `validation_failed` / `name_only_unsupported` / `invalid_routing` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `brandfetch_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `companyurlfinder_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` / `enrichcrm_credentials_required` / `lemlist_credentials_required` | Fix input or store BYOK (`credentials`) |
 | `401` | `unauthorized` + `detail` | `auth` |
-| `409` | `idempotency_*` | Rotate or reuse `Idempotency-Key` per docs |
+| `409` | `idempotency_conflict` / `idempotency_in_flight` / `idempotency_spent` / `idempotency_replay_unavailable` | New key on `idempotency_conflict`. Do not retry `idempotency_spent`. `429` / `503` retry the same key. A free `no_decision` miss is re-run, not replayed |
 | `429` | rate / tenant / key budget | `Retry-After` |
 | `503` | `store_unavailable` | Retryable. UNVERIFIED |
 

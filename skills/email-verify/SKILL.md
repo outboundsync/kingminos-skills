@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # KingMinos email.verify
@@ -60,7 +60,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | `coverage` | Two independent checks; one conclusive check is enough | `low` | 10 s |
 
 - **Pick:** bulk hygiene → `speed` or `balance`; a high-stakes send or a CRM "verified" stamp → `accuracy`; squeeze the most answers out of a hard list → `coverage`.
-- **Other routing:** `routing.only` / `routing.ignore` are honored; an unknown provider → `400 unknown_provider`. `routing.max_provider_credits` below the path price → `max_credits_reached` noop at 0.
+- **Other routing:** `routing.only` / `routing.ignore` are honored; an unknown provider → `400 unknown_provider`. `routing.max_provider_credits` below the path price → `max_credits_reached` noop at 0. `X-Router-Max-Provider-Credits` is that ceiling when the body omits it: the lowest of the path cap, the server ceiling, the header, and the body applies (it can only lower the cap). A non-number is `400 invalid_routing`; an empty value is ignored. The effective ceiling is part of the `Idempotency-Key` hash.
 - **Optional:** `min_confidence` (`high` | `medium` | `low`; overrides the path floor), `dry_run` (offline — no DNS or vendor check), `external_ref`, `compliance`.
 
 ### Billing (outcome-priced)
@@ -116,7 +116,7 @@ When the user wants extra assurance on an address `person-email` found:
 - `403` `scope_denied`.
 - `429` `rate_limit_exceeded` | `tenant_budget_exhausted` | `key_budget_exhausted` | `max_credits_reached` with `Retry-After`.
 - `451` `subject_suppressed` (0 credits; do not retry).
-- `409` idempotency family, and `503` `store_unavailable` (retryable, same key).
+- `409` `idempotency_conflict` (same key, different request — use a new key) | `idempotency_in_flight` (still running; ~40 s with no activity re-runs only if no paid vendor was contacted, else `idempotency_spent`) | `idempotency_spent` (a paid vendor was already contacted — do not retry that key) | `idempotency_replay_unavailable`. `503` `store_unavailable` retries the same key (the run was not started). A same-hash completed run replays (`replayed: true`, no new charge); a free `no_decision` miss is re-run instead of replayed.
 
 ## Output contract
 

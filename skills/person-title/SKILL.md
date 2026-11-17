@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # KingMinos person.title
@@ -60,7 +60,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 ### Billing (outcome-priced)
 
 - **0 credits** on a miss, on a partial (`fields_incomplete`) and on a timeout.
-- A `routing.max_provider_credits` below the path price is a 0-credit `max_credits_reached` noop.
+- A `routing.max_provider_credits` below the path price is a 0-credit `max_credits_reached` noop. `X-Router-Max-Provider-Credits` is that ceiling when the body omits it: the lowest of the path cap, the server ceiling, the header, and the body applies (it can only lower the cap). A non-number is `400 invalid_routing`; an empty value is ignored. The effective ceiling is part of the `Idempotency-Key` hash.
 - The 30-day cache is keyed on path + `fields` + `company_domain` + `only` / `ignore`. A replay costs 0 credits (`usage.cached: true`).
 - Requires scope `person.title` (`403 scope_denied` without it).
 
@@ -88,7 +88,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - `401` `unauthorized` with `detail` (`missing` | `malformed` | `mismatch`) plus a static `hint` — never echoes the key.
 - `403` `scope_denied`.
 - `429` `rate_limit_exceeded` | `tenant_budget_exhausted` | `key_budget_exhausted` with `Retry-After`.
-- `409` idempotency family, and `503` `store_unavailable` (retryable, same key).
+- `409` `idempotency_conflict` (same key, different request — use a new key) | `idempotency_in_flight` (still running; ~40 s with no activity re-runs only if no paid vendor was contacted, else `idempotency_spent`) | `idempotency_spent` (a paid vendor was already contacted — do not retry that key) | `idempotency_replay_unavailable`. `503` `store_unavailable` retries the same key (the run was not started). A same-hash completed run replays (`replayed: true`, no new charge); a free `no_decision` miss is re-run instead of replayed.
 
 ## Output contract
 

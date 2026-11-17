@@ -30,7 +30,7 @@ BYOK      ████████████████████  ✓ read
 - · builtwith unset
 - · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are BYOK
 - · LeadMagic, Wiza, Findymail, and AIArk are house-key (tenant Your Keys optional)
-- · websearch is house-only (byok_not_supported)
+- · websearch and favicon are house-only (`400 validation_failed`, reason `byok_not_supported`)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
 ## Failing — ZoomInfo BYOK unset
@@ -56,7 +56,7 @@ BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ miss
 
 - ✗ zoominfo unset
 - · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are BYOK
-- · websearch is house-only (byok_not_supported)
+- · websearch and favicon are house-only (`400 validation_failed`, reason `byok_not_supported`)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
 ### Next
@@ -86,7 +86,7 @@ BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ miss
 
 - ✗ zoominfo credential_rejected — vendor rejected the key; nothing was stored
 - · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are BYOK
-- · websearch is house-only (byok_not_supported)
+- · websearch and favicon are house-only (`400 validation_failed`, reason `byok_not_supported`)
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
 ### Next

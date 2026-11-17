@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # KingMinos person.verify_employment
@@ -28,7 +28,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 - Outcomes (`answer.outcome`): **`high_confidence_send` | `low_confidence_send` | `low_confidence_block` | `high_confidence_block` | `no_decision`** — all four send/block answers are `es_decision: hit`; a block is an answer, not a failure. `no_decision` maps by reason (`ambiguous_employment` / `sources_disagree` → `ambiguous`; zero_hits / personal_mailbox / company_mismatch / `email_validate` / `lm_job_change` / `no_match` → `miss`; config / budget / compliance → `noop`; provider errors → `error`).
 - Confidence rules: `employment: left` → block (high only if the email is also invalid); status `valid` + not risky → send (high, unless `unknown` employment demotes it to `low_confidence_send`); accuracy needs corroboration for high.
-- Input: one of `email` | `linkedin_url` | (`first_name` + `last_name`) — top level or under `person`. Without an email, `expected_company` must carry `domain` | `website` | `name` | `identifiers`, or `400 validation_failed` (`expected_company_required_without_email`). Optional `expected_company {domain, website, name, identifiers[]}`, `dry_run`, `external_ref`, `routing`, `compliance {soc2, data}`.
+- Input: one of `email` | `linkedin_url` | (`first_name` + `last_name`) — top level or under `person`. Without an email, `expected_company` must carry `domain` | `website` | `name` | `identifiers`, or `400 validation_failed` (`expected_company_required_without_email`). Optional `expected_company {domain, website, name, identifiers[]}`, `dry_run`, `external_ref`, `routing`, `compliance {soc2, data}`. Do not send `min_confidence` — the request body no longer includes it. `X-Router-Max-Provider-Credits` (finite number ≥ 0; empty ignored; anything else `400 invalid_routing`) applies only when the body omits `routing.max_provider_credits` (the body wins). It replaces the tenant / path default (it can raise it) and is clamped to the server ceiling (20). The effective ceiling is part of the `Idempotency-Key` hash.
 - Paths (`routing.path`; omit → `balance`): `speed` 0.5 (email validation only) · `balance` 13.5 (validation + email-to-profile + job-change when an expected company is present) · `accuracy` 14.5 (adds corroboration). `value` / `auto` / `coverage` / `fast` / `name_only` / `zi_stamp` → `400 invalid_routing`. `allow_paid_linkedin_lookup` defaults on for balance/accuracy.
 - Layer-1 is one email validator per run, never two. House keys work for any authenticated tenant; BYOK overrides them. With your own ZoomInfo key, a post-decision contact lookup appends `result.zoominfo_contact_id` at estimate 0.
 - Catch-all / SEG / role-based mailboxes are **risk flags** on `result.email_validation`, never fifth outcomes — they shape confidence, not the enum. `result.soft_miss` (14 values, e.g. `ambiguous_current`, `email_ok_job_unknown`, `vendor_conflict`) explains soft non-blocks.
@@ -45,7 +45,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 ## Errors
 
 - `401` `unauthorized` with `detail` (`missing` | `malformed` | `mismatch`) plus a static `hint` — never echoes the key.
-- `403` `scope_denied`. `429` `rate_limit_exceeded` | `tenant_budget_exhausted` | `key_budget_exhausted` with `Retry-After` (the run never started; the `Idempotency-Key` is not spent). `409` idempotency family + `503` `store_unavailable` (retryable, same key).
+- `403` `scope_denied`. `429` `rate_limit_exceeded` | `tenant_budget_exhausted` | `key_budget_exhausted` with `Retry-After` (the run never started; the `Idempotency-Key` is not spent). `409` `idempotency_conflict` (same key, different request — use a new key) | `idempotency_in_flight` (still running; ~40 s with no activity re-runs only if no paid vendor was contacted, else `idempotency_spent`) | `idempotency_spent` (a paid vendor was already contacted — do not retry that key) | `idempotency_replay_unavailable`. `503` `store_unavailable` retries the same key (the run was not started). A same-hash completed run replays (`replayed: true`, no new charge); a free `no_decision` miss is re-run instead of replayed.
 
 ## Output contract
 

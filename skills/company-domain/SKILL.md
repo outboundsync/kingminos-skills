@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # KingMinos company.domain
@@ -40,7 +40,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - Result fields that are **not** the stamp: `account_primary_domain` (HubSpot `domain` — `collapse_brand` can lift a regional above `company_domain`), `input_domain` (normalized caller host — keep this on the CRM primary when the integration preserves what was entered), `additional_domains` / `additional_domains_csv` (write-safe aliases only — never "all domains found"; never the input host or its www/apex twins), `additional_domain_proofs` (per-host proof tags such as `redirect` — additive, not a write gate), `review_domains` / `related_domains` (review columns), `discovered_domain` (half-trusted side column), `corrected_from` / `corrected_via` (`redirect` \| `cname` \| `canonical_link` \| `og_url` when outcome is `corrected`).
 - **Cross-domain HTTP redirect:** when the input host redirects to a different registrable domain and identity passes, that live target (typically `company_domain` when it differs from the input) is included in `additional_domains` / `additional_domains_csv` with proof `redirect` in `additional_domain_proofs`. Same-site redirects (www, http→https), identity-mismatch redirects, and an input already on the stamp add nothing.
 - `exact_one`; no fuzzy. Weak discovery abstains (`R11_discovery_abstain`) — it never invents. A dead-domain verdict is soft `unverified`, not `rejected`.
-- Cache: per-tenant ~5-minute result cache; bypass the **read** with `X-Router-Cache: bypass` / `Cache-Control: no-cache` / `skip_cache: true`. Bypass does not skip Idempotency-Key replay — omit or rotate the key.
+- Cache: per-tenant ~5-minute result cache; bypass the **read** with `X-Router-Cache: bypass` / `Cache-Control: no-cache` / `skip_cache: true`. Bypass does not skip Idempotency-Key replay of a completed same-hash run — omit or rotate the key. A free `no_decision` miss is re-run instead of replayed. `X-Router-Max-Provider-Credits` (finite number ≥ 0; empty ignored; anything else `400 invalid_routing`) applies only when the body omits `routing.max_provider_credits` (the body wins). It replaces the tenant / path default (it can raise it) and is clamped to the server ceiling. The effective ceiling is part of the `Idempotency-Key` hash.
 
 ## Workflow
 

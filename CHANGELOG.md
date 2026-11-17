@@ -4,6 +4,23 @@
 
 ## Unreleased
 
+- `api` skill 1.15.0: `Idempotency-Key` on every capability POST (conflict, in-flight, spent, replay-unavailable; a free `no_decision` miss is re-run); `X-Router-Max-Provider-Credits`; public `GET /v1/pricing` is the price table and is not a Bearer tool. `company.b2b_social` `hint` turns name→domain on for `speed` / `balance`; opt-in house Wiza bills 15. `company.description` leftover first-person / CTA voice misses or is rewritten. `person.phone` `accuracy` withholds a `conflicting_numbers` hit under the default high floor.
+- `company-b2b-social` skill 1.3.0: `hint` / name→domain on `speed` and `balance`, and the opt-in house Wiza hop at 15 credits.
+- `company-description` skill 1.3.0: leftover first-person / second-person / CTA voice is rewritten or misses; a delivered hit has `first_person` and `cta` false; `truncated` still forces `low`.
+- `company-domain` skill 1.3.0: `X-Router-Max-Provider-Credits` can raise the path default up to the server ceiling when the body omits it; idempotency replay exceptions.
+- `company-hierarchy` skill 1.1.0: `min_confidence` is no longer a request field; credit-ceiling header; idempotency codes.
+- `company-icon` skill 1.3.0: idempotency codes; `X-Router-Max-Provider-Credits` is ignored unless malformed.
+- `company-resolve` skill 1.6.0: credit-ceiling header (body wins; can raise the path default) and idempotency codes.
+- `credentials` skill 1.4.0: `favicon` is house-only, rejected with `400 validation_failed` / `byok_not_supported`, same as `websearch`. Not a path-enum id.
+- `email-verify` skill 1.1.0: credit-ceiling header can only lower the cap; idempotency codes.
+- `person-b2b-social` skill 1.2.0: credit-ceiling header can only lower the cap; idempotency codes.
+- `person-email` skill 1.2.0: credit-ceiling header can only lower the cap; idempotency codes.
+- `person-language` skill 1.2.0: profile lookups are capped per path; idempotency codes. The credit-ceiling header is ignored unless malformed.
+- `person-name` skill 1.2.0: credit-ceiling header can only lower the cap; idempotency codes.
+- `person-phone` skill 1.4.0: on `accuracy`, `conflicting_numbers` caps confidence at low so the default high floor withholds the number and bills 0; BYOK is a flat 0.1 per vendor behind a delivered number.
+- `person-title` skill 1.2.0: credit-ceiling header can only lower the cap; idempotency codes.
+- `person-verify-employment` skill 1.2.0: `min_confidence` is no longer a request field; credit-ceiling header can raise the path default up to 20; idempotency codes.
+
 ## [2026.11.17.1] - 2026-11-17
 
 - API sync: a 6-hourly `API sync` workflow compares the live KingMinos OpenAPI spec to `api-sync/openapi.snapshot.json`, regenerates the OpenAPI inventory fixture, has a Cursor CLI agent update the API map and affected skills, and opens a PR for a human to merge. It replaces the daily "Live OpenAPI surfaces" drift issue. New `api-sync-snapshot` validate rule keeps the fixture equal to the snapshot.

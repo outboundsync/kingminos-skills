@@ -24,7 +24,7 @@ Decision  ████████████████████  ✓ read
 - ✓ CRM write — meets balance floor (high confidence)
 - · credits spent 0 · providers aiark
 
-## Passing — hit, not safe to write (cta)
+## Passing — hit, not safe to write (truncated)
 
 ## Company description — hit
 
@@ -40,10 +40,10 @@ Decision  ████████████████████  ✓ read
 `run_demo902 · path speed · es_decision hit · confidence low`
 
 - ✓ outcome — hit · exact_one
-- ✓ description — Example makes outbound easy for revenue teams. Start your free trial today!
-- · flags — hype false · first_person false · tagline false · same_as_speed false · truncated false · cta true · grammar false
+- ✓ description — Example makes outbound easy for revenue teams
+- · flags — hype false · first_person false · tagline false · same_as_speed false · truncated true · cta false · grammar false
 - · identity — jev 0.95
-- · CRM write — withheld or user may accept low (cta forces low confidence)
+- · CRM write — withheld or user may accept low (truncated forces low confidence)
 - · credits spent 0 · providers aiark
 
 ### Next
