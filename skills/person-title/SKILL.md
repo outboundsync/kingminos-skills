@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # KingMinos person.title
@@ -47,12 +47,14 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 `routing.path`, omit = `balance`. `value` / `fast` / `name_only` → speed; `auto` → balance.
 
-| Path | What it does | Cost on a hit |
-| --- | --- | --- |
-| `speed` | One profile read, keywords only, never `high` | 1 |
-| `balance` | First usable title wins | 2 |
-| `accuracy` | Two independent sources plus a judge; agreement is `high`, a disagreement flags `conflicting_titles`; 10 s cap | 3 |
-| `coverage` | Adds more sources whenever a second source is wanted | 5 |
+| Path | What it does |
+| --- | --- |
+| `speed` | One profile read, keywords only, never `high` |
+| `balance` | First usable title wins |
+| `accuracy` | Two independent sources plus a judge; agreement is `high`, a disagreement flags `conflicting_titles`; 10 s cap |
+| `coverage` | Adds more sources whenever a second source is wanted |
+
+A hit bills the path price, once; a miss or a partial (`fields_incomplete`) bills 0. Prices per path: the `api` skill's pricing reference (`api/references/pricing.md`).
 
 - **Other routing:** `routing.only` / `routing.ignore` are honored; an unknown provider → `400 unknown_provider`. ZoomInfo is searched only on a workspace BYOK key.
 - **Optional:** `dry_run`, `skip_cache`, `external_ref`, `compliance`.
@@ -116,7 +118,7 @@ Decision  <bar>  <✓|✗|·> <es_decision hit — <path> | fields_incomplete | 
 - <· seniority: <seniority> (<vendor | derived | jev>)>
 - <· function: <function> (<vendor | derived | jev>)>
 - <· flags: <conflicting_titles — do not write | stale_title | single_source | …>>
-- <· credits: <1 | 2 | 3 | 5 | 0 | 0 cached>>
+- <· credits: <usage.credits.spent | 0 cached>>
 
 ### Next
 1. <shortest action tied to a ✗ or UNVERIFIED above>

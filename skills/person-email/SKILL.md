@@ -13,7 +13,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # KingMinos person.email
@@ -63,9 +63,9 @@ Send at least one route (fields top level or under `person`):
 
 ### Billing (outcome-priced)
 
-- **Only a delivered `found`** at or above the floor bills the path price, once: **2–5 credits** depending on the path (`speed` cheapest, `coverage` most).
+- **Only a delivered `found`** at or above the floor bills the path price, once. Prices per path: the `api` skill's pricing reference (`api/references/pricing.md`).
 - **0 credits** on `not_found`, `conflict`, `catch_all`, a disagreement, a person mismatch, a below-floor withhold, a suppressed address, a timeout and a dry run.
-- On your own vendor key (BYOK), a delivered email bills a flat 0.1 router fee; you pay your vendor directly.
+- On your own vendor key (BYOK), a delivered email bills the flat BYOK router fee from the pricing reference instead of the path price; you pay your vendor directly.
 - 30-day hits-only cache; a replay costs 0 credits (`usage.cached: true`). `skip_cache` / `X-Router-Cache: bypass` skip the read only.
 - Requires scope `person.email` (`403 scope_denied` without it).
 
@@ -101,12 +101,12 @@ When the user wants extra assurance before a send:
 1. A `high` find (`finders_agree` or `verified_by_second_vendor`) already has two independent sources — a second verify adds little.
 2. On a `medium` / `single_source` find (typical of `speed`), or a cached find well before the send, hand `result.email` to `email-verify` (`POST /v1/email/verify`, `routing.path: accuracy`).
 3. Send only when the find is `found` **and** the verify is `valid`. A verify `invalid` overrides the find; a verify `catch_all` means the address cannot be proven.
-4. The two calls bill separately (find 1.5–5, verify 0.5–1.5). Tell the user before running the chain on a list.
+4. The two calls bill separately, each at its own path price (pricing reference). Tell the user before running the chain on a list.
 
 ## Workflow
 
 1. Confirm auth (`GET /v1/capabilities` or the `auth` skill). On `401`, stop.
-2. **Bulk:** before a list run, state the row count, the path and the 1.5–5-credit range per delivered email; ask once, including the write floor.
+2. **Bulk:** before a list run, state the row count, the path and its price per delivered email from the pricing reference; ask once, including the write floor.
 3. Send `POST /v1/person/email` with the name route, the LinkedIn route, or both.
 4. Render the verdict from `answer.outcome` / `answer.reason_code`, `es_decision`, `answer.confidence`, `result.route` and `result.flags`.
 5. **Clay:** one HTTP column, `first_name` / `last_name` / `company_domain` (and `linkedin_url` when you have it) in. Map `result.email` out, branch on `answer.outcome`, and gate the write on `answer.confidence` vs the user's floor.

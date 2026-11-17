@@ -8,13 +8,18 @@ name: API sync
 # compare it to api-sync/openapi.snapshot.json. Two jobs:
 #   propose — read-only token, no credentials persisted. When the spec changed:
 #     1. scripts/openapi-inventory.mjs regenerates the hermetic inventory
-#        fixture (scripts/validate/fixtures/openapi-inventory.yaml);
+#        fixture (scripts/validate/fixtures/openapi-inventory.yaml) and
+#        scripts/sync-pricing.mjs the pricing reference
+#        (skills/api/references/pricing.md) from the live spec, so the agent
+#        sees what changed;
 #     2. a Cursor CLI agent (Grok) updates the API map, the affected skills
 #        (with metadata.version bumps), providers.yaml and the BYOK provider
 #        lists in README/CONVENTIONS/SECURITY when the credentials provider
 #        enum changed, and CHANGELOG `## Unreleased` (.github/prompts/api-sync.md;
-#        skipped with a notice when the CURSOR_API_KEY secret is unset);
-#     3. the new snapshot is written, `npm run validate -- --base origin/main`
+#        skipped with a notice when the CURSOR_API_KEY secret is unset). It
+#        never writes a price: prices live only in the generated reference;
+#     3. the new snapshot is written and the fixture and pricing reference are
+#        regenerated from it, `npm run validate -- --base origin/main`
 #        and `npm test` run, and the allowed-path changes are saved as a patch
 #        plus a PR body (artifact).
 #   open-pr — write token. Fresh checkout, runs no repo code: applies the
@@ -27,7 +32,8 @@ name: API sync
 # The PR is opened with RELEASE_PR_TOKEN when it is set, so the required
 # `validate` check runs on it; otherwise with GITHUB_TOKEN, and a maintainer
 # closes and reopens the PR to run `validate`. On PRs, the `api-sync-snapshot`
-# rule inside `validate` keeps the fixture equal to what the snapshot renders.
+# and `pricing-reference-generated` rules inside `validate` keep the fixture and
+# the pricing reference equal to what the snapshot renders.
 # Replaces the old "Live OpenAPI surfaces" drift-issue job.
 
 on:
@@ -53,6 +59,7 @@ env:
   OPENAPI_URL: https://api.kingminos.com/openapi.json
   SNAPSHOT: api-sync/openapi.snapshot.json
   FIXTURE: scripts/validate/fixtures/openapi-inventory.yaml
+  PRICING_REF: skills/api/references/pricing.md
   SYNC_BRANCH: chore/api-sync
 
 jobs:
@@ -137,13 +144,16 @@ jobs:
             echo "mode=$mode"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Regenerate the inventory fixture from the live spec
+      # Generated data is written by these scripts, never by the agent. The
+      # agent reads the diffs to see which routes and prices changed.
+      - name: Regenerate the inventory fixture and pricing reference from the live spec
         if: steps.spec.outputs.changed == 'true'
         env:
           LIVE: ${{ steps.spec.outputs.live }}
         run: |
           node scripts/openapi-inventory.mjs "$LIVE"
-          git diff --stat -- "$FIXTURE"
+          node scripts/sync-pricing.mjs "$LIVE"
+          git diff --stat -- "$FIXTURE" "$PRICING_REF"
 
       # The edit pass runs on Cursor CLI (headless `agent -p`), billed to the
       # Cursor Teams plan through the CURSOR_API_KEY secret. Change the model
@@ -224,6 +234,7 @@ jobs:
                 "Write(**/*.sh)",
                 "Write(**/*.json)",
                 "Write(scripts/validate/fixtures/openapi-inventory.yaml)",
+                "Write(skills/api/references/pricing.md)",
                 "Write(test/**)",
                 "Write(templates/**)",
                 "Write(node_modules/**)",
@@ -264,7 +275,8 @@ jobs:
           rmdir .cursor 2>/dev/null || true
           # Anything the agent touched outside skills/ (Markdown and YAML only),
           # providers.yaml, CHANGELOG.md and the BYOK lists in
-          # README/CONVENTIONS/SECURITY is put back. The fixture is regenerated below.
+          # README/CONVENTIONS/SECURITY is put back. The fixture and the pricing
+          # reference are regenerated below, which overwrites any agent edit to them.
           stray="$(git status --porcelain --untracked-files=all | awk '{print $NF}' \
             | grep -vE '^(skills/.+\.(md|ya?ml)$|scripts/validate/fixtures/providers\.yaml$|CHANGELOG\.md$|README\.md$|CONVENTIONS\.md$|SECURITY\.md$)' \
             | grep -vxF "$FIXTURE" || true)"
@@ -282,11 +294,13 @@ jobs:
             git checkout -- CHANGELOG.md
           fi
           node scripts/openapi-inventory.mjs "$LIVE"
+          node scripts/sync-pricing.mjs "$LIVE"
           git status --short
 
       # Written after the agent so it could diff the previous snapshot against
-      # the live spec.
-      - name: Write the snapshot
+      # the live spec. The pricing reference is then rendered from the snapshot
+      # itself, which is what the pricing-reference-generated rule compares.
+      - name: Write the snapshot and the pricing reference
         if: steps.spec.outputs.changed == 'true'
         env:
           LIVE: ${{ steps.spec.outputs.live }}
@@ -294,6 +308,9 @@ jobs:
           mkdir -p "$(dirname "$SNAPSHOT")"
           cp "$LIVE" "$SNAPSHOT"
           node scripts/openapi-inventory.mjs "$SNAPSHOT" --check
+          node scripts/sync-pricing.mjs "$SNAPSHOT"
+          node scripts/sync-pricing.mjs "$SNAPSHOT" --check
+          git diff --stat -- "$PRICING_REF"
 
       # The agent's summary goes to a file, with the Cursor key redacted, never
       # to a step output.
@@ -357,7 +374,7 @@ jobs:
         run: |
           out_dir="$RUNNER_TEMP/api-sync-out"
           mkdir -p "$out_dir"
-          git add -A -- "$SNAPSHOT" "$FIXTURE" scripts/validate/fixtures/providers.yaml skills \
+          git add -A -- "$SNAPSHOT" "$FIXTURE" "$PRICING_REF" scripts/validate/fixtures/providers.yaml skills \
             CHANGELOG.md README.md CONVENTIONS.md SECURITY.md
           git diff --cached --binary > "$out_dir/api-sync.patch"
           if [ ! -s "$out_dir/api-sync.patch" ]; then
@@ -374,7 +391,7 @@ jobs:
           {
             echo "Automated by the \`API sync\` workflow. The live KingMinos OpenAPI spec (\`$OPENAPI_URL\`, canonical hash \`$HASH\`) differs from \`$SNAPSHOT\`. Mode: **$MODE**$bootstrap_note."
             echo
-            echo "- **Generated:** \`$SNAPSHOT\` (the live spec, \`jq -S .\`) and \`$FIXTURE\` (\`scripts/openapi-inventory.mjs\`). Don't edit them by hand."
+            echo "- **Generated:** \`$SNAPSHOT\` (the live spec, \`jq -S .\`), \`$FIXTURE\` (\`scripts/openapi-inventory.mjs\`) and \`$PRICING_REF\` (\`scripts/sync-pricing.mjs\`, from the spec's \`x-kingminos-pricing\` blocks). Don't edit them by hand."
             echo "- **Drafted by the agent (Cursor CLI):** changes under \`skills/\` (the API map \`skills/api/references/endpoints.md\`, trimmed copies, capability skills and their \`metadata.version\` bumps), \`scripts/validate/fixtures/providers.yaml\` (only when the spec's credentials \`provider\` enum changed), the BYOK provider lists in \`README.md\`, \`CONVENTIONS.md\` and \`SECURITY.md\` (only after a provider change) and \`## Unreleased\` lines in \`CHANGELOG.md\`. Review them like any skills edit."
             echo
             echo "### Agent notes"
@@ -444,7 +461,9 @@ jobs:
             echo "::error title=Patch did not apply::The propose job's patch does not apply to $(git rev-parse --short HEAD)."
             exit 1
           fi
-          allowed='^(api-sync/openapi\.snapshot\.json|scripts/validate/fixtures/(openapi-inventory|providers)\.yaml|skills/.+\.(md|ya?ml)|CHANGELOG\.md|README\.md|CONVENTIONS\.md|SECURITY\.md)$'
+          # skills/api/references/pricing.md (generated) is listed on its own so
+          # it stays allowed if the skills/ pattern is ever narrowed.
+          allowed='^(api-sync/openapi\.snapshot\.json|scripts/validate/fixtures/(openapi-inventory|providers)\.yaml|skills/api/references/pricing\.md|skills/.+\.(md|ya?ml)|CHANGELOG\.md|README\.md|CONVENTIONS\.md|SECURITY\.md)$'
           bad="$(git diff --cached --name-only | grep -vE "$allowed" || true)"
           if [ -n "$bad" ]; then
             echo "::error title=Patch touches forbidden paths::$(echo "$bad" | tr '\n' ' ')"
@@ -479,6 +498,7 @@ jobs:
             api-sync/openapi.snapshot.json
             scripts/validate/fixtures/openapi-inventory.yaml
             scripts/validate/fixtures/providers.yaml
+            skills/api/references/pricing.md
             skills/**
             CHANGELOG.md
             README.md

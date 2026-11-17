@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.15.0"
+  version: "1.16.0"
 ---
 
 # KingMinos API
@@ -22,7 +22,7 @@ Teach the public enrichment API at **KingMinos by OutboundSync**. **Read-only.**
 
 **Note:** These instructions reflect KingMinos by OutboundSync best practices shared freely and without warranty of outcomes — see [DISCLAIMER.md](https://github.com/outboundsync/kingminos-skills/blob/main/DISCLAIMER.md).
 
-Render **only** the output shape below — no prose outside it. Every REST path, its inventory tool, access rules, and error handling: [references/endpoints.md](references/endpoints.md). Examples: [references/examples.md](references/examples.md).
+Render **only** the output shape below — no prose outside it. Every REST path, its inventory tool, access rules, and error handling: [references/endpoints.md](references/endpoints.md). Examples: [references/examples.md](references/examples.md). Credit prices per capability path (cap, delivered, BYOK, miss): [references/pricing.md](references/pricing.md), generated from the API spec and the only place this pack states a price. Never quote a price from memory.
 
 ## Credentials
 
@@ -68,6 +68,7 @@ REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — s
 | Work email from a name + company domain or a LinkedIn URL (`person.email`) | `person-email` · `person_email` |
 | Is this mailbox deliverable — list hygiene before a send (`email.verify`) | `email-verify` · `email_verify` |
 | Erase a subject | `delete_subject` — **not** these skills (`erase` scope) |
+| What a capability path costs (cap, delivered, BYOK, miss) | [references/pricing.md](references/pricing.md) (generated) · live table: `GET /v1/pricing` (public) |
 | Workspace credit balance, ledger, forecast, health, or usage | REST `get_balance` / `get_usage` · see [references/endpoints.md](references/endpoints.md) (no dedicated skill; `billing:read`) |
 | File feedback when blocked or missing data | `submit_feedback` · `POST /v1/feedback` (free; not a support channel) |
 

@@ -14,7 +14,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # KingMinos person.name
@@ -49,12 +49,14 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 `routing.path`, omit = `balance`. `value` / `fast` / `name_only` → speed; `auto` → balance.
 
-| Path | What it does | Default write floor | Cost on a hit |
-| --- | --- | --- | --- |
-| `speed` | One profile read; never `high` | `low` | 1 |
-| `balance` | First usable name wins | `medium` | 2 |
-| `accuracy` | Same ladder plus the judge; two agreeing sources are `high`, a disagreement is `conflict` | `high` | 3 |
-| `coverage` | Balance ladder plus a second source | `low` | 5 |
+| Path | What it does | Default write floor |
+| --- | --- | --- |
+| `speed` | One profile read; never `high` | `low` |
+| `balance` | First usable name wins | `medium` |
+| `accuracy` | Same ladder plus the judge; two agreeing sources are `high`, a disagreement is `conflict` | `high` |
+| `coverage` | Balance ladder plus a second source | `low` |
+
+A hit bills the path price, once; a miss, conflict or withhold bills 0. Prices per path: the `api` skill's pricing reference (`api/references/pricing.md`); each response also quotes them as `options[].est_credits`.
 
 - **Other routing:** `routing.only` / `routing.ignore` are honored; an unknown provider → `400 unknown_provider`.
 - **Optional:** `min_confidence` (overrides the path floor), `dry_run`, `skip_cache`, `external_ref`, `compliance`.
@@ -148,7 +150,7 @@ Decision  <bar>  <✓|✗|·> <es_decision hit — <path> | parsed_only | role_a
 - <· matched on: <email | linkedin_url | email + linkedin_url> · email type: <work | freemail | role>>
 - <· flags: <conflicting_names — do not write | unconfirmed_identity | single_source | first_name_only | freemail | …>>
 - <· quality_flags: <surname_initial_only | surname_truncated | surname_repeats_first | credential_suffix — do not write>>
-- <· credits: <1 | 2 | 3 | 5 | 0 | 0 cached>>
+- <· credits: <usage.credits.spent | 0 cached>>
 
 ### Options
 <Present every row from `options[]` — endpoint, path when set, `est_credits`, one-line description. Ask the user which to run.>

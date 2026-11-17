@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.3.0"
+  version: "1.3.1"
 ---
 
 # KingMinos company.domain
@@ -35,7 +35,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | `no_decision` | by reason (`insufficient_input` → `noop`) | Router skipped | Do not write |
 
 - **Stamp gate:** trusted outcome (`verified` / `corrected` / `discovered`) with `es_decision: hit`, non-blank `result.company_domain`, and `answer.confidence` meeting path/`min_confidence` and the user's CRM acceptance floor — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance).
-- Paths (`routing.path` or flattened `path`; nested wins; omit → `balance`): `speed` (hygiene + DNS + site probe, cap 0) · `balance` (adds a name/domain lookup, cap 0-2) · `accuracy` (miss-only lookups plus free public registry evidence, cap 2) · `coverage` (adds related-domain evidence, cap 3). Legacy `fast`/`value`/`name_only` → `speed`, `auto` → `balance`.
+- Paths (`routing.path` or flattened `path`; nested wins; omit → `balance`): `speed` (hygiene + DNS + site probe) · `balance` (adds a name/domain lookup) · `accuracy` (miss-only lookups plus free public registry evidence) · `coverage` (adds related-domain evidence); caps and prices per path in the `api` skill's pricing reference (`api/references/pricing.md`). Legacy `fast`/`value`/`name_only` → `speed`, `auto` → `balance`.
 - **Disagreeing `domain` / `email` / `website` is accepted, not a 400** — the capability adjudicates. ZoomInfo is BYOK for workspace keys; the house key runs only on tenant `default` (SFDC Flow).
 - Result fields that are **not** the stamp: `account_primary_domain` (HubSpot `domain` — `collapse_brand` can lift a regional above `company_domain`), `input_domain` (normalized caller host — keep this on the CRM primary when the integration preserves what was entered), `additional_domains` / `additional_domains_csv` (write-safe aliases only — never "all domains found"; never the input host or its www/apex twins), `additional_domain_proofs` (per-host proof tags such as `redirect` — additive, not a write gate), `review_domains` / `related_domains` (review columns), `discovered_domain` (half-trusted side column), `corrected_from` / `corrected_via` (`redirect` \| `cname` \| `canonical_link` \| `og_url` when outcome is `corrected`).
 - **Cross-domain HTTP redirect:** when the input host redirects to a different registrable domain and identity passes, that live target (typically `company_domain` when it differs from the input) is included in `additional_domains` / `additional_domains_csv` with proof `redirect` in `additional_domain_proofs`. Same-site redirects (www, http→https), identity-mismatch redirects, and an input already on the stamp add nothing.

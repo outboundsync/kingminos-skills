@@ -87,12 +87,14 @@ Clay HTTP column: map `result.first_name`, `result.last_name`, `result.full_name
 
 ## Cost by path
 
-| Path | Credits on a hit | Default write floor | Miss / conflict / withhold / timeout |
-| --- | --- | --- | --- |
-| `speed` | 1 | `low` | 0 |
-| `balance` (default) | 2 | `medium` | 0 |
-| `accuracy` | 3 | `high` | 0 |
-| `coverage` | 5 | `low` | 0 |
+| Path | Default write floor | Miss / conflict / withhold / timeout |
+| --- | --- | --- |
+| `speed` | `low` | 0 |
+| `balance` (default) | `medium` | 0 |
+| `accuracy` | `high` | 0 |
+| `coverage` | `low` | 0 |
+
+A hit bills the path price: see the `api` skill's pricing reference. Quote `est_credits` from the response when presenting options.
 
 ## Name — resolved
 
@@ -132,12 +134,12 @@ Decision  ░░░░░░░░░░░░░░░░░░░░  ✗ zero
 - · credits: 0
 
 ### Options
-- · `/v1/person/name` · path `balance` · 2 credits — more sources on the same email
-- · `/v1/person/name` · path `accuracy` · 3 credits — judge plus independent confirmation
-- · `/v1/person/b2b-social` · 3 credits — find a profile URL, then retry person.name with `linkedin_url`
+- · `/v1/person/name` · path `balance` · `<est_credits>` credits — more sources on the same email
+- · `/v1/person/name` · path `accuracy` · `<est_credits>` credits — judge plus independent confirmation
+- · `/v1/person/b2b-social` · `<est_credits>` credits — find a profile URL, then retry person.name with `linkedin_url`
 
 ### Follow-ups
-- · `/v1/person/b2b-social` · 3 credits — no LinkedIn URL on the request; discovery may unlock a name
+- · `/v1/person/b2b-social` · `<est_credits>` credits — no LinkedIn URL on the request; discovery may unlock a name
 
 ### Next
 1. Present the options above with credits and ask which path to run — do not default to speed or stop here.
@@ -160,10 +162,10 @@ Decision  ████████████████████  ✓ es_d
 - · credits: 2
 
 ### Options
-- · `/v1/person/name` · path `accuracy` · 3 credits — stronger confirmation before a CRM stamp
+- · `/v1/person/name` · path `accuracy` · `<est_credits>` credits — stronger confirmation before a CRM stamp
 
 ### Follow-ups
-- · `/v1/person/name` · 3 credits — retry at accuracy after the user agrees
+- · `/v1/person/name` · `<est_credits>` credits — retry at accuracy after the user agrees
 
 ### Next
 1. Show options with credits; ask whether to retry at accuracy or leave CRM names blank.

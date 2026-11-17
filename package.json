@@ -12,6 +12,7 @@
     "check:surfaces": "node scripts/validate/cli.mjs --only endpoint-map-consistent,endpoint-map-openapi,provider-enum,api-sync-snapshot",
     "check:surfaces:live": "KINGMINOS_OPENAPI_URL=https://api.kingminos.com/openapi.yaml node scripts/validate/cli.mjs --only endpoint-map-consistent,endpoint-map-openapi,provider-enum",
     "openapi:fixture": "node scripts/openapi-inventory.mjs api-sync/openapi.snapshot.json",
+    "sync:pricing": "node scripts/sync-pricing.mjs api-sync/openapi.snapshot.json",
     "test": "node --test \"test/**/*.test.mjs\"",
     "release:preview": "node scripts/release-calver.mjs --dry-run",
     "release:apply": "node scripts/release-calver.mjs --apply",

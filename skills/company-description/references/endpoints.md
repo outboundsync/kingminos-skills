@@ -29,7 +29,7 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. Integrator walk-thr
 | `max_chars` | no | Integer 80–500, default 300. Trims at a sentence boundary |
 | `skip_cache` | no | When `true`, skip the 30-day result-cache read and re-run (still writes). Same as `X-Router-Cache: bypass` or `Cache-Control: no-cache` / `no-store`. Non-boolean → `400 invalid_cache` |
 | `external_ref` | no | Client correlation key; echoed |
-| `path` / `routing.path` | recommended | `speed` \| `balance` \| `accuracy` \| `coverage`. Omit is valid and resolves to `balance`, but the credit cap becomes **6** instead of **2** — send `path` explicitly. Nested `routing.path` wins. Legacy `fast` / `value` / `name_only` → `speed`, `auto` → `balance` |
+| `path` / `routing.path` | recommended | `speed` \| `balance` \| `accuracy` \| `coverage`. Omit is valid and resolves to `balance`, but its credit cap becomes the capability ceiling instead of the `balance` cap — send `path` explicitly. Nested `routing.path` wins. Legacy `fast` / `value` / `name_only` → `speed`, `auto` → `balance` |
 | `routing.preset` | no | Back-compat; nested `routing.path` wins when both are sent |
 | `routing.only` | no | e.g. `["zoominfo"]` with a stored ZoomInfo key |
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
@@ -91,19 +91,21 @@ Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`f
 
 ## Routing (live Worker)
 
-| Path | Stack | Cap |
-| --- | --- | --- |
-| `speed` | Homepage meta / og (deterministic gates), then a data-provider description | 1 |
-| `balance` | Judge-ranked homepage extracts + meta/og + data-provider text; optional rewrite | 2 |
-| `accuracy` | Neutral third-person compose from homepage evidence + one identity check; falls back to the cheaper hit | 3 |
-| `coverage` | Accuracy compose + off-homepage evidence + your own ZoomInfo key when stored; falls back to the accuracy winner | 6 |
+| Path | Stack |
+| --- | --- |
+| `speed` | Homepage meta / og (deterministic gates), then a data-provider description |
+| `balance` | Judge-ranked homepage extracts + meta/og + data-provider text; optional rewrite |
+| `accuracy` | Neutral third-person compose from homepage evidence + one identity check; falls back to the cheaper hit |
+| `coverage` | Accuracy compose + off-homepage evidence + your own ZoomInfo key when stored; falls back to the accuracy winner |
+
+Caps and prices per path: see the `api` skill's pricing reference (`api/references/pricing.md`).
 
 - **ZoomInfo** is **BYOK only** (coverage evidence when a key is stored; `400` `zi_credentials_required` when forced via `routing.only` without one).
 - Hard 10 s cap from request start on every path.
 
 ## Billing
 
-- **Winner-only:** `usage.credits.spent` is the winning hop only (data-provider text 1, rewrite 0.5, compose 2, off-homepage evidence 0.1, your own ZoomInfo key 1 on full match). Rejected / lost hops and `no_decision` → **0**.
+- **Winner-only:** `usage.credits.spent` is the winning hop only (data-provider text, rewrite, compose, off-homepage evidence, or your own ZoomInfo key on full match); the homepage step is free. Rejected / lost hops and `no_decision` → **0**.
 - `usage.credits.cap` is the resolved path budget; `usage.credits.by_provider` breaks down the winner; `usage.hops` lists every attempt.
 - Results are cached about 30 days. Bypass: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or `skip_cache: true` (read skip only; still writes). Idempotency replay is independent of bypass. (`company.domain` uses a shorter cache; same bypass headers apply there.)
 
