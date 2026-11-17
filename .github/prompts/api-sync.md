@@ -33,6 +33,7 @@ Do not edit:
 
 ## Rules
 
+- **The spec can be wrong.** Never delete a specific fact from the docs (a number, limit, threshold, status code, version or retry schedule) just because the spec does not mention it. When the docs and the spec disagree on a fact that the spec diff did not change (in bootstrap mode, every fact), keep the docs as they are and list the conflict in your summary under `Spec conflicts to check:` (what the docs say, what the spec says, and where). Change such a fact only when the snapshot diff itself changed it.
 - Read `CONTRIBUTING.md`, `CONVENTIONS.md` and `SECURITY.md` first and follow them. Write **KingMinos** (one word) and **SFDC** or **Salesforce**, never **SF**. Put template URLs in inline code, never as links.
 - Teach only Bearer resource operations. Out of scope, never added to the map: session/product-app routes (`/v1/auth/*`, `/v1/account/*`), operator routes (`/v1/admin/*` or tagged `admin`), operations with no `bearer` security (for example `GET /v1/billing`, public `GET /v1/recipes/guidance`), and discovery (`/health`, `/openapi.yaml`, `/openapi.json`, `/v1/openapi.*`).
 - Tool names are snake_case of the `operationId`: every capital after the first character starts a word (`companyXAccount` → `company_x_account`, `getBalanceLedger` → `get_balance_ledger`).
@@ -42,4 +43,4 @@ Do not edit:
 - Write only Markdown and YAML files. Never create or edit scripts, JSON or code files anywhere.
 - Don't commit, push, create branches or open pull requests.
 - When you're done, run `npm run validate -- --base origin/main` and `npm test`, and fix what they report in files you may edit. If a failure needs a file you may not edit, leave it and explain it in your summary.
-- End your last message with a line that starts `Summary:`, followed by a short plain-text summary: which operations changed in the spec, which files and skills you changed (with the new versions) and why, any `New capability skill needed:` lines, provider fields to confirm, files you could not edit, and anything a human should check. The workflow puts it in the pull request.
+- End your last message with a line that starts `Summary:`, followed by a short plain-text summary: which operations changed in the spec, which files and skills you changed (with the new versions) and why, any `New capability skill needed:` lines, provider fields to confirm, files you could not edit, any `Spec conflicts to check:`, and anything a human should check. The workflow puts it in the pull request.
