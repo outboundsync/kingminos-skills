@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.11.17.1] - 2026-11-17
+
 - API sync: a 6-hourly `API sync` workflow compares the live KingMinos OpenAPI spec to `api-sync/openapi.snapshot.json`, regenerates the OpenAPI inventory fixture, has a Cursor CLI agent update the API map and affected skills, and opens a PR for a human to merge. It replaces the daily "Live OpenAPI surfaces" drift issue. New `api-sync-snapshot` validate rule keeps the fixture equal to the snapshot.
 
 ## [2026.11.17.0] - 2026-11-17
