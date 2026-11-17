@@ -69,4 +69,4 @@ Automatic. On each release, `release-calver.yml` runs `release-calver.mjs --appl
 
 ## After merging
 
-Refresh any public mirror or docs page that lists these skills when a skill's output or triggers change. The live API contract stays at `https://api.kingminos.com/openapi.yaml` (JSON twin: `/openapi.json`).
+Nothing to do by hand for the skills themselves. A merge to `main` is live right away for `npx skills add outboundsync/kingminos-skills`. Within 6 hours, the `Skills mirror sync` workflow in `outboundsync/kingminos-website` copies the pack into `https://kingminos.com/.well-known/skills/`, has a Cursor CLI agent (Grok) update `/docs/skills/` (`src/content/docs/docs/skills/index.mdx`), and opens a `chore(skills): sync mirror and docs` PR. Close and reopen that PR to run `check`, then merge it. To sync sooner, run that workflow from the website repo's Actions tab. API docs pages under `/docs/api/` are not synced; update them in the website repo when an endpoint changes. The live API contract stays at `https://api.kingminos.com/openapi.yaml` (JSON twin: `/openapi.json`).

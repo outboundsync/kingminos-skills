@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+- CONTRIBUTING's "After merging" now describes the automatic kingminos.com sync. The site copies the pack to `/.well-known/skills/` and updates `/docs/skills/` through a sync PR.
+
 ## [2026.11.16.3] - 2026-11-16
 
 ### Removed
