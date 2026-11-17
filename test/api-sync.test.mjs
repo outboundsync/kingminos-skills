@@ -6,6 +6,7 @@ import { SNAPSHOT } from '../scripts/validate/rules/api-sync-snapshot.mjs';
 import {
   FIXTURE,
   bearerResourceOperations,
+  resourceOperations,
   resourceOperationsFromOpenApiText,
 } from '../scripts/validate/rules/endpoint-map-openapi.mjs';
 import { credentialsProviderEnumFromOpenApi } from '../scripts/validate/rules/provider-enum.mjs';
@@ -144,4 +145,25 @@ test('api-sync-snapshot: unusable snapshot fails', () => {
   const diags = snapshotDiags({ [SNAPSHOT]: '{"openapi":"3.1.0","paths":{}}' });
   assert.equal(diags[0].severity, 'error');
   assert.match(diags[0].msg, /not a usable OpenAPI document/);
+});
+
+test('Bearer is decided by scheme type, not the scheme key', () => {
+  const spec = liveSpec({ '/v1/usage': { get: { operationId: 'getUsage', security: [{ apiToken: [] }] } } });
+  spec.components.securitySchemes.apiToken = { type: 'http', scheme: 'bearer' };
+  spec.components.securitySchemes.bearer = { type: 'apiKey', in: 'header', name: 'X-Key' };
+  const ops = bearerResourceOperations(resourceOperationsFromOpenApiText(renderInventoryFixture(spec)));
+  assert.deepEqual(ops.map((op) => op.route), ['GET /v1/usage']);
+  const direct = bearerResourceOperations(resourceOperations(spec)).map((op) => op.route);
+  assert.deepEqual(direct, ['GET /v1/usage']);
+});
+
+test('auth, account and admin prefixes are never public, even with Bearer security', () => {
+  const spec = liveSpec({
+    '/v1/account/tokens': { get: { operationId: 'listAccountTokens', security: bearer } },
+    '/v1/auth/me': { get: { operationId: 'getSessionUser', security: bearer } },
+    '/v1/admin/x': { get: { operationId: 'adminX', security: bearer } },
+    '/v1/runs/{id}': { get: { operationId: 'adminTagged', security: bearer, tags: ['Admin'] } },
+  });
+  const routes = bearerResourceOperations(resourceOperations(spec)).map((op) => op.route);
+  assert.equal(routes.some((r) => /\/v1\/(auth|account|admin)|runs/.test(r)), false);
 });

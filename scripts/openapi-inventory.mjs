@@ -158,12 +158,16 @@ export function renderInventoryFixture(spec) {
     }
   }
 
-  if (schemes.size > 0) {
+  // Only schemes the spec defines, so Bearer detection (by scheme type, or by
+  // the name `bearer` when the spec has no schemes) reads the same either way.
+  const defined = [...schemes].sort()
+    .map((name) => [name, deref(spec, spec.components?.securitySchemes?.[name])])
+    .filter(([, scheme]) => scheme && typeof scheme === 'object');
+  if (defined.length > 0) {
     lines.push('components:', '  securitySchemes:');
-    for (const name of [...schemes].sort()) {
-      const scheme = deref(spec, spec.components?.securitySchemes?.[name]) ?? {};
+    for (const [name, scheme] of defined) {
       lines.push(`    ${scalar(name)}:`);
-      lines.push(`      type: ${scalar(typeof scheme.type === 'string' ? scheme.type : 'http')}`);
+      if (typeof scheme.type === 'string') lines.push(`      type: ${scalar(scheme.type)}`);
       if (typeof scheme.scheme === 'string') lines.push(`      scheme: ${scalar(scheme.scheme)}`);
     }
   }

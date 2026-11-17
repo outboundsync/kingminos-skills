@@ -39,6 +39,7 @@ Do not edit:
 - Describe only what the live spec says. Never invent endpoints, tools, fields, enums, prices, providers or behavior. When the spec is ambiguous, keep the existing wording and say so in your summary.
 - If a change only touches wording that doesn't change what a skill user would do, change nothing.
 - Use illustrative data (`example.com`) in examples, never a real customer's.
+- Write only Markdown and YAML files. Never create or edit scripts, JSON or code files anywhere.
 - Don't commit, push, create branches or open pull requests.
 - When you're done, run `npm run validate -- --base origin/main` and `npm test`, and fix what they report in files you may edit. If a failure needs a file you may not edit, leave it and explain it in your summary.
 - End your last message with a line that starts `Summary:`, followed by a short plain-text summary: which operations changed in the spec, which files and skills you changed (with the new versions) and why, any `New capability skill needed:` lines, provider fields to confirm, files you could not edit, and anything a human should check. The workflow puts it in the pull request.
