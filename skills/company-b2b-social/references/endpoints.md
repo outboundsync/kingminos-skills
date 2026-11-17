@@ -59,7 +59,7 @@ Output `result.linkedin_url` is only the accept form `https://www.linkedin.com/c
 
 - `speed`: websearch company-page query (cap 1)
 - `balance` (default): websearch then house **AI Ark** even after a search candidate (cap 2)
-- `accuracy`: LeadMagic, house AI Ark (cap 18) — verified-only accept. House Wiza is opt-in only (`routing.only` / `routing.order`), off every default path; when that hop decides it bills 15 instead of the path price
+- `accuracy`: LeadMagic, house AI Ark — verified-only accept. House Wiza is opt-in only (`routing.only` / `routing.order`), off every default path; when that hop decides it bills its own price instead of the path price
 - `coverage`: adds Findymail (cap 19) — structurally valid pages with confidence tiers
 - Default stacks: **house keys only** (LeadMagic, Findymail, AI Ark, websearch). House Wiza is off every default path
 - BYOK: ZoomInfo (`company_linkedin_enrich` — search → scoped company enrich `socialMediaUrls`), BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, BlitzAPI — `routing.only` / explicit order only for hop vendors above **except Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI** (Your Keys catalog only on this route; Lemlist is a `company.resolve` hop only — `company-resolve`; Snov.io is a credential vendor with no enrichment hop)

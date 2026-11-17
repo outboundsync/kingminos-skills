@@ -40,13 +40,14 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 ### Paths
 
-`routing.path` (or `preset`), omit = `balance`. `value` / `fast` / `name_only` → speed; `auto` → balance. There is **no `coverage` tier**: a profile URL is one answer, so `coverage` → `400 invalid_routing`.
+`routing.path` (or `preset`), omit = `balance`. `value` / `fast` / `name_only` → speed; `auto` → balance. `coverage` is the highest-fill path (floor `low`).
 
 | Path | What it does | Default write floor | Cost on a hit |
 | --- | --- | --- | --- |
 | `speed` | One email-keyed lookup, with a fallback only when the first answered nothing; never `high` | `low` | 2 |
-| `balance` | Same ladder; stops at the first profile | `medium` | 3 |
-| `accuracy` | Always two independent email-keyed sources; 10 s cap | `high` | 5 |
+| `balance` | Both email-keyed sources, always (two independent sources) | `medium` | 3 |
+| `accuracy` | Both sources, plus a public-web check (and your own ZoomInfo key when stored) when they disagree or one is uncorroborated; withholds unless independently confirmed; 10 s cap | `high` | 5 |
+| `coverage` | Both sources plus a public-web check, and your own ZoomInfo key when stored; highest fill | `low` | Path price (`GET /v1/pricing`) |
 
 - **Other routing:** `routing.only` / `routing.ignore` are honored; an unknown provider → `400 unknown_provider`.
 - **Optional:** `min_confidence` (`high` | `medium` | `low`; overrides the path floor), `dry_run`, `skip_cache`, `external_ref`, `compliance`.

@@ -49,10 +49,10 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | --- | --- | --- |
 | `speed` | One web search for the company page (cap 1) | Fast / tight |
 | `balance` (default) | Web search plus a data-provider check (cap 2) | Verified + broader corroboration |
-| `accuracy` | Adds more data-provider sources (cap 18). House Wiza is not on this stack | Verified-only accept |
+| `accuracy` | Adds more data-provider sources. House Wiza is not on this stack | Verified-only accept |
 | `coverage` | Widest source set (cap 19) | All structurally valid LinkedIn hits with confidence (high/low); tighter accept bar than `balance` on verified tier |
 
-BYOK (ZoomInfo, Apollo, Prospeo, Company URL Finder, etc.) is **`routing.only` / explicit order**, not default. House Wiza is the same shape: off every default path (`routing.only` / `routing.order`). When that hop decides, it bills **15** instead of the path price; a miss or a below-floor blank still bills 0.
+BYOK (ZoomInfo, Apollo, Prospeo, Company URL Finder, etc.) is **`routing.only` / explicit order**, not default. House Wiza is the same shape: off every default path (`routing.only` / `routing.order`). When that hop decides, it bills its own price instead of the path price; a miss or a below-floor blank still bills 0.
 
 Hosted MCP: `https://mcp.kingminos.com` — same Bearer and `company_b2b_social` tool. Prefer REST for scripts.
 

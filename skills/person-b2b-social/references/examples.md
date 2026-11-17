@@ -61,8 +61,7 @@ Clay HTTP column: map `result.linkedin_url`. Write it only when `answer.outcome`
 | `speed` | 2 | `low` | 0 |
 | `balance` (default) | 3 | `medium` | 0 |
 | `accuracy` | 5 | `high` | 0 |
-
-`coverage` is not a path for this capability (`400 invalid_routing`).
+| `coverage` | Path price (`GET /v1/pricing`) | `low` | 0 |
 
 ## LinkedIn profile — found
 
