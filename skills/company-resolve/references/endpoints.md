@@ -35,9 +35,9 @@ CRM write floors: [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/reci
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
 | `dry_run` | no | Default false. The capability still does not write SFDC from this skill. |
 
-Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`.
+Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`, `X-Router-Max-Provider-Credits`.
 
-Default `max_provider_credits` is `19` on `auto` (`accuracy` 21, `coverage` 23), `2` on `value`. Paid name recovery bills 15 credits; any step on your own key (BYOK) bills 0.1.
+Default `max_provider_credits` is `19` on `auto` (`accuracy` 21, `coverage` 23), `2` on `value`. Paid name recovery bills 15 credits; any step on your own key (BYOK) bills 0.1. `X-Router-Max-Provider-Credits` (finite number ≥ 0; empty ignored; anything else `400 invalid_routing`) applies only when the body omits `routing.max_provider_credits` (the body wins). It replaces the tenant / path default (it can raise it) and is clamped to the server ceiling. The effective ceiling is part of the `Idempotency-Key` hash. A same-hash completed run replays (`replayed: true`, no new charge); a free `no_decision` miss is re-run instead of replayed. `409 idempotency_conflict` needs a new key; `idempotency_spent` means a paid vendor was already contacted — do not retry that key.
 
 ## Control vs explain
 
@@ -78,7 +78,7 @@ A hit without a primary company id is `resolved_without_primary_id`. Connect you
 
 `companyurlfinder_credentials_required` belongs to **`company.domain`** / `POST /v2/services/name_to_domain`, not `POST /v1/company/resolve`.
 | `401` | `unauthorized` + `detail` missing \| malformed \| mismatch | `auth` |
-| `409` | `idempotency_*` | Rotate or reuse `Idempotency-Key` per docs |
+| `409` | `idempotency_conflict` / `idempotency_in_flight` / `idempotency_spent` / `idempotency_replay_unavailable` | New key on `idempotency_conflict`. Do not retry `idempotency_spent`. `429` / `503` retry the same key. A free `no_decision` miss is re-run, not replayed |
 | `429` | rate / tenant / key budget | `Retry-After` — key is **not** spent |
 | `503` | `credential_broker_*` / `store_unavailable` | Retryable. UNVERIFIED |
 

@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # KingMinos person.language
@@ -30,7 +30,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - **The answer** (`result`): `english` = `yes` (medium+ English) | `likely` (low-only English) | `unconfirmed` (other languages, no English) | `unknown` (nothing detected) — **never "no"**; `english_confidence`; `recommended_language` (+`_name` / `_confidence` / `_level`) — English whenever `english=yes`, else the top non-English, **set only at medium or high**; `local_language` (+`_name`) — the top non-English for localized sequences/ads; ranked `languages[]` (low guesses live here, with evidence `signal`s: `listed_languages`, `profile_locale`, `profile_text`, `location_country`, `company_language`, `email_cctld`, `text_judge`); `detected` (false = no evidence at all).
 - **Hit gate:** `answer.outcome: hit` iff `recommended_language` is set. Low-only evidence is `no_decision` / `ambiguous` (candidates + `english` still returned); nothing is `zero_hits`; a rejected profile is `person_mismatch` (`person: null`). Stamp `recommended_language` when set and `answer.confidence` meets path/`min_confidence` and the user's CRM acceptance floor — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance).
 - **Identity is per-profile:** a name conflict or a LinkedIn slug ≠ the requested one drops that profile entirely — no evidence is used, its URL is never followed, and `person_mismatch` is the reason only when no profile survived.
-- Paths (`routing.path`; omit → `balance`; only `path` / `preset` is read): `speed` 1 (one profile read + language judge) · `balance` 3 (default; structured sources in turn; stops once listed languages land) · `accuracy` 4 (every structured source, no early stop). Anything else (`coverage`, `auto`, `value`, …) → `400 invalid_routing`.
+- Paths (`routing.path`; omit → `balance`; only `path` / `preset` is read): `speed` 1 (one profile read + language judge) · `balance` 3 (default; structured sources in turn; stops once listed languages land) · `accuracy` 4 (every structured source, no early stop). Profile lookups by LinkedIn URL and by email are capped per path, not by one shared cap. Anything else (`coverage`, `auto`, `value`, …) → `400 invalid_routing`. `X-Router-Max-Provider-Credits` is not declared: a valid value is ignored; a malformed value is still `400 invalid_routing`.
 - Location alone caps at **medium** and keeps every candidate for `multilingual_country` (CH/BE/CA/IN/LU/SG/ZA… return several); common minority languages are never candidates. English prose may make `english=yes` but never erases `local_language`; headlines/job titles count only for non-English. Confidence is a heuristic score, not a calibrated probability.
 - Cache: 30 days in D1 (`usage.cached: true` on a replay, 0 credits); `skip_cache` skips the read; the name is part of the key. House keys work for any authenticated tenant; workspace BYOK overrides. Under `soc2`, sources without attestation skip with `compliance_blocked`.
 
@@ -45,7 +45,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 ## Errors
 
 - `401` `unauthorized` with `detail` (`missing` | `malformed` | `mismatch`) plus a static `hint` — never echoes the key.
-- `403` `scope_denied`. `429` `rate_limit_exceeded` | `tenant_budget_exhausted` | `key_budget_exhausted` with `Retry-After`. `409` idempotency family + `503` `store_unavailable` (retryable, same key).
+- `403` `scope_denied`. `429` `rate_limit_exceeded` | `tenant_budget_exhausted` | `key_budget_exhausted` with `Retry-After`. `409` `idempotency_conflict` (same key, different request — use a new key) | `idempotency_in_flight` (still running; ~40 s with no activity re-runs only if no paid vendor was contacted, else `idempotency_spent`) | `idempotency_spent` (a paid vendor was already contacted — do not retry that key) | `idempotency_replay_unavailable`. `503` `store_unavailable` retries the same key (the run was not started). A same-hash completed run replays (`replayed: true`, no new charge); a free `no_decision` miss is re-run instead of replayed.
 
 ## Output contract
 

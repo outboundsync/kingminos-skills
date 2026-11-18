@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # KingMinos person.b2b_social
@@ -40,13 +40,14 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 ### Paths
 
-`routing.path` (or `preset`), omit = `balance`. `value` / `fast` / `name_only` → speed; `auto` → balance. There is **no `coverage` tier**: a profile URL is one answer, so `coverage` → `400 invalid_routing`.
+`routing.path` (or `preset`), omit = `balance`. `value` / `fast` / `name_only` → speed; `auto` → balance. `coverage` is the highest-fill path (floor `low`).
 
 | Path | What it does | Default write floor | Cost on a hit |
 | --- | --- | --- | --- |
 | `speed` | One email-keyed lookup, with a fallback only when the first answered nothing; never `high` | `low` | 2 |
-| `balance` | Same ladder; stops at the first profile | `medium` | 3 |
-| `accuracy` | Always two independent email-keyed sources; 10 s cap | `high` | 5 |
+| `balance` | Both email-keyed sources, always (two independent sources) | `medium` | 3 |
+| `accuracy` | Both sources, plus a public-web check (and your own ZoomInfo key when stored) when they disagree or one is uncorroborated; withholds unless independently confirmed; 10 s cap | `high` | 5 |
+| `coverage` | Both sources plus a public-web check, and your own ZoomInfo key when stored; highest fill | `low` | Path price (`GET /v1/pricing`) |
 
 - **Other routing:** `routing.only` / `routing.ignore` are honored; an unknown provider → `400 unknown_provider`.
 - **Optional:** `min_confidence` (`high` | `medium` | `low`; overrides the path floor), `dry_run`, `skip_cache`, `external_ref`, `compliance`.
@@ -55,7 +56,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 - Only a delivered, floor-passing hit bills the path price, once.
 - **0 credits** on a miss, a person mismatch, a below-floor withhold, a timeout and a refusal.
-- A `routing.max_provider_credits` below the path price is a 0-credit `max_credits_reached` noop.
+- A `routing.max_provider_credits` below the path price is a 0-credit `max_credits_reached` noop. `X-Router-Max-Provider-Credits` is that ceiling when the body omits it: the lowest of the path cap, the server ceiling, the header, and the body applies (it can only lower the cap). A non-number is `400 invalid_routing`; an empty value is ignored. The effective ceiling is part of the `Idempotency-Key` hash.
 - The 30-day cache is keyed on email + LinkedIn slug + name + path + `only` / `ignore` + `min_confidence`. A replay costs 0 credits (`usage.cached: true`).
 - Requires scope `person.b2b_social` (`403 scope_denied` without it).
 
@@ -102,7 +103,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 - `403` `scope_denied`.
 - `429` `rate_limit_exceeded` | `tenant_budget_exhausted` | `key_budget_exhausted` | `max_credits_reached` with `Retry-After`.
 - `451` `subject_suppressed` (0 credits; do not retry).
-- `409` idempotency family, and `503` `store_unavailable` (retryable, same key).
+- `409` `idempotency_conflict` (same key, different request — use a new key) | `idempotency_in_flight` (still running; ~40 s with no activity re-runs only if no paid vendor was contacted, else `idempotency_spent`) | `idempotency_spent` (a paid vendor was already contacted — do not retry that key) | `idempotency_replay_unavailable`. `503` `store_unavailable` retries the same key (the run was not started). A same-hash completed run replays (`replayed: true`, no new charge); a free `no_decision` miss is re-run instead of replayed.
 
 ## Output contract
 

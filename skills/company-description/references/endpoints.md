@@ -35,11 +35,11 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. Integrator walk-thr
 | `schema_version` | no | Pin `"2"`. Must agree with `X-Router-Schema` / `?schema=` |
 | `dry_run` | no | Default false |
 
-Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `X-Router-Cache: bypass` (only `bypass` is valid — other values → `400 invalid_cache`), `Cache-Control: no-cache` or `no-store` (same bypass effect), `Idempotency-Key` (replay wins over cache bypass — omit or rotate for a fresh run).
+Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `X-Router-Cache: bypass` (only `bypass` is valid — other values → `400 invalid_cache`), `Cache-Control: no-cache` or `no-store` (same bypass effect), `Idempotency-Key` (same-hash replay wins over cache bypass — omit or rotate for a fresh run; a free `no_decision` miss is re-run instead of replayed), `X-Router-Max-Provider-Credits` (used only when the body omits `routing.max_provider_credits`; can raise the path default up to the server ceiling; a non-number is `400 invalid_routing`).
 
 ### Cache bypass (`company.description` and `company.domain`)
 
-Skips the result-cache **read** only; the fresh answer is still written. TTL differs by capability: **`company.description`** caches about **30 days**; **`company.domain`** uses a **short TTL (about five minutes max)**. Use any of: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or body `skip_cache: true`. **`company.resolve` does not honor bypass** — it silently ignores `X-Router-Cache: bypass` and `skip_cache`, so a cached answer may still be returned. The same `Idempotency-Key` always returns the stored response even when bypass headers are set on description/domain calls.
+Skips the result-cache **read** only; the fresh answer is still written. TTL differs by capability: **`company.description`** caches about **30 days**; **`company.domain`** uses a **short TTL (about five minutes max)**. Use any of: `X-Router-Cache: bypass`, `Cache-Control: no-cache` / `no-store`, or body `skip_cache: true`. **`company.resolve` does not honor bypass** — it silently ignores `X-Router-Cache: bypass` and `skip_cache`, so a cached answer may still be returned. The same `Idempotency-Key` and request hash returns the stored response even when bypass headers are set on description/domain calls. A free `no_decision` miss is re-run instead of replayed.
 
 ### Example request (`balance`)
 
@@ -79,12 +79,12 @@ The API may add new boolean keys over time — ignore unknown flag names.
 
 | Flag | Meaning |
 | --- | --- |
-| `hype` | Marketing superlatives |
-| `first_person` | A `We` / `Our` / `I` sentence |
-| `tagline` | Slogan, all-caps headline, blog headline, or article summary |
-| `same_as_speed` | Ranked fallback that matches the `speed` winner |
-| `truncated` | Trimmed to the last whole word (no complete sentence left) — forces confidence `low` |
-| `cta` | Marketing / imperative line (`Join N+ …`, `trusted by`, `Get started`, exclamation) — forces confidence `low` |
+| `hype` | Marketing superlatives (judge hype score > 0.7 or leftover superlatives). A flag, not a miss |
+| `first_person` | Present on the object. Factual We/Our copy is rewritten to third person; leftover first-person / second-person voice misses the hop. A delivered hit has this **false** |
+| `tagline` | Slogan, all-caps headline, blog headline, or article summary. A flag, not a miss |
+| `same_as_speed` | Ranked fallback that matches the `speed` winner. A flag, not a miss |
+| `truncated` | Stamp trimmed to the last whole word — forces confidence `low` |
+| `cta` | Present on the object. Leftover CTA marketing voice misses the hop. A delivered hit has this **false** |
 | `grammar` | Informational quality signal only — does **not** change `answer.confidence`; stamp from confidence + user floor, not `grammar` |
 
 Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`filtered` \| `translated` \| `interpreted` \| null), `company_domain`, `compose_echo`, `homepage_meta_only`. No `company_name` in the result.
@@ -156,7 +156,7 @@ Other result fields: `source_kind` (`quoted` \| `composed`), `language_note` (`f
 | `400` | `validation_failed` / `domain_website_mismatch` / `invalid_routing` / `invalid_compliance` / `invalid_explain` / `invalid_schema` / `unsupported_schema` / `invalid_cache` / `name_only_unsupported` / `zi_credentials_required` | Fix input or store the ZoomInfo key (`credentials`) |
 | `401` | `unauthorized` + `detail` | `auth` |
 | `403` | `scope_denied` | Key lacks `company.description` scope |
-| `409` | `idempotency_*` | Rotate or reuse `Idempotency-Key` per docs |
+| `409` | `idempotency_conflict` / `idempotency_in_flight` / `idempotency_spent` / `idempotency_replay_unavailable` | New key on `idempotency_conflict`. Do not retry `idempotency_spent`. `429` / `503` retry the same key. A free `no_decision` miss is re-run, not replayed |
 | `429` | rate / tenant / key budget | `Retry-After` |
 | `503` | `store_unavailable` | Retryable. UNVERIFIED |
 

@@ -32,7 +32,7 @@ Live contract: `GET https://api.kingminos.com/openapi.yaml`. REST and hosted MCP
 
 **Domain** plus optional **`name`**. One server-side implementation — client `routing`, `routing.only`, `path`, and `preset` are silently ignored.
 
-Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`.
+Headers: `Authorization: Bearer $KINGMINOS_API_KEY`. Optional `X-Router-Explain: minimal|default|full`, `X-Router-Schema: 2`, `Idempotency-Key`. `X-Router-Max-Provider-Credits` is not declared: a valid value is ignored; a malformed value is still `400 invalid_routing`.
 
 **CRM:** allowlist `https://logos.kingminos.com` once for image CSP / trusted sites so stamps render.
 
@@ -69,7 +69,7 @@ When the best accepted source raster is **under 64px**, the Worker still returns
 | --- | --- | --- |
 | `400` | `validation_failed` / `name_only_unsupported` / `invalid_routing` / `invalid_compliance` / `invalid_explain` / `invalid_schema` / `unsupported_schema` / `zi_credentials_required` / `findymail_credentials_required` / `wiza_credentials_required` / `aiark_credentials_required` / `builtwith_credentials_required` / `brandfetch_credentials_required` / `prospeo_credentials_required` / `apollo_credentials_required` / `companyurlfinder_credentials_required` / `peopledatalabs_credentials_required` / `hginsights_credentials_required` / `enrichcrm_credentials_required` / `lemlist_credentials_required` | Fix input or store BYOK (`credentials`) |
 | `401` | `unauthorized` + `detail` | `auth` |
-| `409` | `idempotency_*` | Rotate or reuse `Idempotency-Key` per docs |
+| `409` | `idempotency_conflict` / `idempotency_in_flight` / `idempotency_spent` / `idempotency_replay_unavailable` | New key on `idempotency_conflict`. Do not retry `idempotency_spent`. `429` / `503` retry the same key. A free `no_decision` miss is re-run, not replayed |
 | `429` | rate / tenant / key budget | `Retry-After` |
 | `503` | `store_unavailable` | Retryable. UNVERIFIED |
 

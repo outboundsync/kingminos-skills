@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.2.2"
+  version: "1.3.0"
 ---
 
 # KingMinos company B2B social (LinkedIn company page)
@@ -37,7 +37,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
    }
    ```
 
-   Optional: `website`, `email`, `linkedin_url` (must already be `https://www.linkedin.com/company/{slug}` after `normalizeLinkedInCompanyUrl` — agree-check only, not authority), `routing.path` (`speed` | `balance` | `accuracy` | `coverage`; omit = `balance`), `schema_version`: `"2"`.
+   Optional: `website`, `email`, `hint` (list/industry context; with `country` it disambiguates short names on every path, and on `speed` / `balance` it also turns name→domain on), `linkedin_url` (must already be `https://www.linkedin.com/company/{slug}` after `normalizeLinkedInCompanyUrl` — agree-check only, not authority), `routing.path` (`speed` | `balance` | `accuracy` | `coverage`; omit = `balance`), `schema_version`: `"2"`. `X-Router-Max-Provider-Credits` (finite number ≥ 0; empty ignored; anything else `400 invalid_routing`) applies only when the body omits `routing.max_provider_credits` (the body wins). It replaces the tenant / path default (it can raise it) and is clamped to the server ceiling. The effective ceiling is part of the `Idempotency-Key` hash.
 4. Prefer `X-Router-Explain: minimal` on CRM callouts. Use `full` only when the user asks for `trace`.
 5. Branch on control fields: `answer.outcome` (`hit` | `no_decision`), `es_decision`, `answer.confidence`, `answer.reason_code`. Read **`result.linkedin_url`** — search-confirmed `https://www.linkedin.com/company/{slug}` (slug lowercased) or null. **`result.verification.status`**: `confirmed` | `unverified` | `rejected`. Structurally valid but unconfirmed pages may appear in `result.unverified` — not hits. CRM writes: `answer.confidence` + optional `min_confidence` — [`GET /v1/recipes/guidance`](https://api.kingminos.com/v1/recipes/guidance) (path floors; below-floor blanks keep candidates in `evidence`).
 6. HTTP 200 with `no_decision` is a decision, not UNVERIFIED. `400` `*_credentials_required` → hand off to `credentials` (BYOK vendors only on explicit `routing.only` / order — default stacks are house keys).
@@ -49,10 +49,10 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 | --- | --- | --- |
 | `speed` | One web search for the company page (cap 1) | Fast / tight |
 | `balance` (default) | Web search plus a data-provider check (cap 2) | Verified + broader corroboration |
-| `accuracy` | Adds more data-provider sources (cap 18) | Verified-only accept |
+| `accuracy` | Adds more data-provider sources. House Wiza is not on this stack | Verified-only accept |
 | `coverage` | Widest source set (cap 19) | All structurally valid LinkedIn hits with confidence (high/low); tighter accept bar than `balance` on verified tier |
 
-BYOK (ZoomInfo, Apollo, Prospeo, Company URL Finder, etc.) is **`routing.only` / explicit order**, not default.
+BYOK (ZoomInfo, Apollo, Prospeo, Company URL Finder, etc.) is **`routing.only` / explicit order**, not default. House Wiza is the same shape: off every default path (`routing.only` / `routing.order`). When that hop decides, it bills its own price instead of the path price; a miss or a below-floor blank still bills 0.
 
 Hosted MCP: `https://mcp.kingminos.com` — same Bearer and `company_b2b_social` tool. Prefer REST for scripts.
 
