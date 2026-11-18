@@ -61,12 +61,7 @@ Clay HTTP column: map `result.title`, `result.seniority`, `result.function`. Wri
 
 ## Cost by path
 
-| Path | Credits on a hit | Miss / partial / timeout |
-| --- | --- | --- |
-| `speed` | 1 | 0 |
-| `balance` (default) | 2 | 0 |
-| `accuracy` | 3 | 0 |
-| `coverage` | 5 | 0 |
+A hit bills the path price (`speed`, `balance` (default), `accuracy`, `coverage`): see the `api` skill's pricing reference. A miss, a partial and a timeout bill 0.
 
 ## Persona routing (seniority + function)
 

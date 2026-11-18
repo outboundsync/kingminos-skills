@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.3.0"
+  version: "1.3.1"
 ---
 
 # KingMinos company B2B social (LinkedIn company page)
@@ -47,10 +47,12 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 | Path | Stack (summary) | Tier |
 | --- | --- | --- |
-| `speed` | One web search for the company page (cap 1) | Fast / tight |
-| `balance` (default) | Web search plus a data-provider check (cap 2) | Verified + broader corroboration |
+| `speed` | One web search for the company page | Fast / tight |
+| `balance` (default) | Web search plus a data-provider check | Verified + broader corroboration |
 | `accuracy` | Adds more data-provider sources. House Wiza is not on this stack | Verified-only accept |
-| `coverage` | Widest source set (cap 19) | All structurally valid LinkedIn hits with confidence (high/low); tighter accept bar than `balance` on verified tier |
+| `coverage` | Widest source set | All structurally valid LinkedIn hits with confidence (high/low); tighter accept bar than `balance` on verified tier |
+
+Caps, delivered prices and opt-in hop prices per path: see the `api` skill's pricing reference (`api/references/pricing.md`).
 
 BYOK (ZoomInfo, Apollo, Prospeo, Company URL Finder, etc.) is **`routing.only` / explicit order**, not default. House Wiza is the same shape: off every default path (`routing.only` / `routing.order`). When that hop decides, it bills its own price instead of the path price; a miss or a below-floor blank still bills 0.
 

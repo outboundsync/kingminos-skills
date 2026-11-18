@@ -46,7 +46,7 @@ Clay HTTP column: map `result.status` and `result.flags`. Send on `valid`; drop 
 
 | Answer | Credits |
 | --- | --- |
-| Delivered vendor `valid` / `invalid` | 0.5–1.5 by path (`speed` cheapest, `accuracy` / `coverage` most); 0.1 on your own vendor key |
+| Delivered vendor `valid` / `invalid` | The path price, or the flat BYOK fee on your own vendor key — see the `api` skill's pricing reference |
 | Local `invalid` (syntax, no such domain, no mail host) | 0 |
 | `catch_all`, `unknown`, below-floor withhold, timeout, dry run | 0 |
 | `451 subject_suppressed` | 0 |

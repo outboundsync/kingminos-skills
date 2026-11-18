@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.3.0"
+  version: "1.3.1"
 ---
 
 # KingMinos company icon (`company.icon`)
@@ -49,7 +49,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 ### Resolve → re-host
 
-- 0–2 paid credits; a paid hop that does not win is not charged.
+- Only the winning paid hop is charged, up to the path cap in the `api` skill's pricing reference (`api/references/pricing.md`); a paid hop that does not win is not charged, and a miss bills 0.
 - A square **icon** is preferred over a wider brand **logo** when both exist.
 - Connecting your own Brandfetch or ZoomInfo key (`credentials` skill) adds larger logos for more companies.
 - On a hit, the chosen source is stored and served as a **256x256 PNG** on `logos.kingminos.com`; `icon_source_url` echoes where it came from.

@@ -10,8 +10,10 @@ import providerEnum from './provider-enum.mjs';
 import links from './links.mjs';
 import linksEscapeSkill from './links-escape-skill.mjs';
 import metadata from './metadata.mjs';
+import noHandTypedPrices from './no-hand-typed-prices.mjs';
 import outputContract from './output-contract.mjs';
 import placeholderLinkedinLinks from './placeholder-linkedin-links.mjs';
+import pricingReferenceGenerated from './pricing-reference-generated.mjs';
 import readmeIndex from './readme-index.mjs';
 import scoreMeter from './score-meter.mjs';
 import secrets from './secrets.mjs';
@@ -33,6 +35,8 @@ export const rules = [
   endpointMapOpenapi,
   providerEnum,
   apiSyncSnapshot,
+  pricingReferenceGenerated,
+  noHandTypedPrices,
   brand,
   links,
   linksEscapeSkill,

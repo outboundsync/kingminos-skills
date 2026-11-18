@@ -50,7 +50,7 @@ Clay HTTP column: `first_name`, `last_name`, `company_domain` (plus `linkedin_ur
 
 | Answer | Credits |
 | --- | --- |
-| Delivered `found` | 2–5 by path (`speed` cheapest, `coverage` most); 0.1 on your own vendor key |
+| Delivered `found` | The path price, or the flat BYOK fee on your own vendor key — see the `api` skill's pricing reference |
 | `not_found`, `conflict`, `catch_all`, below-floor withhold, suppressed address, timeout, dry run | 0 |
 | Cached replay | 0 |
 | `451 subject_suppressed` | 0 |

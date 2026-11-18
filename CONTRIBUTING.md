@@ -61,11 +61,20 @@ The `API sync` workflow (`.github/workflows/api-sync.yml`) keeps the pack in ste
 
 1. regenerates `scripts/validate/fixtures/openapi-inventory.yaml` from the live spec (`scripts/openapi-inventory.mjs`);
 2. has a Cursor CLI agent (Grok, `.github/prompts/api-sync.md`) update the API map, the trimmed copies, the affected skills with `metadata.version` bumps, `providers.yaml` when the credentials `provider` enum changed, and `## Unreleased` in the CHANGELOG. The agent never creates a skill: a new capability operation gets a map row and a "New capability skill needed" note;
-3. writes the new snapshot, runs `npm run validate -- --base origin/main` and `npm test`, and opens or updates a `chore(api): sync skills pack with KingMinos OpenAPI (<hash>)` PR on `chore/api-sync` with the agent's notes and the check results.
+3. writes the new snapshot, regenerates `skills/api/references/pricing.md` from it (`scripts/sync-pricing.mjs`), runs `npm run validate -- --base origin/main` and `npm test`, and opens or updates a `chore(api): sync skills pack with KingMinos OpenAPI (<hash>)` PR on `chore/api-sync` with the agent's notes and the check results.
 
 The agent and the checks run in a `propose` job with a read-only token; a separate `open-pr` job runs no repo code, applies the resulting patch after checking it only touches those paths, and opens the PR. A human reviews and merges every sync PR. The PR is opened with `RELEASE_PR_TOKEN` when that secret is set, so `validate` runs on it; without it, close and reopen the PR to run `validate`. Release, CHANGELOG promotion and the kingminos.com mirror follow the merge automatically. The first run has no snapshot, so it audits the whole pack (bootstrap) and adds one.
 
 The `api-sync-snapshot` validate rule fails when the fixture isn't exactly what the snapshot renders, so don't edit either by hand (`npm run openapi:fixture` refreshes the fixture from the snapshot). Until the first sync PR merges it only warns. The agent needs the `CURSOR_API_KEY` org secret (model: `CURSOR_MODEL` repository variable, default `grok-4.7-high`); without it the PR still opens with the generated files, and you update the skills by hand.
+
+## Prices
+
+Credit prices have one source: the KingMinos pricing table, served at `GET https://api.kingminos.com/v1/pricing` and embedded in the OpenAPI spec as an `x-kingminos-pricing` block on each capability operation. In this pack, prices appear only in the generated [`skills/api/references/pricing.md`](skills/api/references/pricing.md): per capability path the cap, the delivered price (one number when the code fixes it, otherwise min–max), the BYOK fee and the miss price, plus the ceiling, opt-in hops and notes.
+
+- `npm run sync:pricing` renders it from `api-sync/openapi.snapshot.json`; the API sync workflow runs the same script after it writes a new snapshot. Never edit it by hand: the `pricing-reference-generated` rule fails when it differs from the render.
+- Plans (subscriptions, pay-as-you-go, free daily credits, onboarding grants) are not in the spec, so the reference points to `GET /v1/pricing` for them instead of copying them. That keeps the check hermetic and means a plan change can't leave a stale number in the pack.
+- Don't type a price anywhere else. Write the billing rule (a miss bills 0, winner-only, outcome- vs hop-priced, BYOK bills a flat fee) and point to "the `api` skill's pricing reference" (`api/references/pricing.md`; skills can't link across folders). The `no-hand-typed-prices` rule uses the same heuristic as kingminos.com's `check:pricing`: outside code, a non-zero number before "credit(s)", after "cap" or within 30 characters after bill / cost / price / charge, or in a table column whose header says credit, cap, price or cost, fails. Zero never fails. Worked examples may still show `usage.credits.spent` values inside code blocks.
+- When a sync changes the reference, the `api` skill's `metadata.version` needs a patch bump like any other change in its folder.
 
 ## Versioning
 

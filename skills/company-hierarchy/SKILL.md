@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # KingMinos company.hierarchy
@@ -26,7 +26,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 ## Policy (locked)
 
 - Outcomes: **`subsidiary` | `ultimate_parent` | `no_decision`** — there is no "standalone" outcome. `subsidiary` / `ultimate_parent` → `es_decision: hit`; `no_decision` maps by reason (`no_match` / `no_hierarchy_data` → `miss`; `ambiguous` / `sources_disagree` / `domain_mismatch` → `ambiguous`; `provider_unavailable` → `error`; budget/compliance/config → `noop`).
-- **Identity first:** `speed` is free public registry data (cap 0). `balance` (default) / `accuracy` add a corporate-hierarchy lookup (a candidate whose registrable domain ≠ input is `domain_mismatch`, never enriched) — **1 credit on the first `FULL_MATCH` only**; connect your own ZoomInfo key for best results; rematch / `NO_MATCH` / errors are free. `speed`/`balance`/`accuracy` all cap at 1; legacy `fast`/`value`/`name_only` → `speed`, `auto` → `balance`; **`coverage` is `400 invalid_routing`**.
+- **Identity first:** `speed` is free public registry data. `balance` (default) / `accuracy` add a corporate-hierarchy lookup (a candidate whose registrable domain ≠ input is `domain_mismatch`, never enriched) — **billed on the first `FULL_MATCH` only**; connect your own ZoomInfo key for best results; rematch / `NO_MATCH` / errors are free. caps and prices per path: the `api` skill's pricing reference (`api/references/pricing.md`); legacy `fast`/`value`/`name_only` → `speed`, `auto` → `balance`; **`coverage` is `400 invalid_routing`**.
 - **Input:** one of `domain` | `website` | `email` (required; name alone is `400 validation_failed` with `fields: [domain, website, email]`). Optional `name` (alias `company_name`), `country`, `dry_run`, `external_ref`, `compliance`. `min_confidence` is not a request field here (no write floor applies), so omit it. The API still parses it: a valid value is ignored, anything other than `low` / `medium` / `high` is `400 validation_failed` (`field: min_confidence`). **Disagreeing `domain` / `email` / `website` → `400 domain_website_mismatch`** — this capability does not adjudicate identity (contrast `company.domain`). `X-Router-Max-Provider-Credits` (finite number ≥ 0; empty ignored; anything else `400 invalid_routing`) applies only when the body omits `routing.max_provider_credits` (the body wins). It replaces the tenant / path default (it can raise it) and is clamped to the server ceiling. The effective ceiling is part of the `Idempotency-Key` hash.
 - Subsidiaries are **capped at 50** with `family_tree_size` (raw node count) + `truncated` (boolean) telling you what was cut; parent/subsidiary `*_domain` is often null — join websites via `zoominfo_company_id`.
 - `es_decision: hit` (subsidiary/ultimate_parent) is the stamp gate — fill `zoominfo_company_id` only on hit + non-blank id. Not in `openapi.es.yaml` yet: no External Services action until Harris opens it.

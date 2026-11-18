@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory).
 metadata:
   author: outboundsync
-  version: "1.3.0"
+  version: "1.3.1"
 ---
 
 # KingMinos company description (`company.description`)
@@ -28,14 +28,16 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 1. Confirm auth (`auth` skill or `GET /v1/capabilities` with `Authorization: Bearer $KINGMINOS_API_KEY`). On `401` / transport failure, render UNVERIFIED and stop.
 2. Require **domain** (or `website` / `email` that hygiene-normalize to the same registrable domain). **Name-only without domain/website/email is `400`** — do not call.
-3. **Send `path` explicitly** (recommended; or `routing.path`; nested wins). The API accepts an omitted path (it runs `balance`), but the credit cap becomes **6** instead of **2**. The four paths are distinct, nested ladders — a more expensive path never misses where a cheaper one hit:
+3. **Send `path` explicitly** (recommended; or `routing.path`; nested wins). The API accepts an omitted path (it runs `balance`), but its credit cap becomes the capability ceiling instead of the `balance` cap. The four paths are distinct, nested ladders — a more expensive path never misses where a cheaper one hit:
 
-   | Path | Stack | Cap |
-   | --- | --- | --- |
-   | `speed` | Homepage meta / og description (deterministic gates), then a data-provider description | 1 |
-   | `balance` | Judge-ranked homepage extracts + meta/og + data-provider text; optional neutral rewrite (0.5) | 2 |
-   | `accuracy` | Neutral third-person compose from homepage evidence (2) + one identity check; falls back to the cheaper hit | 3 |
-   | `coverage` | Accuracy compose plus off-homepage evidence (0.1), and your own ZoomInfo key when stored; falls back to the accuracy winner | 6 |
+   | Path | Stack |
+   | --- | --- |
+   | `speed` | Homepage meta / og description (deterministic gates), then a data-provider description |
+   | `balance` | Judge-ranked homepage extracts + meta/og + data-provider text; optional neutral rewrite |
+   | `accuracy` | Neutral third-person compose from homepage evidence + one identity check; falls back to the cheaper hit |
+   | `coverage` | Accuracy compose plus off-homepage evidence, and your own ZoomInfo key when stored; falls back to the accuracy winner |
+
+   Caps and prices per path: see the `api` skill's pricing reference (`api/references/pricing.md`).
 
 4. `POST https://api.kingminos.com/v1/company/description` with JSON. Typical body:
 
@@ -63,7 +65,7 @@ Default paths run on house keys. **ZoomInfo runs only with your own key.**
 
 ### Billing
 
-**Winner-only:** only the hop that produced the returned text is charged (data-provider text 1, rewrite 0.5, compose 2, off-homepage evidence 0.1, your own ZoomInfo key 1 on a full match). Rejected/lost hops and a miss cost **0**. Read **`usage.credits.spent`** and **`usage.credits.by_provider`** on every run — do not infer spend from the path name.
+**Winner-only:** only the hop that produced the returned text is charged (a data-provider description, the rewrite, the compose step, off-homepage evidence, or your own ZoomInfo key on a full match), clamped to the path cap in the `api` skill's pricing reference (`api/references/pricing.md`). The homepage step is free. Rejected/lost hops and a miss cost **0**. Read **`usage.credits.spent`** and **`usage.credits.by_provider`** on every run — do not infer spend from the path name.
 
 Hosted MCP: `https://mcp.kingminos.com` — same Bearer and `company_description` tool. Prefer REST for scripts.
 

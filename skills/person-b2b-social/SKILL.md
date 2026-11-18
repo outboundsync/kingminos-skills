@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires KINGMINOS_API_KEY and HTTPS to api.kingminos.com (REST) or mcp.kingminos.com (hosted MCP, same tool inventory). API tenants only.
 metadata:
   author: outboundsync
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # KingMinos person.b2b_social
@@ -42,12 +42,14 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 `routing.path` (or `preset`), omit = `balance`. `value` / `fast` / `name_only` → speed; `auto` → balance. `coverage` is the highest-fill path (floor `low`).
 
-| Path | What it does | Default write floor | Cost on a hit |
-| --- | --- | --- | --- |
-| `speed` | One email-keyed lookup, with a fallback only when the first answered nothing; never `high` | `low` | 2 |
-| `balance` | Both email-keyed sources, always (two independent sources) | `medium` | 3 |
-| `accuracy` | Both sources, plus a public-web check (and your own ZoomInfo key when stored) when they disagree or one is uncorroborated; withholds unless independently confirmed; 10 s cap | `high` | 5 |
-| `coverage` | Both sources plus a public-web check, and your own ZoomInfo key when stored; highest fill | `low` | Path price (`GET /v1/pricing`) |
+| Path | What it does | Default write floor |
+| --- | --- | --- |
+| `speed` | One email-keyed lookup, with a fallback only when the first answered nothing; never `high` | `low` |
+| `balance` | Both email-keyed sources, always (two independent sources) | `medium` |
+| `accuracy` | Both sources, plus a public-web check (and your own ZoomInfo key when stored) when they disagree or one is uncorroborated; withholds unless independently confirmed; 10 s cap | `high` |
+| `coverage` | Both sources plus a public-web check, and your own ZoomInfo key when stored; highest fill | `low` |
+
+A hit bills the path price, once; a miss, mismatch or withhold bills 0. Prices per path: the `api` skill's pricing reference (`api/references/pricing.md`).
 
 - **Other routing:** `routing.only` / `routing.ignore` are honored; an unknown provider → `400 unknown_provider`.
 - **Optional:** `min_confidence` (`high` | `medium` | `low`; overrides the path floor), `dry_run`, `skip_cache`, `external_ref`, `compliance`.
@@ -81,7 +83,7 @@ Render **only** the output shape below — no prose outside it. Contract: [refer
 
 ### Chaining from person.name
 
-- `POST /v1/person/name` may put **`/v1/person/b2b-social`** in **`next_steps[]`** or **`options[]`** when the request had `email` but no `linkedin_url` (miss, withhold, `parsed_only`, or `quality_flags`). Quote the API's **`est_credits`** (2 / 3 / 5 by path) and **ask before calling** — the same rule as `agent_guidance` on person.name.
+- `POST /v1/person/name` may put **`/v1/person/b2b-social`** in **`next_steps[]`** or **`options[]`** when the request had `email` but no `linkedin_url` (miss, withhold, `parsed_only`, or `quality_flags`). Quote the API's **`est_credits`** and **ask before calling** — the same rule as `agent_guidance` on person.name.
 - Step 2 of recipe **`crm_contact_name_cleanup`** (`GET /v1/recipes`). After a profile URL is `found` at the user's floor, a follow-up **`POST /v1/person/name`** with `email` + `linkedin_url` is step 3 (`person-name` skill).
 
 ## Workflow
@@ -130,7 +132,7 @@ Decision  <bar>  <✓|✗|·> <es_decision hit — <path> | zero_hits | person_m
 - <✓ profile `<linkedin_url>` · <confidence> · meets write floor | ✗ zero_hits — no profile found | ✗ person_mismatch — profile rejected | ✗ below_min_confidence — <confidence> withheld under the <floor> floor | · UNVERIFIED — <reason>>
 - <· sources: <n> of <m> candidates agree>
 - <· flags: <conflicting_profiles — do not write | unconfirmed_identity | single_source | person_mismatch — another profile rejected>>
-- <· credits: <2 | 3 | 5 | 0 | 0 cached>>
+- <· credits: <usage.credits.spent | 0 cached>>
 
 ### Next
 1. <shortest action tied to a ✗ or UNVERIFIED above>

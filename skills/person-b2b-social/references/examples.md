@@ -56,12 +56,14 @@ Clay HTTP column: map `result.linkedin_url`. Write it only when `answer.outcome`
 
 ## Cost by path
 
-| Path | Credits on a hit | Default write floor | Miss / mismatch / withhold / timeout |
-| --- | --- | --- | --- |
-| `speed` | 2 | `low` | 0 |
-| `balance` (default) | 3 | `medium` | 0 |
-| `accuracy` | 5 | `high` | 0 |
-| `coverage` | Path price (`GET /v1/pricing`) | `low` | 0 |
+| Path | Default write floor | Miss / mismatch / withhold / timeout |
+| --- | --- | --- |
+| `speed` | `low` | 0 |
+| `balance` (default) | `medium` | 0 |
+| `accuracy` | `high` | 0 |
+| `coverage` | `low` | 0 |
+
+A hit bills the path price: see the `api` skill's pricing reference.
 
 ## LinkedIn profile — found
 
