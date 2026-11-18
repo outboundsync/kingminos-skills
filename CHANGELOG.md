@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.11.18.0] - 2026-11-18
+
 - `api` skill 1.15.0: `Idempotency-Key` on every capability POST (conflict, in-flight, spent, replay-unavailable; a free `no_decision` miss is re-run); `X-Router-Max-Provider-Credits`; public `GET /v1/pricing` is the price table and is not a Bearer tool. `company.b2b_social` `hint` turns name→domain on for `speed` / `balance`; the opt-in house Wiza hop bills its own price when it decides. `company.description` leftover first-person / CTA voice misses or is rewritten. `person.phone` `accuracy` withholds a `conflicting_numbers` hit under the default high floor.
 - `company-b2b-social` skill 1.3.0: `hint` / name→domain on `speed` and `balance`, and the opt-in house Wiza hop (off every default path; bills its own price instead of the path price when it decides).
 - `company-description` skill 1.3.0: leftover first-person / second-person / CTA voice is rewritten or misses; a delivered hit has `first_person` and `cta` false; `truncated` still forces `low`.
