@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.11.19.1] - 2026-11-19
+
 - CHANGELOG history no longer names vendors in lists or states a path's vendor lookup order; `no-vendor-lists` now scans CHANGELOG.md too. The rule's tests use made-up vendor names.
 
 ## [2026.11.19.0] - 2026-11-19
