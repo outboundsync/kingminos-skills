@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## [2026.11.19.0] - 2026-11-19
+
 - Claude Code plugin: `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` make this repo a one-plugin marketplace (`/plugin marketplace add outboundsync/kingminos-skills`, then `/plugin install kingminos@kingminos`). The plugin ships every skill plus `.mcp.json`, which points at the hosted MCP server `https://mcp.kingminos.com/mcp` with no headers: Claude Code signs in through the browser. Each release now sets the plugin `version` to the new CalVer tag along with the CHANGELOG promotion.
 - README: new "Install in Claude Code" section; the hosted MCP URL is `https://mcp.kingminos.com/mcp`; API keys still work for scripts and Salesforce. `npx skills add` instructions are unchanged.
 - `credentials` skill 1.5.0: house-key vs BYOK comes from the live `GET /v1/credentials` catalog (`house_managed`, `status`, `kind`) instead of a vendor list. The House gate passes when every `house_managed: true` item is `managed` or `set`; the House card no longer names a vendor.
