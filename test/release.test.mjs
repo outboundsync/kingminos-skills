@@ -10,6 +10,7 @@ import {
   planRelease,
   promoteUnreleased,
   renderGroupedNotes,
+  setPluginVersion,
   sortCalverTags,
   unreleasedEntries,
 } from '../scripts/release-calver.mjs';
@@ -122,4 +123,19 @@ test('--apply leaves CHANGELOG.md untouched when Unreleased is empty, and promot
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test('setPluginVersion sets the Claude Code plugin version to the release tag', () => {
+  const before = `${JSON.stringify({ name: 'kingminos', version: '2026.11.18.0', description: 'x' }, null, 2)}\n`;
+  const after = setPluginVersion(before, '2026.11.19.0');
+  assert.deepEqual(JSON.parse(after), { name: 'kingminos', version: '2026.11.19.0', description: 'x' });
+  assert.equal(after.endsWith('}\n'), true);
+  assert.equal(setPluginVersion(after, '2026.11.19.0'), after);
+});
+
+test('the shipped plugin manifest carries a CalVer version', async () => {
+  const { readFileSync } = await import('node:fs');
+  const manifest = JSON.parse(readFileSync(new URL('../.claude-plugin/plugin.json', import.meta.url), 'utf8'));
+  assert.equal(manifest.name, 'kingminos');
+  assert.match(manifest.version, /^\d{4}\.\d{2}\.\d{2}\.\d+$/);
 });

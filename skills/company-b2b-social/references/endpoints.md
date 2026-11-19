@@ -57,13 +57,13 @@ Output `result.linkedin_url` is only the accept form `https://www.linkedin.com/c
 
 ## Routing (live Worker)
 
-- `speed`: websearch company-page query
-- `balance` (default): websearch then house **AI Ark** even after a search candidate
-- `accuracy`: LeadMagic, house AI Ark — verified-only accept. House Wiza is opt-in only (`routing.only` / `routing.order`), off every default path; when that hop decides it bills its own price instead of the path price
-- `coverage`: adds Findymail — structurally valid pages with confidence tiers
-- Caps and prices per path, including the opt-in Wiza hop: see the `api` skill's pricing reference (`api/references/pricing.md`).
-- Default stacks: **house keys only** (LeadMagic, Findymail, AI Ark, websearch). House Wiza is off every default path
-- BYOK: ZoomInfo (`company_linkedin_enrich` — search → scoped company enrich `socialMediaUrls`), BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, BlitzAPI — `routing.only` / explicit order only for hop vendors above **except Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI** (Your Keys catalog only on this route; Lemlist is a `company.resolve` hop only — `company-resolve`; Snov.io is a credential vendor with no enrichment hop)
+- `speed`: one web search for the company page
+- `balance` (default): web search, then a house data-provider check even after a search candidate
+- `accuracy`: more house data-provider sources — verified-only accept
+- `coverage`: widest house source set — structurally valid pages with confidence tiers
+- Default stacks use **house keys only**. The vendor order on each path is server-side and can change; read `sources` / `trace` on a response for what ran.
+- One house hop is opt-in only (`routing.only` / `routing.order`), off every default path; when that hop decides it bills its own price instead of the path price. Caps and prices per path, including that opt-in hop: see the `api` skill's pricing reference (`api/references/pricing.md`).
+- BYOK vendors run only when named in `routing.only` / explicit order (ids from the `credentials` path `provider` enum); not every storable vendor has a hop on this route. Which vendors are BYOK comes from `GET /v1/credentials` (`credentials`).
 
 ## Errors (run not started)
 

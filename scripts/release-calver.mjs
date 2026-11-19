@@ -26,6 +26,9 @@ export const CALVER_TAG_PATTERN = /^\d{4}\.\d{2}\.\d{2}\.\d+$/;
 // squash-merged CHANGELOG promotion PR (`chore(release): CHANGELOG for <tag> (#N)`).
 export const RELEASE_COMMIT_PATTERN = /^chore\(release\):\s+(?:CHANGELOG for\s+)?\d{4}\.\d{2}\.\d{2}\.\d+(?:\s+\(#\d+\))?$/i;
 export const CHANGELOG_MARKER = '<!-- release entries -->';
+// Claude Code plugin manifest. Its `version` pins installed copies, so each
+// release that promotes CHANGELOG lines also sets it to the new tag.
+export const PLUGIN_MANIFEST = '.claude-plugin/plugin.json';
 const UNRELEASED_HEADING = '## Unreleased';
 
 const TYPE_TITLES = new Map([
@@ -162,6 +165,13 @@ export function promoteUnreleased(changelog, tag, date, generatedNotes) {
   return `${head}${CHANGELOG_MARKER}\n\n${UNRELEASED_HEADING}\n\n${section}\n${rest ? `\n${rest.replace(/^\n+/, '')}` : ''}`;
 }
 
+export function setPluginVersion(manifestText, tag) {
+  const manifest = JSON.parse(manifestText);
+  if (manifest.version === tag) return manifestText;
+  manifest.version = tag;
+  return `${JSON.stringify(manifest, null, 2)}\n`;
+}
+
 export function githubOutputLine(name, value, delimiter = `EOF_${randomBytes(8).toString('hex')}`) {
   return `${name}<<${delimiter}\n${value}\n${delimiter}\n`;
 }
@@ -213,6 +223,9 @@ function main() {
     if (unreleasedEntries(current)) {
       writeFileSync(changelogPath, promoteUnreleased(current, plan.nextTag, plan.date, plan.notes), 'utf8');
       changelogUpdated = true;
+      if (existsSync(PLUGIN_MANIFEST)) {
+        writeFileSync(PLUGIN_MANIFEST, setPluginVersion(readFileSync(PLUGIN_MANIFEST, 'utf8'), plan.nextTag), 'utf8');
+      }
     } else {
       console.log('CHANGELOG.md `## Unreleased` has no entries; leaving CHANGELOG.md unchanged.');
     }
@@ -228,7 +241,7 @@ function main() {
 
   console.log(`Next release tag: ${plan.nextTag} (previous: ${plan.lastTag || 'none'}, ${plan.commits.length} commits)\n`);
   console.log(plan.releaseNotes);
-  const wrote = [args.notesFile, args.tagFile, changelogUpdated && 'CHANGELOG.md'].filter(Boolean);
+  const wrote = [args.notesFile, args.tagFile, changelogUpdated && 'CHANGELOG.md', changelogUpdated && existsSync(PLUGIN_MANIFEST) && PLUGIN_MANIFEST].filter(Boolean);
   console.log(`\n${wrote.length ? `Wrote: ${wrote.join(', ')}` : 'Preview only — no files written.'}`);
 }
 

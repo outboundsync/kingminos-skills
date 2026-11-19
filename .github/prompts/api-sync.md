@@ -21,15 +21,14 @@ Only edit these files:
 - Capability skills whose operation changed: `skills/<name>/SKILL.md` and its `references/`. Update request fields, enums, response fields, paths/tiers, errors and examples to what the live spec says. Never prices: see "Prices" below. Keep each skill's structure and output contract.
 - `metadata.version` in the frontmatter of every `SKILL.md` whose folder you changed, and of `skills/api/SKILL.md` (patch) whenever `git diff -- skills/api/references/pricing.md` is not empty, with a CHANGELOG line saying the pricing reference was regenerated. Minor for new behavior or output changes, patch for fixes and wording (CONTRIBUTING.md, "Versioning"). `version-bumped` fails without it.
 - `scripts/validate/fixtures/providers.yaml`, only when the spec's `/v1/credentials/{provider}` enum changed:
-  - **Added id:** add an entry (`id`, `label`, `supply`, `credentials_required`, `path_enum`, `api_key`) following the comments at the top of the file and the spec's parameter description. Then add the id to every BYOK list, path-`provider` enum and `*_credentials_required` list under `skills/` that `provider-enum` reports. Say in your summary which fields you inferred, so a human can confirm them.
+  - **Added id:** add an entry (`id`, `label`, `supply`, `credentials_required`, `path_enum`, `api_key`) following the comments at the top of the file and the spec's parameter description. Then add the id to every path-`provider` enum, API-key id list and `*_credentials_required` list under `skills/` that `provider-enum` reports. Never add a vendor name to prose: public text does not list house-key or BYOK vendors by name or state a path's vendor order (`no-vendor-lists` fails the PR); contract ids stay in inline code. Say in your summary which fields you inferred, so a human can confirm them.
   - **Removed id:** don't delete the entry. Set `path_enum: false`, remove the id from path-`provider` enum lists under `skills/`, and say in your summary that a human must confirm the removal, because it may be a spec mistake.
-- `README.md`, `CONVENTIONS.md` and `SECURITY.md`: only the BYOK / house-key provider lists that `provider-enum` checks, after a provider change. Edit nothing else in these files.
 - `CHANGELOG.md`: add lines under `## Unreleased` only, in the style of the existing entries (``- `<skill>` skill <new version>: <what changed>.``). Never change a released `## [YYYY.MM.DD.N]` section.
 
 Do not edit:
 
 - `scripts/validate/fixtures/openapi-inventory.yaml`, `skills/api/references/pricing.md` or anything under `api-sync/`. The workflow generates them and overwrites any edit.
-- Any other file under `scripts/`, `test/`, `templates/` or `.github/`, `package.json`, `package-lock.json`, `CONTRIBUTING.md` or `DISCLAIMER.md`, and anything in `README.md`, `CONVENTIONS.md` or `SECURITY.md` other than those provider lists. If one of them needs a change, leave it and name the file and line in your summary.
+- Any other file under `scripts/`, `test/`, `templates/` or `.github/`, `package.json`, `package-lock.json`, `CONTRIBUTING.md` or `DISCLAIMER.md`, `README.md`, `CONVENTIONS.md` or `SECURITY.md`. If one of them needs a change, leave it and name the file and line in your summary.
 - Don't create a new skill folder. When a new capability operation appears (a new `POST /v1/<subject>/<capability>`), add its map row and say `New capability skill needed: <METHOD /path> (<tool>)` in your summary.
 
 ## Prices

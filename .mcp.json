@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "kingminos": {
+      "type": "http",
+      "url": "https://mcp.kingminos.com/mcp"
+    }
+  }
+}

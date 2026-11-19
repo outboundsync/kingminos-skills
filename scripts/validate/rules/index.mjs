@@ -11,6 +11,7 @@ import links from './links.mjs';
 import linksEscapeSkill from './links-escape-skill.mjs';
 import metadata from './metadata.mjs';
 import noHandTypedPrices from './no-hand-typed-prices.mjs';
+import noVendorLists from './no-vendor-lists.mjs';
 import outputContract from './output-contract.mjs';
 import placeholderLinkedinLinks from './placeholder-linkedin-links.mjs';
 import pricingReferenceGenerated from './pricing-reference-generated.mjs';
@@ -37,6 +38,7 @@ export const rules = [
   apiSyncSnapshot,
   pricingReferenceGenerated,
   noHandTypedPrices,
+  noVendorLists,
   brand,
   links,
   linksEscapeSkill,

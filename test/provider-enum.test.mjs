@@ -234,3 +234,24 @@ paths:
   const found = diags({}, { KINGMINOS_OPENAPI_PATH: specPath });
   assert.equal(found.some((d) => /prospeo/.test(d.msg) && /OpenAPI inventory/.test(d.msg)), true);
 });
+
+test('provider-enum: README, CONVENTIONS, SECURITY, and SKILL.md need no prose vendor list', () => {
+  const generic = 'House-key vs BYOK vendors come from `GET /v1/credentials`; BYOK vendors are the items with `house_managed: false`.';
+  const found = diags({
+    'CONVENTIONS.md': `- ${generic}\n`,
+    'SECURITY.md': `# Security\n\n## Vendor key policy\n\n- ${generic}\n`,
+    'README.md': `${readmeFor(['demo', 'credentials', 'company-resolve'])}\n${generic}\n`,
+    'skills/credentials/SKILL.md': skillMd({
+      name: 'credentials',
+      extraFrontmatter: 'compatibility: Requires KINGMINOS_API_KEY.\n',
+      description: 'List vendor Your Keys. Use when the user asks to list credentials.',
+      body: `## Workflow\n\n- · ${generic}\n\n## Output contract\n\n### Shape\n\n- x\n`,
+    }),
+  });
+  assert.deepEqual(found, []);
+});
+
+test('provider-enum: the contract lists in the credentials reference are still required', () => {
+  const found = diags({ 'skills/credentials/references/endpoints.md': '## Path `provider`\n\nBYOK and house-key: see `GET /v1/credentials`.\n' });
+  assert.equal(found.some((d) => d.file === 'skills/credentials/references/endpoints.md' && /Path `provider` enum/.test(d.msg)), true);
+});
