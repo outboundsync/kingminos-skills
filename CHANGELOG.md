@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+- CHANGELOG history no longer names vendors in lists or states a path's vendor lookup order; `no-vendor-lists` now scans CHANGELOG.md too. The rule's tests use made-up vendor names.
+
 ## [2026.11.19.0] - 2026-11-19
 
 - Claude Code plugin: `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` make this repo a one-plugin marketplace (`/plugin marketplace add outboundsync/kingminos-skills`, then `/plugin install kingminos@kingminos`). The plugin ships every skill plus `.mcp.json`, which points at the hosted MCP server `https://mcp.kingminos.com/mcp` with no headers: Claude Code signs in through the browser. Each release now sets the plugin `version` to the new CalVer tag along with the CHANGELOG promotion.
@@ -107,7 +109,7 @@
 
 ### Changed
 
-- `person-phone` (1.2.1) and `api` (1.6.3): speed gives LeadMagic a 3 s head start before the cheapest fallbacks race it; accuracy returns exactly one number.
+- `person-phone` (1.2.1) and `api` (1.6.3): speed gives its first source a short head start before cheaper fallbacks race it; accuracy returns exactly one number.
 
 ## [2026.10.14.1] - 2026-10-14
 
@@ -119,13 +121,13 @@
 
 ### Changed
 
-- `person-phone` (1.1.0) and `api` (1.6.1): person.phone is now an agent-managed multi-vendor router (ZoomInfo BYOK, LeadMagic, AI Ark, Findymail, Wiza escalation) with `consensus` / `do_not_call` per phone, `routing.path` modes (speed / balance / accuracy / coverage) and optional `domain`; only vendors behind `best_phone` bill (cap 38, miss 0).
+- `person-phone` (1.1.0) and `api` (1.6.1): person.phone is now an agent-managed multi-vendor router (house-key and BYOK sources) with `consensus` / `do_not_call` per phone, `routing.path` modes (speed / balance / accuracy / coverage) and optional `domain`; only vendors behind `best_phone` bill (cap 38, miss 0).
 
 ## [2026.10.13.0] - 2026-10-13
 
 ### Added
 
-- `person-phone` skill (1.0.0) and `POST /v1/person/phone` (`person_phone`, scope `person.phone`) in the API map: `email` or `linkedin_url` in (name is match-only → `person_mismatch`), `result.best_phone` (E.164, `type`, `source`) plus ranked mobile-first `phones[]` out; `phone_types` (`mobile` | `landline` | `other` | `unknown`) and `max_results` (1–10, default 3); locked Wiza ladder — 38 credits on a hit, 0 on a miss, 30-day cache replays at 0; write only when `answer.safe_to_write.best_phone`. API tenants only (not in `openapi.es.yaml`). `api` 1.6.0 and `auth` 1.1.9 list the new tool (27 resource operations).
+- `person-phone` skill (1.0.0) and `POST /v1/person/phone` (`person_phone`, scope `person.phone`) in the API map: `email` or `linkedin_url` in (name is match-only → `person_mismatch`), `result.best_phone` (E.164, `type`, `source`) plus ranked mobile-first `phones[]` out; `phone_types` (`mobile` | `landline` | `other` | `unknown`) and `max_results` (1–10, default 3); single-source ladder — 38 credits on a hit, 0 on a miss, 30-day cache replays at 0; write only when `answer.safe_to_write.best_phone`. API tenants only (not in `openapi.es.yaml`). `api` 1.6.0 and `auth` 1.1.9 list the new tool (27 resource operations).
 - `person-phone`: output `format` (`e164` default | `international` | `national` | `digits` | `digits_national`) and per-phone `formats`, `country_code`, `calling_code`, `line_type`, `sources`, `confidence`, `flags`, `safe_to_write` — the free verification layer (libphonenumber validity, junk / not-direct-dial / switchboard drop, country consistency, cross-source agreement).
 
 ### Fixed
@@ -155,7 +157,7 @@
 
 ### Changed
 
-- `company.icon` (`company-icon`, `api`, `credentials`): resolve site manifest icons, apple-touch-icon, and favicon (best first), then Brandfetch and ZoomInfo brand logos; validate, store, and re-host the best as `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**) in `result.icon_url`, with optional `result.icon_source_url`; under-64px sources still hit with `confidence` low and `flags.low_res` true while `safe_to_write.icon_url` stays true; wrong-company/junk/empty reject or fetch/store failure is `no_decision` with `icon_url` null; client request is domain plus optional `name` (routing/path/preset ignored); Brandfetch/ZoomInfo BYOK still applies on the ladder; CRM tip to allowlist `logos.kingminos.com` once.
+- `company.icon` (`company-icon`, `api`, `credentials`): resolve site manifest icons, apple-touch-icon, and favicon (best first), then vendor brand logos; validate, store, and re-host the best as `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**) in `result.icon_url`, with optional `result.icon_source_url`; under-64px sources still hit with `confidence` low and `flags.low_res` true while `safe_to_write.icon_url` stays true; wrong-company/junk/empty reject or fetch/store failure is `no_decision` with `icon_url` null; client request is domain plus optional `name` (routing/path/preset ignored); BYOK still applies on the ladder; CRM tip to allowlist `logos.kingminos.com` once.
 
 ## [2026.10.08.7] - 2026-10-08
 
@@ -199,7 +201,7 @@
 
 ### Added
 
-- `company-description` skill: `POST /v1/company/description` / MCP `company_description` (`company.description`) — paths `speed` / `balance` / `accuracy` / `coverage`, `result.flags` (`hype`, `first_person`, `tagline`, `same_as_speed`), `answer.confidence` + `safe_to_write.description` CRM guidance, winner-only billing, default house site fetch → AI Ark firmographic compose; ZoomInfo firmographic BYOK via `routing.only` only (aligned with [company.description API docs](https://kingminos.com/docs/api/company-description/)).
+- `company-description` skill: `POST /v1/company/description` / MCP `company_description` (`company.description`) — paths `speed` / `balance` / `accuracy` / `coverage`, `result.flags` (`hype`, `first_person`, `tagline`, `same_as_speed`), `answer.confidence` + `safe_to_write.description` CRM guidance, winner-only billing, house site fetch first, then a firmographic compose; BYOK firmographics via `routing.only` only (aligned with [company.description API docs](https://kingminos.com/docs/api/company-description/)).
 
 ## [2026.10.07.7] - 2026-10-07
 
@@ -217,7 +219,7 @@
 
 ### Added
 
-- `company-icon` skill: `POST /v1/company/icon` / MCP `company_icon` (`company.icon`) — live HTTPS `icon_url`, default ladder house favicon-fetch (0 credits) → Brandfetch BYOK (1, soft-fail and continue) → ZoomInfo enrich logo (1); Enrich-CRM, AI Ark, LeadMagic, and Prospeo are not icon sources; no R2/D1 cache URLs. `brandfetch` BYOK in `providers.yaml` (alongside Enrich-CRM).
+- `company-icon` skill: `POST /v1/company/icon` / MCP `company_icon` (`company.icon`) — live HTTPS `icon_url`, default ladder starts with the house favicon fetch (0 credits) before paid logo sources; no R2/D1 cache URLs. A logo-vendor BYOK entry in `providers.yaml`.
 
 ## [2026.10.07.2] - 2026-10-07
 
@@ -229,7 +231,7 @@
 
 ### Added
 
-- `company-b2b-social` skill: `POST /v1/company/b2b-social` / MCP `company_b2b_social` — paths, Serper-verified `result.linkedin_url`, house AI Ark on default `balance` stack (aligned with live OpenAPI).
+- `company-b2b-social` skill: `POST /v1/company/b2b-social` / MCP `company_b2b_social` — paths, web-verified `result.linkedin_url` (aligned with live OpenAPI).
 - Document hosted MCP at `https://mcp.kingminos.com` (same Bearer tool inventory as REST); remove stale “MCP not shipped” / “do not invent mcp.kingminos.com” copy.
 - Lychee: [`.lychee.toml`](.lychee.toml) excludes template LinkedIn company URLs; `placeholder-linkedin-links` validate rule; CONTRIBUTING guidance on backticks vs Markdown links.
 
@@ -237,7 +239,7 @@
 
 ### Added
 
-- AI Ark house-key (resale cleared): `aiark` is `supply: house_key` in the hermetic provider inventory alongside LeadMagic, Wiza, and Findymail; tenant Your Keys remain optional. Policy copy notes `company.b2b_social` may use house AI Ark via `routing.only: ["aiark"]`. ZoomInfo and BuiltWith stay BYOK.
+- A house-key vendor moved from BYOK to `supply: house_key` in the hermetic provider inventory (resale cleared); tenant Your Keys remain optional. Policy copy notes `company.b2b_social` may use it via `routing.only: ["aiark"]`.
 
 ## [2026.10.06.3] - 2026-10-06
 
@@ -271,7 +273,7 @@
 
 ### Added
 
-- Apollo BYOK support: `apollo` is a storable API-key vendor and an off-path `company.resolve` firmographic hop (`GET /organizations/enrich`) forceable via `routing.only: ["apollo"]`. Adds `apollo_credentials_required`. Also corrects the house-key policy copy: house-key = LeadMagic, Wiza, Findymail; BYOK = ZoomInfo, AIArk, BuiltWith, Prospeo, Apollo.
+- A new BYOK API-key vendor: an off-path `company.resolve` firmographic hop forceable via `routing.only: ["apollo"]`, with `apollo_credentials_required`. Also corrects the house-key policy copy; the live split comes from `GET /v1/credentials` (`house_managed`).
 
 ## [2026.10.05.1] - 2026-10-05
 

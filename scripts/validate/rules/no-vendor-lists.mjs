@@ -1,4 +1,4 @@
-// Public text (README, CONVENTIONS, SECURITY, every skill file) does not list
+// Public text (README, CONVENTIONS, SECURITY, CHANGELOG, every skill file) does not list
 // house-key or BYOK vendors by name. KingMinos is a router: which vendors sit
 // behind it, which are house-key, and the order a path tries them are product
 // decisions that change, and the live catalog (`GET /v1/credentials`,
@@ -14,7 +14,7 @@
 import { PRICING_REFERENCE } from '../../sync-pricing.mjs';
 import { loadProvidersFixture } from './provider-enum.mjs';
 
-const PUBLIC_DOCS = new Set(['README.md', 'CONVENTIONS.md', 'SECURITY.md']);
+const PUBLIC_DOCS = new Set(['README.md', 'CONVENTIONS.md', 'SECURITY.md', 'CHANGELOG.md']);
 export const LIMIT = 3;
 
 function escapeChar(ch) {
