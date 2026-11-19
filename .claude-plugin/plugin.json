@@ -1,6 +1,6 @@
 {
   "name": "kingminos",
-  "version": "2026.11.18.0",
+  "version": "2026.11.19.0",
   "description": "KingMinos by OutboundSync, the data enrichment router: Agent Skills for company and person enrichment plus the hosted KingMinos MCP server (browser sign-in, no API key to paste).",
   "author": {
     "name": "OutboundSync",
