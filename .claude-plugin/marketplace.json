@@ -1,0 +1,15 @@
+{
+  "name": "kingminos",
+  "owner": {
+    "name": "OutboundSync",
+    "url": "https://outboundsync.com"
+  },
+  "description": "KingMinos by OutboundSync, the data enrichment router, for Claude Code.",
+  "plugins": [
+    {
+      "name": "kingminos",
+      "source": "./",
+      "description": "KingMinos Agent Skills plus the hosted KingMinos MCP server with browser sign-in."
+    }
+  ]
+}

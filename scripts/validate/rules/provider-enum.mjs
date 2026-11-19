@@ -19,14 +19,15 @@ const CREDENTIALS_REQUIRED = /[a-z]+_credentials_required/g;
 const PATH_ID = /`([a-z][a-z0-9_]*)`/g;
 const ROUTING_DEFAULT = /default (?:linear )?order|\[websearch,\s*zoominfo,\s*leadmagic\]|routing\.only|effectiveOrder/i;
 
+// Only API-contract surfaces are required: the path `provider` enum, API-key
+// ids, and `*_credentials_required` codes. Prose house-key / BYOK vendor lists
+// are banned from public text (`no-vendor-lists`), so README, CONVENTIONS,
+// SECURITY, and SKILL.md bodies are no longer required to carry one. Any list
+// that does appear anywhere is still checked for completeness line by line.
 export const REQUIRED_SURFACES = [
-  { file: 'skills/credentials/SKILL.md', kinds: ['policy_table', 'byok'] },
-  { file: 'skills/credentials/references/endpoints.md', kinds: ['path_enum', 'byok', 'credentials_required', 'api_key'] },
-  { file: 'skills/company-resolve/SKILL.md', kinds: ['byok', 'credentials_required'] },
-  { file: 'skills/company-resolve/references/endpoints.md', kinds: ['byok', 'credentials_required'] },
-  { file: 'README.md', kinds: ['byok', 'policy_table'] },
-  { file: 'CONVENTIONS.md', kinds: ['byok'] },
-  { file: 'SECURITY.md', kinds: ['byok'] },
+  { file: 'skills/credentials/references/endpoints.md', kinds: ['path_enum', 'credentials_required', 'api_key'] },
+  { file: 'skills/company-resolve/SKILL.md', kinds: ['credentials_required'] },
+  { file: 'skills/company-resolve/references/endpoints.md', kinds: ['credentials_required'] },
 ];
 
 function escapeRe(value) {
@@ -240,7 +241,9 @@ function classifyLine(line, providers, previous = '', file = '') {
   if (ids.length >= 3 && /\|/.test(line) && !line.trim().startsWith('|')) {
     return { kind: 'Path `provider` enum', expected: pathEnum, present: pathEnum.filter((p) => ids.includes(p.id)) };
   }
-  if (hasByokMarker(line)) {
+  // Generic wording ("BYOK vendors are the catalog items…") names no vendor
+  // and is not a list.
+  if (hasByokMarker(line) && mentionedWindow.length > 0) {
     return { kind: 'BYOK list', expected: byok, present: mentionedWindow };
   }
   if (/Vendor Your Keys \(/i.test(line) && mentioned.filter((p) => p.supply === 'byok').length >= 3) {

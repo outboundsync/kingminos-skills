@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+- Claude Code plugin: `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` make this repo a one-plugin marketplace (`/plugin marketplace add outboundsync/kingminos-skills`, then `/plugin install kingminos@kingminos`). The plugin ships every skill plus `.mcp.json`, which points at the hosted MCP server `https://mcp.kingminos.com/mcp` with no headers: Claude Code signs in through the browser. Each release now sets the plugin `version` to the new CalVer tag along with the CHANGELOG promotion.
+- README: new "Install in Claude Code" section; the hosted MCP URL is `https://mcp.kingminos.com/mcp`; API keys still work for scripts and Salesforce. `npx skills add` instructions are unchanged.
+- `credentials` skill 1.5.0: house-key vs BYOK comes from the live `GET /v1/credentials` catalog (`house_managed`, `status`, `kind`) instead of a vendor list. The House gate passes when every `house_managed: true` item is `managed` or `set`; the House card no longer names a vendor.
+- `company-resolve` skill 1.6.2 and `company-b2b-social` skill 1.3.2: routing notes describe paths without naming vendors or their lookup order. Contract ids (`routing.only` values, `*_credentials_required` codes, `zoominfo_company_id`) are unchanged.
+- Public text no longer lists house-key or BYOK vendors (README, CONVENTIONS, SECURITY, skills). New `no-vendor-lists` validate rule fails a paragraph that names three or more vendors outside inline code. `provider-enum` now requires only the API contract lists (path `provider` enum, API-key ids, `*_credentials_required` codes), and the API sync agent no longer adds vendor names to prose.
+
 ## [2026.11.18.0] - 2026-11-18
 
 - `api` skill 1.15.0: `Idempotency-Key` on every capability POST (conflict, in-flight, spent, replay-unavailable; a free `no_decision` miss is re-run); `X-Router-Max-Provider-Credits`; public `GET /v1/pricing` is the price table and is not a Bearer tool. `company.b2b_social` `hint` turns name→domain on for `speed` / `balance`; the opt-in house Wiza hop bills its own price when it decides. `company.description` leftover first-person / CTA voice misses or is rewritten. `person.phone` `accuracy` withholds a `conflicting_numbers` hit under the default high floor.

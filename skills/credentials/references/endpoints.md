@@ -30,11 +30,11 @@ This skill's default path is `GET /v1/credentials`. Store secrets in the product
 
 ## GET `/v1/credentials` 200
 
-Each item: `provider`, `label`, `kind` (`api_key` \| `oauth`), `status` (`set` \| `managed` \| `unset`), `configured`, `house_managed`, `mask` (nullable). LeadMagic, Wiza, Findymail, and AIArk without a tenant row are `managed` (house key). Other vendors are `unset` until stored. Print `mask` only as returned.
+Each item: `provider`, `label`, `kind` (`api_key` \| `oauth`), `status` (`set` \| `managed` \| `unset`), `configured`, `house_managed`, `mask` (nullable). Items with `house_managed: true` and no tenant row are `managed` (house key). Items with `house_managed: false` are BYOK and stay `unset` until stored. Print `mask` only as returned.
 
 ## PUT bodies (app UI / REST — never chat)
 
-ZoomInfo and Snov.io (required OAuth pair):
+OAuth vendors (`kind: oauth` — `zoominfo`, `snovio`; required pair):
 
 ```json
 { "clientId": "...", "clientSecret": "..." }
@@ -74,8 +74,7 @@ Capability POSTs may return `400` `zi_credentials_required` | `findymail_credent
 
 ## Policy
 
-- **House-key:** LeadMagic, Wiza, Findymail, AIArk (optional tenant store; house AI Ark on default `company.b2b_social` paths — `company-b2b-social`).
-- **BYOK:** ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI.
-- **House-only:** websearch, favicon (`400 validation_failed`, reason `byok_not_supported`). Neither id is on the path `provider` enum.
+- **House-key vs BYOK:** read it from `GET /v1/credentials` (`house_managed`, `status`). This reference does not list vendors by supply.
+- **House-only hops:** rejected on `PUT` (`400 validation_failed`, reason `byok_not_supported`); not on the path `provider` enum.
 - Live credential writes require server-side encryption configured on the API deployment (operator concern — never a skill input).
 - Store secrets at `https://app.kingminos.com`. Never paste a vendor secret into chat.

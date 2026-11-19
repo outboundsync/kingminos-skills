@@ -29,7 +29,7 @@ npm run check:surfaces:live
 
 The inventory is **Bearer-only**. Session/product-app ops (`/v1/auth/*`, `/v1/account/*`) declare no bearer security and are out of scope, and operator routes (`/v1/admin/*`, tagged `admin`) are skipped even when the spec gives them bearer security. `GET /v1/credentials` (`list_credentials`) is in scope. `npm run check:surfaces` in this repo uses the same Bearer-only rule as the live API inventory.
 
-`endpoint-map-*` is route-only. Provider ids (`leadmagic`, `prospeo`, …) live in `providers.yaml`. When KingMinos adds a BYOK vendor, add it there first, then to every credentials / company-resolve / README / CONVENTIONS / SECURITY BYOK list, path-`provider` enum, and `*_credentials_required` list. `provider-enum` fails CI if a list is short.
+`endpoint-map-*` is route-only. Provider ids live in `providers.yaml`. When KingMinos adds a BYOK vendor, add it there first, then to the contract lists in the `credentials` and `company-resolve` references: path-`provider` enum, API-key ids, and `*_credentials_required` codes. `provider-enum` fails CI if a list is short. Public text (README, CONVENTIONS, SECURITY, skills) never lists house-key or BYOK vendors by name or states a path's vendor order; `no-vendor-lists` fails a paragraph that names three or more vendors outside inline code. Point readers to `GET /v1/credentials` (`house_managed`) instead.
 
 The API, product app, and hosted MCP changes for a new vendor land first in the KingMinos service code (the cross-service rollout checklist is maintained there). This repo only takes the `providers.yaml`, skill-copy, and version-bump update above.
 
@@ -49,11 +49,11 @@ CI runs [lychee](https://github.com/lycheeverse/lychee) on `**/*.md` (`.github/w
 2. Write the description: open with a verb, include "Use when the user asks…" with concrete trigger phrases. Keyed skills need a `compatibility:` line that mentions `KINGMINOS_API_KEY` or `api.kingminos.com`. Account-free skills omit that line and end the description with "No KingMinos API key."
 3. Follow [CONVENTIONS.md](CONVENTIONS.md) for output: an `## Output contract` with a `### Shape`, the marks legend, and the status layout for readiness or health checks.
 4. Keep every link inside the skill folder or absolute. `npx skills add` installs one folder, so `../../` links break.
-5. If the skill writes to KingMinos, add a `## Mutations` section naming each REST call (and hosted MCP at `https://mcp.kingminos.com` when the same tool exists), and follow the [write-on-confirm protocol](SECURITY.md#write-on-confirm-protocol). Do not ask the user to paste a vendor secret into chat.
+5. If the skill writes to KingMinos, add a `## Mutations` section naming each REST call (and hosted MCP at `https://mcp.kingminos.com/mcp` when the same tool exists), and follow the [write-on-confirm protocol](SECURITY.md#write-on-confirm-protocol). Do not ask the user to paste a vendor secret into chat.
 6. Add the skill to every README list: the count, its category table, the install commands, and the "try without installing" commands.
 7. Add a line under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md).
 8. Teach only Bearer resource operations that `GET https://api.kingminos.com/openapi.yaml` exposes today. Those operations belong in `skills/api/references/endpoints.md` (METHOD /path → snake_case tool). Do not invent endpoints or tools outside that map. Do not add session/product-app ops or `/v1/admin/*` operator routes. `npm run check:surfaces` (fixture) must stay green.
-9. When KingMinos adds a credentials / BYOK provider, add it to `scripts/validate/fixtures/providers.yaml` before listing it in skills. The OpenAPI fixture's path-`provider` enum comes from the live spec through [API sync](#api-sync); don't edit the fixture by hand. `provider-enum` fails if a BYOK list, path enum, or `*_credentials_required` line is short.
+9. When KingMinos adds a credentials / BYOK provider, add it to `scripts/validate/fixtures/providers.yaml` before adding its id to the contract lists. The OpenAPI fixture's path-`provider` enum comes from the live spec through [API sync](#api-sync); don't edit the fixture by hand. `provider-enum` fails if a path enum, API-key id list, or `*_credentials_required` line is short.
 
 ## API sync
 

@@ -43,6 +43,8 @@ pr_token="${RELEASE_PR_TOKEN:-}"
 
 git switch --quiet -c "$branch"
 git add CHANGELOG.md
+# release-calver.mjs --apply also sets the Claude Code plugin version to the tag.
+if [ -f .claude-plugin/plugin.json ]; then git add .claude-plugin/plugin.json; fi
 git commit --quiet -m "$subject"
 
 git fetch --quiet origin main

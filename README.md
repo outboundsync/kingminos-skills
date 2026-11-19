@@ -2,7 +2,7 @@
 
 Website: [kingminos.com](https://kingminos.com/) · Docs: [kingminos.com/docs](https://kingminos.com/docs)
 
-Public [Agent Skills](https://agentskills.io) for **KingMinos by OutboundSync** — installable with [`npx skills`](https://github.com/vercel-labs/skills) in **Cursor**, **Claude Code**, and **Codex**.
+Public [Agent Skills](https://agentskills.io) for **KingMinos by OutboundSync**, the data enrichment router — installable as a **Claude Code plugin** or with [`npx skills`](https://github.com/vercel-labs/skills) in **Cursor**, **Claude Code**, and **Codex**.
 
 Say **King Minos** out loud. Write **KingMinos**. This pack teaches the live enrichment API at [`https://api.kingminos.com`](https://api.kingminos.com) (`GET /health` returns HTTP 200 JSON with `"ok": true` plus `service` / `version` / `git_sha`; contract: `GET /openapi.yaml`, also `/openapi.json`).
 
@@ -21,9 +21,9 @@ The pack ships **18** skills.
 | `company-resolve` | [`skills/company-resolve/`](skills/company-resolve/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/resolve` — email/domain/website in, one `answer` back; stamp id on `es_decision=hit` + non-blank `zoominfo_company_id`; use `answer.confidence` + user acceptance per [guidance](https://api.kingminos.com/v1/recipes/guidance) |
 | `company-b2b-social` | [`skills/company-b2b-social/`](skills/company-b2b-social/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/b2b-social` — search-verified LinkedIn `https://www.linkedin.com/company/{slug}` or null; paths `speed` / `balance` / `accuracy` / `coverage` |
 | `company-icon` | [`skills/company-icon/`](skills/company-icon/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/icon` (`company.icon`) — pick the best company icon and re-host it at `https://logos.kingminos.com/i/{sha256}.png` (**256x256 PNG**); optional `icon_source_url`; domain + optional `name`; low-res hits return `confidence` low + `flags.low_res` (default floor `low`); optional `min_confidence` |
-| `company-description` | [`skills/company-description/`](skills/company-description/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/description` (`company.description`) — paths `speed` / `balance` / `accuracy` / `coverage`; ZoomInfo runs only with your own key; flags incl. `truncated` / `cta` / `grammar` (informational); send `path` explicitly (recommended — an omitted path runs balance at the capability ceiling, not the `balance` cap); stamp when non-blank text and `answer.confidence` meets path/`min_confidence` floor; winner-only billing |
+| `company-description` | [`skills/company-description/`](skills/company-description/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/description` (`company.description`) — paths `speed` / `balance` / `accuracy` / `coverage`; some sources run only with your own vendor key; flags incl. `truncated` / `cta` / `grammar` (informational); send `path` explicitly (recommended — an omitted path runs balance at the capability ceiling, not the `balance` cap); stamp when non-blank text and `answer.confidence` meets path/`min_confidence` floor; winner-only billing |
 | `webhooks` | [`skills/webhooks/`](skills/webhooks/) | Yes (`KINGMINOS_API_KEY`) | Register webhook endpoints, verify `KingMinos-Signature`, inspect deliveries, replay after fixes, read the `GET /v1/events` log; active events `run.failed` / `run.recovered` / `test.ping` |
-| `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. LeadMagic, Wiza, Findymail, and AIArk are house-key; ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are BYOK |
+| `credentials` | [`skills/credentials/`](skills/credentials/) | Yes (`KINGMINOS_API_KEY`) | List Your Keys via `GET /v1/credentials`; revoke after confirm. Store secrets at `https://app.kingminos.com`. Tells house-key vendors (no tenant key needed) from BYOK vendors using the live catalog |
 | `company-domain` | [`skills/company-domain/`](skills/company-domain/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/domain` (`company.domain`) — trusted domain stamp + write-safe aliases (`additional_domains` / `additional_domains_csv`, including cross-domain redirect targets with proof `redirect`); branch on `answer.outcome` / `es_decision`; stamp when trusted outcome + non-blank domain and `answer.confidence` meets path/`min_confidence` floor |
 | `company-hierarchy` | [`skills/company-hierarchy/`](skills/company-hierarchy/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/company/hierarchy` — immediate / ultimate parent + capped subsidiaries; `speed` is free; the hierarchy lookup bills on the first `FULL_MATCH` only; `coverage` is `400` |
 | `person-verify-employment` | [`skills/person-verify-employment/`](skills/person-verify-employment/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/verify-employment` — four-way send/block pre-flight (`high_confidence_send` … `high_confidence_block`); email validation + job-change; paths `speed`/`balance`/`accuracy` only |
@@ -35,9 +35,26 @@ The pack ships **18** skills.
 | `person-email` | [`skills/person-email/`](skills/person-email/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/person/email` (`person.email`) — a person's verified work email from name + company domain and/or a LinkedIn URL; API tenants only; no guessed patterns; `found` / `not_found` / `conflict` / `catch_all`; outcome-priced per path on a delivered email, 0 otherwise; write when `answer.outcome` is `found` and `answer.confidence` meets path/`min_confidence` floor; chain `email-verify` for extra assurance |
 | `email-verify` | [`skills/email-verify/`](skills/email-verify/) | Yes (`KINGMINOS_API_KEY`) | `POST /v1/email/verify` (`email.verify`) — is this mailbox deliverable: `valid` / `invalid` / `catch_all` / `unknown` plus mailbox flags; API tenants only; `email` is the only input; free local checks first; outcome-priced per path on a delivered vendor `valid` / `invalid`, 0 on `catch_all`, `unknown`, a local `invalid` or a withhold |
 
-REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com` — same Bearer token and snake_case tool inventory as the `api` map. Session/product-app ops are out of scope. Do not invent tools outside that map.
+REST: `https://api.kingminos.com`. Hosted MCP: `https://mcp.kingminos.com/mcp` — same snake_case tool inventory as the `api` map. MCP clients that support OAuth (Claude Code, Claude.ai, ChatGPT / Codex, Cursor, and others) sign in in the browser; scripts and other clients send the same Bearer API key as REST. Session/product-app ops are out of scope. Do not invent tools outside that map.
 
-## Install (primary — Cursor, Claude Code, Codex)
+## Install in Claude Code
+
+Add this repo as a plugin marketplace, then install the `kingminos` plugin:
+
+```text
+/plugin marketplace add outboundsync/kingminos-skills
+/plugin install kingminos@kingminos
+```
+
+On recent Claude Code versions one line does both: `/plugin install kingminos --marketplace outboundsync/kingminos-skills`.
+
+The plugin ships every skill in the table above plus the hosted KingMinos MCP server (`https://mcp.kingminos.com/mcp`). There is no API key to paste: the first time a KingMinos tool runs, Claude Code opens your browser to sign in to KingMinos. If it doesn't prompt you, run `/mcp`, pick `kingminos`, and choose **Authenticate**.
+
+API keys still work. Use `KINGMINOS_API_KEY` (see [Credentials](#credentials)) for scripts, CI, direct REST calls, and Salesforce (SFDC Named Credentials).
+
+Update with `/plugin marketplace update kingminos`.
+
+## Install with `npx skills` (Cursor, Claude Code, Codex)
 
 Same installer as the OutboundSync skills pack — different GitHub repo, different skill names:
 
@@ -115,34 +132,12 @@ Or put the same variable in a gitignored `.env` (see [`.env.example`](.env.examp
 - `403` `scope_denied` = the token lacks this capability scope. `429` `key_budget_exhausted` = the token's daily credit cap was hit.
 - SFDC Named Credential / Custom auth: Auth Parameters do **not** leave SFDC. Add a Custom Header named `Authorization` (Allow Formulas ON if the value is a formula).
 
-**Vendor Your Keys** (not the KingMinos Bearer token) — store them in the app UI. **Never paste a vendor secret into chat.**
+**Vendor Your Keys** (not the KingMinos Bearer token) — store them in the app UI at `https://app.kingminos.com` (Vendor keys / Your Keys). **Never paste a vendor secret into chat.**
 
-| Vendor | How the key is supplied |
-| --- | --- |
-| LeadMagic | House-key by default (OutboundSync-provided). Tenant store is optional, not required. |
-| Findymail | House-key (approved; OutboundSync-provided). Tenant store is optional. |
-| ZoomInfo | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
-| Brandfetch | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys); `company.icon` source (stamp re-hosted on logos.kingminos.com) |
-| Wiza | House-key (approved; OutboundSync-provided). Tenant store is optional. |
-| AIArk | House-key (approved; OutboundSync-provided). Tenant store is optional. |
-| BuiltWith | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
-| Prospeo | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
-| Apollo | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
-| Company URL Finder | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
-| People Data Labs | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
-| HG Insights | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
-| Enrich-CRM | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
-| Lemlist | BYOK — store at `https://app.kingminos.com` (Vendor keys / Your Keys) |
-| Snov.io | BYOK — OAuth (client ID + secret). Store at `https://app.kingminos.com` (Vendor keys / Your Keys). Credential vendor only — no routing hop yet |
-| Cognism | BYOK — API key. Store at `https://app.kingminos.com` (Vendor keys / Your Keys). Credential vendor only — no routing hop yet |
-| Lusha | BYOK — API key. Store at `https://app.kingminos.com` (Vendor keys / Your Keys). Credential vendor only — no routing hop yet |
-| Starbridge | BYOK — API key. Store at `https://app.kingminos.com` (Vendor keys / Your Keys). Credential vendor only — no routing hop yet |
-| Clay | BYOK — API key. Store at `https://app.kingminos.com` (Vendor keys / Your Keys). Credential vendor only — no routing hop yet |
-| Databar | BYOK — API key. Store at `https://app.kingminos.com` (Vendor keys / Your Keys). Credential vendor only — no routing hop yet |
-| QuickEnrich | BYOK — API key. Store at `https://app.kingminos.com` (Vendor keys / Your Keys). Credential vendor only — no routing hop yet |
-| GetLeads | BYOK — API key. Store at `https://app.kingminos.com` (Vendor keys / Your Keys). Credential vendor only — no routing hop yet |
-| BlitzAPI | BYOK — API key. Store at `https://app.kingminos.com` (Vendor keys / Your Keys). Credential vendor only — no routing hop yet |
-| websearch | House-only. `PUT` is `byok_not_supported`. |
+- **House-key** vendors are OutboundSync-provided. They work without a tenant key; storing your own is optional.
+- **BYOK** (bring your own key) vendors run only after you store your key for that vendor. A call that needs one you have not stored returns `400` with a `*_credentials_required` code naming the vendor.
+- **House-only** hops can't take a tenant key (`PUT` returns `byok_not_supported`).
+- `GET /v1/credentials` (or the `credentials` skill) shows which is which for your workspace (`house_managed`) and what you have stored.
 
 `GET /v1/credentials` lists `status` (`set` \| `managed` \| `unset`) and never echoes the raw vendor key.
 

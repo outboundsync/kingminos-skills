@@ -61,13 +61,10 @@ A hit without a primary company id is `resolved_without_primary_id`. Connect you
 
 ## Routing (live Worker)
 
-- Default order: `[websearch, zoominfo, leadmagic]`, `allow_fallbacks`, `free_first: false`
-- `auto`: Wiza then Findymail only after a websearch miss/junk reject
-- `value`: cheap names; no Wiza / Findymail
-- `accuracy` / `coverage`: deeper corroboration / fill
-- AIArk / Prospeo / Apollo / People Data Labs / HG Insights / Enrich-CRM / Lemlist: registered, **not** on default paths
-- House-key vendors: **LeadMagic, Wiza, Findymail, AIArk** (AI Ark on default `company.b2b_social` `balance` path — see `company-b2b-social`)
-- BYOK: ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, BlitzAPI, Company URL Finder — resolve uses ZoomInfo/BuiltWith/Prospeo/Apollo/People Data Labs/HG Insights/Enrich-CRM/Lemlist; Brandfetch is `company.icon` (`company-icon`); Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are credential vendors only (no hop); Company URL Finder is `company.domain` / name→domain only (`routing.only: ["companyurlfinder"]`, not `POST /v1/company/resolve`)
+- Paths: `auto` (default), `value` (cheap names; no paid name-recovery hops), `accuracy` / `coverage` (deeper corroboration / fill). The order of vendors on each path is server-side and can change; read `sources` / `trace` on a response for what ran.
+- Some registered vendors are not on any default path and run only when named in `routing.only` (ids from the `credentials` path `provider` enum).
+- House-key vs BYOK: from `GET /v1/credentials` (`house_managed`). A BYOK vendor a path needs but the tenant has not stored returns `400` `*_credentials_required`.
+- `companyurlfinder` is `company.domain` / name→domain only (`company-domain`), not `POST /v1/company/resolve`. Icon sources belong to `company.icon` (`company-icon`).
 - `websearch`: house-only
 
 ## Errors (run not started)

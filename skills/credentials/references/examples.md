@@ -10,27 +10,22 @@ Illustrative only. Never a real key, client secret, or customer.
 Overall   ████████████████████  3/3 · ready
 
 Auth      ████████████████████  ✓ ready
-House     ████████████████████  ✓ LeadMagic managed
+House     ████████████████████  ✓ house-key ready
 BYOK      ████████████████████  ✓ ready
 ```
 
 ### House
-`LeadMagic · managed`
+`house_managed: true · 2 vendors`
 
-- ✓ leadmagic managed — house-key by default; tenant key optional
+- ✓ house-key vendors managed or set — tenant key optional
 - · mask — null
 
 ### BYOK
 `catalog`
 
 - ✓ zoominfo set
-- · findymail managed — house-key
-- · wiza managed — house-key
-- · aiark managed — house-key
 - · builtwith unset
-- · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are BYOK
-- · LeadMagic, Wiza, Findymail, and AIArk are house-key (tenant Your Keys optional)
-- · websearch and favicon are house-only (`400 validation_failed`, reason `byok_not_supported`)
+- · BYOK vendors are the catalog items with `house_managed: false`; house-key vendors (`house_managed: true`) need no tenant key
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
 ## Failing — ZoomInfo BYOK unset
@@ -41,22 +36,21 @@ BYOK      ████████████████████  ✓ read
 Overall   █████████████░░░░░░░  2/3 · not ready
 
 Auth      ████████████████████  ✓ ready
-House     ████████████████████  ✓ LeadMagic managed
+House     ████████████████████  ✓ house-key ready
 BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ missing zoominfo
 ```
 
 ### House
-`LeadMagic · managed`
+`house_managed: true · 2 vendors`
 
-- ✓ leadmagic managed — house-key by default; tenant key optional
+- ✓ house-key vendors managed or set — tenant key optional
 - · mask — null
 
 ### BYOK
 `zoominfo`
 
 - ✗ zoominfo unset
-- · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are BYOK
-- · websearch and favicon are house-only (`400 validation_failed`, reason `byok_not_supported`)
+- · BYOK vendors are the catalog items with `house_managed: false`; house-key vendors (`house_managed: true`) need no tenant key
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
 ### Next
@@ -71,22 +65,21 @@ BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ miss
 Overall   █████████████░░░░░░░  2/3 · not ready
 
 Auth      ████████████████████  ✓ ready
-House     ████████████████████  ✓ LeadMagic managed
+House     ████████████████████  ✓ house-key ready
 BYOK      ░░░░░░░░░░░░░░░░░░░░  ✗ missing zoominfo
 ```
 
 ### House
-`LeadMagic · managed`
+`house_managed: true · 2 vendors`
 
-- ✓ leadmagic managed — house-key by default; tenant key optional
+- ✓ house-key vendors managed or set — tenant key optional
 - · mask — null
 
 ### BYOK
 `zoominfo`
 
 - ✗ zoominfo credential_rejected — vendor rejected the key; nothing was stored
-- · ZoomInfo, BuiltWith, Brandfetch, Prospeo, Apollo, Company URL Finder, People Data Labs, HG Insights, Enrich-CRM, Lemlist, Snov.io, Cognism, Lusha, Starbridge, Clay, Databar, QuickEnrich, GetLeads, and BlitzAPI are BYOK
-- · websearch and favicon are house-only (`400 validation_failed`, reason `byok_not_supported`)
+- · BYOK vendors are the catalog items with `house_managed: false`; house-key vendors (`house_managed: true`) need no tenant key
 - · Store or rotate secrets at https://app.kingminos.com (Vendor keys / Your Keys). Never paste a vendor secret into chat.
 
 ### Next
@@ -106,7 +99,7 @@ BYOK      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  · unver
 ```
 
 ### House
-`LeadMagic · unverified`
+`house_managed: true · unverified`
 
 - · UNVERIFIED — timeout
 
